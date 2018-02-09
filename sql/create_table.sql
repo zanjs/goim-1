@@ -6,7 +6,7 @@ CREATE TABLE device (
 	model thinint NOT NULL COMMENT "机型",
 	version CHAR (10) NOT NULL COMMENT "设备版本",
 	account_id BIGINT UNSIGNED NOT NULL COMMENT "账户id",
-	online_state thinint UNSIGNED NOT NULL "在线状态",
+	online_state thinint UNSIGNED NOT NULL "在线状态，0：不在线；1：在线",
 	create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT "创建时间",
 	update_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "更新时间",
 	PRIMARY KEY pk_id (id),
@@ -59,7 +59,7 @@ CREATE TABLE grop_account (
 	INDEX idx_account_id (account_id)
 ) ENGINE = INNODB DEFAULT CHARSET = utf8 COMMENT "群组成员";
 
-CREATE TABLE message (
+CREATE TABLE message1 (
 	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT "自增主键",
 	sender BIGINT UNSIGNED NOT NULL COMMENT "发送者账户id",
 	receiver BIGINT UNSIGNED NOT NULL COMMENT "接收者账户id",
@@ -70,6 +70,5 @@ CREATE TABLE message (
 	create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT "创建时间",
 	update_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "更新时间",
 	PRIMARY KEY pk_id (id),
-	UNIQUE INDEX uk_grop_id (grop_id),
-	INDEX idx_account_id (account_id)
-) ENGINE = INNODB DEFAULT CHARSET = utf8 COMMENT "群组成员";
+	INDEX idx_receiver_sync_key (receiver,sync_key)
+) ENGINE = INNODB DEFAULT CHARSET = utf8 COMMENT "消息";
