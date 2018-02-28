@@ -1,0 +1,44 @@
+syntax = "proto3";
+package packagename;
+
+//设备上线
+message DeveiceLogon {
+    uint32 deveiceId = 1; //设备id
+    uint32 token = 2; //设备token
+}
+
+//消息发送
+message MessageSend {
+    uint32 msgId = 1;
+    uint32 receiverType = 2; //接收者类型，0：user;1:group
+    uint64 receiver = 3; //接收者id
+    uint32 type = 4; //消息类型
+    bytes content = 5; //消息内容
+}
+
+//消息发送回执
+message SendMessageACK {
+    uint32 msgId = 1;
+}
+
+//投递消息
+message Message {
+    uint64 sender = 1; //发送者userId
+    uint64 receiver = 2; //接收者userId
+    uint64 groupId = 3; //接收群组id
+    uint32 type = 4;    //消息类型
+    bytes content = 5;  //消息内容
+    uint64 syncKey = 6; //同步序号
+}
+
+//投递消息收到回执
+message MessageACk {
+    uint64 deveiceId = 1;
+    uint64 syncKeyACK = 2;
+}
+
+//同步出发
+message syncReq {
+    uint64 deveiceId = 1;
+    uint64 syncKeyLocal = 2;
+}
