@@ -14,7 +14,6 @@ message MessageSend {
     uint64 receiver = 3; //接收者id
     uint32 type = 4; //消息类型
     bytes content = 5; //消息内容
-
 }
 
 //消息发送回执
