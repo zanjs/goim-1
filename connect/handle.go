@@ -7,9 +7,10 @@ import (
 
 // ConnContext 连接上下文
 type ConnContext struct {
+	ID       interface{}
 	Conn     net.Conn
 	Info     interface{} // 附加信息
-	Headbeat time.Time   // 心跳时间
+	Headbeat time.Time   // 上次心跳时间
 }
 
 // Message 消息

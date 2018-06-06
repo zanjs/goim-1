@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"log"
-	"encoding/binary"
 )
 
 // Conf server配置文件
@@ -56,49 +55,19 @@ func (t *TCPServer) Accept(listener net.Listener) {
 
 // DoConn 处理连接请求
 func (t *TCPServer) DoConn(conn net.Conn) {
-	var (
-		buffer     = newBuffer(conn, t.Conf.BufferLen) // 接收消息的buffer
-		typeBuf    []byte                              // 数据类型存储字节
-		lenBuf     []byte                              // 数据库所占字节数存储字节
-		valueType  int                                 // 数据类型
-		valueLen   int                                 // 数据内容长度
-		valueBuf   []byte                              // 数据内容buffer
-		typeLenLen = t.Conf.TypeLen + t.Conf.LenLen    // 数据类型+数据长度 长度
-	)
+	codec := newCodec(conn, t.Conf.BufferLen, t.Conf.TypeLen, t.Conf.LenLen)
+
 	connContext := &ConnContext{Conn: conn}
 	t.Handler.OnConnect(connContext)
 	for {
-		_, err := buffer.readFromReader()
+		_, err := codec.read()
 		if err != nil {
-			log.Println(err)
-			t.Handler.OnError(connContext, err)
 			return
 		}
 		for {
-			// 读取数据类型
-			typeBuf, err = buffer.seek(0, t.Conf.TypeLen)
-			if err != nil {
-				fmt.Println(err)
-				break
-			}
-
-			// 读取数据长度
-			lenBuf, err = buffer.seek(t.Conf.TypeLen, t.Conf.LenLen)
-			if err != nil {
-				fmt.Println(err)
-				break
-			}
-
-			// 读取数据内容
-			valueType = int(binary.BigEndian.Uint16(typeBuf))
-			valueLen = int(binary.BigEndian.Uint16(lenBuf))
-
-			valueBuf,err = buffer.read(typeLenLen, valueLen)
-			if err!=nil{
-				fmt.Println(valueType)
-				fmt.Println(valueLen)
-				fmt.Println(string(valueBuf))
-				t.Handler.OnMessage(connContext,Message{Code:valueType,Content:valueBuf})
+			message, ok := codec.decode()
+			if ok {
+				fmt.Println(message)
 				continue
 			}
 			break

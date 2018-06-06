@@ -14,9 +14,8 @@ func TestStartServer(t *testing.T) {
 func TestClient(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:50002")
 	if err != nil {
-		//由于目标计算机积极拒绝而无法创建连接
 		fmt.Println("Error dialing", err.Error())
-		return // 终止程序
+		return
 	}
 	var headSize int
 	var headBytes = make([]byte, 2)
