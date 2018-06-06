@@ -1,4 +1,4 @@
-package tcp
+package connect
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestStartServer(t *testing.T) {
-	StartServer("localhost:50002")
+	//StartServer("localhost:50002")
 }
 
 func TestClient(t *testing.T) {
