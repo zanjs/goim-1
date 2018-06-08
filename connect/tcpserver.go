@@ -55,17 +55,17 @@ func (t *TCPServer) Accept(listener net.Listener) {
 
 // DoConn 处理连接请求
 func (t *TCPServer) DoConn(conn net.Conn) {
-	codec := newCodec(conn, t.Conf.BufferLen, t.Conf.TypeLen, t.Conf.LenLen)
+	codec := NewCodec(conn, t.Conf.BufferLen, t.Conf.TypeLen, t.Conf.LenLen)
 
 	connContext := &ConnContext{Conn: conn}
 	t.Handler.OnConnect(connContext)
 	for {
-		_, err := codec.read()
+		_, err := codec.Read()
 		if err != nil {
 			return
 		}
 		for {
-			message, ok := codec.decode()
+			message, ok := codec.Decode()
 			if ok {
 				fmt.Println(message)
 				continue

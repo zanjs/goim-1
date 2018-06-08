@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 )
 
-type codec struct {
+type Codec struct {
 	buffer     buffer // 接收消息的buffer
 	typeBuf    []byte // 数据类型存储字节
 	lenBuf     []byte // 数据库所占字节数存储字节
@@ -18,8 +18,8 @@ type codec struct {
 }
 
 // newCodec 创建一个解码器
-func newCodec(conn net.Conn, bufferLen int, typeLen int, lenLen int) *codec {
-	c := codec{
+func NewCodec(conn net.Conn, bufferLen int, typeLen int, lenLen int) *Codec {
+	c := Codec{
 		buffer:     newBuffer(conn, bufferLen),
 		typeLenLen: typeLen + lenLen,
 	}
@@ -27,12 +27,12 @@ func newCodec(conn net.Conn, bufferLen int, typeLen int, lenLen int) *codec {
 }
 
 // read 从conn里面读取数据，当conn发生阻塞，这个方法也会阻塞
-func (c *codec) read() (int, error) {
+func (c *Codec) Read() (int, error) {
 	return c.buffer.readFromReader()
 }
 
 // decode 解码数据
-func (c *codec) decode() (*Message, bool) {
+func (c *Codec) Decode() (*Message, bool) {
 	var err error
 	// 读取数据类型
 	c.typeBuf, err = c.buffer.seek(0, c.typeLen)
@@ -56,4 +56,11 @@ func (c *codec) decode() (*Message, bool) {
 		return &message, true
 	}
 	return nil, false
+}
+
+func (c *Codec)Eecode(message Message)error{
+	sendBuf:=make([]byte,c.typeLenLen+len(message.Content))
+
+
+
 }

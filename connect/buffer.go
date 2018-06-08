@@ -5,6 +5,10 @@ import (
 	"io"
 )
 
+var (
+	ErrNotEnough = errors.New("not enough")
+)
+
 type buffer struct {
 	reader io.Reader
 	buf    []byte
@@ -48,13 +52,13 @@ func (b *buffer) seek(start, end int) ([]byte, error) {
 		buf := b.buf[start:b.start]
 		return buf, nil
 	}
-	return nil, errors.New("not enough")
+	return nil, ErrNotEnough
 }
 
 // read 舍弃offset个字段，读取n个字段,如果没有足够的字节，返回错误
 func (b *buffer) read(offset, limit int) ([]byte, error) {
 	if b.len() < offset+limit {
-		return nil, errors.New("not enough")
+		return nil, ErrNotEnough
 	}
 	b.start += offset
 	buf := b.buf[b.start : b.start+limit]

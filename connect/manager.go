@@ -4,11 +4,11 @@ import "sync"
 
 var manager sync.Map
 
-func Add(key string, ctx ConnContext) {
+func Add(key interface{}, ctx ConnContext) {
 	manager.Store(key, ctx)
 }
 
-func Get(key string) (*ConnContext, bool) {
+func Get(key interface{}) (*ConnContext, bool) {
 	value, ok := manager.Load(key)
 	if ok {
 		ctx := value.(ConnContext)
@@ -17,13 +17,13 @@ func Get(key string) (*ConnContext, bool) {
 	return nil, false
 }
 
-func Delete(key string) {
+func Delete(key interface{}) {
 	manager.Delete(key)
 }
 
-func Range(f func(key string, ctx ConnContext) bool) {
+func Range(f func(key interface{}, ctx ConnContext) bool) {
 	manager.Range(func(key, value interface{}) bool {
-		f(key.(string), value.(ConnContext))
+		f(key, value.(ConnContext))
 		return true
 	})
 }
