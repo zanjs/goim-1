@@ -26,12 +26,12 @@ func NewCodec(conn net.Conn, bufferLen int, typeLen int, lenLen int) *Codec {
 	return &c
 }
 
-// read 从conn里面读取数据，当conn发生阻塞，这个方法也会阻塞
+// Read 从conn里面读取数据，当conn发生阻塞，这个方法也会阻塞
 func (c *Codec) Read() (int, error) {
 	return c.buffer.readFromReader()
 }
 
-// decode 解码数据
+// Decode 解码数据
 func (c *Codec) Decode() (*Message, bool) {
 	var err error
 	// 读取数据类型
@@ -58,6 +58,7 @@ func (c *Codec) Decode() (*Message, bool) {
 	return nil, false
 }
 
+// Eecode 编码数据
 func (c *Codec)Eecode(message Message)error{
 	sendBuf:=make([]byte,c.typeLenLen+len(message.Content))
 
