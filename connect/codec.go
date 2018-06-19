@@ -1,8 +1,8 @@
 package connect
 
 import (
-	"net"
 	"encoding/binary"
+	"net"
 )
 
 type Codec struct {
@@ -59,9 +59,7 @@ func (c *Codec) Decode() (*Message, bool) {
 }
 
 // Eecode 编码数据
-func (c *Codec)Eecode(message Message)error{
-	sendBuf:=make([]byte,c.typeLenLen+len(message.Content))
-
-
+func (c *Codec) Eecode(message Message) error {
+	sendBuf := make([]byte, c.typeLenLen+len(message.Content))
 
 }

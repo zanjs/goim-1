@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-func TestSlice(t *testing.T){
+func TestSlice(t *testing.T) {
 
 }
-

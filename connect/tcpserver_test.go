@@ -1,10 +1,10 @@
 package connect
 
 import (
-	"testing"
-	"net"
-	"fmt"
 	"encoding/binary"
+	"fmt"
+	"net"
+	"testing"
 )
 
 func TestStartServer(t *testing.T) {

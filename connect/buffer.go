@@ -32,14 +32,14 @@ func (b *buffer) grow() {
 	}
 	copy(b.buf, b.buf[b.start:b.end])
 	b.end -= b.start
-	b.start = 0;
+	b.start = 0
 }
 
 // readFromReader 从reader里面读取数据，如果reader阻塞，会发生阻塞
 func (b *buffer) readFromReader() (int, error) {
 	b.grow()
 	n, err := b.reader.Read(b.buf[b.end:])
-	if (err != nil) {
+	if err != nil {
 		return n, err
 	}
 	b.end += n

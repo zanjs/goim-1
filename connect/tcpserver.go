@@ -2,8 +2,8 @@ package connect
 
 import (
 	"fmt"
-	"net"
 	"log"
+	"net"
 )
 
 // Conf server配置文件
