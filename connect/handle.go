@@ -2,15 +2,12 @@ package connect
 
 import (
 	"net"
-	"time"
 )
 
 // ConnContext 连接上下文
 type ConnContext struct {
-	ID       interface{}
-	Conn     net.Conn
-	Info     interface{} // 附加信息
-	Headbeat time.Time   // 上次心跳时间
+	Conn net.Conn
+	Info interface{} // 附加信息
 }
 
 // Message 消息
@@ -25,7 +22,7 @@ type Handler interface {
 	OnConnect(*ConnContext)
 
 	// OnMessage 当发送消息的时候调用
-	OnMessage(*ConnContext, Message)
+	OnMessage(*ConnContext, *Message)
 
 	// OnClose 当连接关闭的时候调用
 	OnClose(*ConnContext)
