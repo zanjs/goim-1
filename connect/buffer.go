@@ -49,7 +49,7 @@ func (b *buffer) readFromReader() (int, error) {
 // seek 返回n个字节，而不产生移位，如果没有足够字节，返回错误
 func (b *buffer) seek(start, end int) ([]byte, error) {
 	if b.end-b.start >= end-start {
-		buf := b.buf[start:b.start]
+		buf := b.buf[b.start+start : b.start+end]
 		return buf, nil
 	}
 	return nil, ErrNotEnough

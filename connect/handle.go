@@ -6,8 +6,9 @@ import (
 
 // ConnContext 连接上下文
 type ConnContext struct {
-	Conn net.Conn
-	Info interface{} // 附加信息
+	Conn  net.Conn
+	Info  interface{} // 附加信息
+	Codec *Codec      // 编解码器
 }
 
 // Message 消息

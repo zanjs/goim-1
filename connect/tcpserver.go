@@ -1,11 +1,15 @@
 package connect
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
+	"runtime"
 	"strings"
 	"time"
+
+	"github.com/astaxie/beego/logs"
 )
 
 const (
@@ -20,30 +24,31 @@ type Conf struct {
 	ReadDeadline time.Duration // 读取超时时间，单位为秒
 	MaxConnCount int           // 最大连接数
 	AcceptCount  int           // 接收建立连接的groutine数量
-	TypeLen      int           // 消息type字节数组的长度
-	LenLen       int           // 消息length字节数组的长度
-	BufferLen    int           // buffer大小,建议不小于最大消息体的字节长度
 }
 
 // TCPServer TCP服务器
 type TCPServer struct {
-	Conf    Conf          // 配置
-	Handler Handler       // 回调处理接口
-	Factory *CodecFactory // 生成解码器的工厂
+	Address      string        // 端口
+	ReadDeadline time.Duration // 读取超时时间，单位为秒
+	MaxConnCount int           // 最大连接数
+	AcceptCount  int           // 接收建立连接的groutine数量
+	Handler      Handler       // 回调处理接口
 }
 
 // NewTCPServer 创建TCP服务器
 func NewTCPServer(conf Conf, handler Handler) *TCPServer {
 	return &TCPServer{
-		Conf:    conf,
-		Handler: handler,
-		Factory: NewCodecFactory(conf.TypeLen, conf.LenLen, conf.BufferLen),
+		Address:      conf.Address,
+		ReadDeadline: conf.ReadDeadline,
+		MaxConnCount: conf.MaxConnCount,
+		AcceptCount:  conf.AcceptCount,
+		Handler:      handler,
 	}
 }
 
 // Start 启动服务器
 func (t *TCPServer) Start() {
-	addr, err := net.ResolveTCPAddr("tcp", t.Conf.Address)
+	addr, err := net.ResolveTCPAddr("tcp", t.Address)
 	if err != nil {
 		log.Println(err)
 	}
@@ -52,13 +57,27 @@ func (t *TCPServer) Start() {
 		log.Println("error listening", err.Error())
 		return
 	}
-	for i := 0; i < t.Conf.AcceptCount; i++ {
+	for i := 0; i < t.AcceptCount; i++ {
 		go t.Accept(listener)
 	}
+	select {}
 }
 
 // Accept 接收客户端的TCP长连接的建立
 func (t *TCPServer) Accept(listener *net.TCPListener) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.Println(err)
+
+			//打印调用栈信息
+			buf := make([]byte, 2048)
+			n := runtime.Stack(buf, false)
+			stackInfo := fmt.Sprintf("%s", buf[:n])
+			logs.Error("panic stack info %s", stackInfo)
+		}
+	}()
+
 	for {
 		conn, err := listener.AcceptTCP()
 		if err != nil {
@@ -71,14 +90,26 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 
 // DoConn 处理连接请求
 func (t *TCPServer) DoConn(conn *net.TCPConn) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.Println(err)
+
+			//打印调用栈信息
+			buf := make([]byte, 2048)
+			n := runtime.Stack(buf, false)
+			stackInfo := fmt.Sprintf("%s", buf[:n])
+			logs.Error("panic stack info %s", stackInfo)
+		}
+	}()
 
 	conn.SetKeepAlive(true)
-	codec := t.Factory.NewCodec(conn)
+	codec := NewCodec(conn)
 
 	ctx := &ConnContext{Conn: conn}
 	t.Handler.OnConnect(ctx)
 	for {
-		conn.SetReadDeadline(time.Now().Add(t.Conf.ReadDeadline))
+		conn.SetReadDeadline(time.Now().Add(t.ReadDeadline))
 		_, err := codec.Read()
 		if err != nil {
 			code := ErrCode(err)
