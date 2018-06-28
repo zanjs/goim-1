@@ -16,7 +16,7 @@ const (
 
 // Conf server配置文件
 type Conf struct {
-	Port         string        // 端口
+	Address      string        // 端口
 	ReadDeadline time.Duration // 读取超时时间，单位为秒
 	MaxConnCount int           // 最大连接数
 	AcceptCount  int           // 接收建立连接的groutine数量
@@ -27,18 +27,23 @@ type Conf struct {
 
 // TCPServer TCP服务器
 type TCPServer struct {
-	Handler Handler // 回调处理接口
-	Conf    Conf    // 配置
+	Conf    Conf          // 配置
+	Handler Handler       // 回调处理接口
+	Factory *CodecFactory // 生成解码器的工厂
 }
 
 // NewTCPServer 创建TCP服务器
-func NewTCPServer() *TCPServer {
-	return new(TCPServer)
+func NewTCPServer(conf Conf, handler Handler) *TCPServer {
+	return &TCPServer{
+		Conf:    conf,
+		Handler: handler,
+		Factory: NewCodecFactory(conf.TypeLen, conf.LenLen, conf.BufferLen),
+	}
 }
 
 // Start 启动服务器
-func (t *TCPServer) Start(address string) {
-	addr, err := net.ResolveTCPAddr("tcp", "localhost:80")
+func (t *TCPServer) Start() {
+	addr, err := net.ResolveTCPAddr("tcp", t.Conf.Address)
 	if err != nil {
 		log.Println(err)
 	}
@@ -68,7 +73,7 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 func (t *TCPServer) DoConn(conn *net.TCPConn) {
 
 	conn.SetKeepAlive(true)
-	codec := NewCodec(conn, t.Conf.BufferLen, t.Conf.TypeLen, t.Conf.LenLen)
+	codec := t.Factory.NewCodec(conn)
 
 	ctx := &ConnContext{Conn: conn}
 	t.Handler.OnConnect(ctx)
