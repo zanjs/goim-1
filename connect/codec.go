@@ -13,7 +13,6 @@ const (
 )
 
 type Codec struct {
-	server   *TCPServer
 	Conn     net.Conn
 	ReadBuf  buffer // 读缓冲
 	WriteBuf []byte // 写缓冲
