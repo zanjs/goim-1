@@ -13,7 +13,8 @@ const (
 )
 
 type Codec struct {
-	conn     net.Conn
+	server   *TCPServer
+	Conn     net.Conn
 	ReadBuf  buffer // 读缓冲
 	WriteBuf []byte // 写缓冲
 }
@@ -21,7 +22,7 @@ type Codec struct {
 // newCodec 创建一个解码器
 func NewCodec(conn net.Conn) *Codec {
 	return &Codec{
-		conn:     conn,
+		Conn:     conn,
 		ReadBuf:  newBuffer(conn, BufLen),
 		WriteBuf: make([]byte, BufLen),
 	}
@@ -67,7 +68,7 @@ func (c *Codec) Eecode(message Message) error {
 	binary.BigEndian.PutUint16(c.WriteBuf[LenLen:HeadLen], uint16(len(message.Content)))
 	copy(c.WriteBuf[HeadLen:], message.Content[:contentLen])
 
-	_, err := c.conn.Write(c.WriteBuf[:HeadLen+contentLen])
+	_, err := c.Conn.Write(c.WriteBuf[:HeadLen+contentLen])
 	if err != nil {
 		return err
 	}
