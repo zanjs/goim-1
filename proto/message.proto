@@ -1,16 +1,16 @@
 syntax = "proto3";
 package packagename;
 
-//设备上线
+// 设备上线
 message DeveiceLogon {
     uint32 deviceID = 1; // 设备id
     string token = 2; // 设备token
 }
 
-//消息发送
+// 消息发送
 message MessageSend {
-    uint64 sender = 1; //发送者userId
-    uint64 senderDeviceID = 2; //发送者userId
+    uint64 sender = 1; // 发送者userId
+    uint64 deviceId = 2; // 发送者userId
     uint64 msgSN = 4; // 消息ID
     uint32 receiverType = 5; // 接收者类型，0：user;1:group
     uint64 receiver = 6; // 接收者id
@@ -20,26 +20,26 @@ message MessageSend {
 
 // 消息发送回执
 message MessageSendACK {
-    uint64 senderDeviceID = 2; //发送者userId
-    uint32 msgSN = 3;
+    uint64 DeviceId = 2; // 发送者DeviceID
+    uint32 msgSN = 3; // 发送消息同步序列
 }
 
 // 投递消息
 message Message {
-    uint64 sender = 1; //发送者userId
-    uint64 receiver = 2; //接收者userId
-    uint64 receiverDeviceID = 3; //发送者userId
-    uint64 groupID = 4; //接收群组id
-    uint32 type = 5; //消息类型
-    bytes content = 6; //消息内容
-    uint64 syncSN = 7; //同步序列号
-    uint64 readSN = 8; //已经读取的序列号
+    uint64 sender = 1; // 发送者userID
+    uint64 receiver = 2; // 接收者userID
+    uint64 DeviceID = 3; // 发送者userID
+    uint64 groupID = 4; // 接收群组id
+    uint32 type = 5; // 消息类型
+    bytes content = 6; // 消息内容
+    uint64 syncSN = 7; // 同步序列号
 }
 
 // 投递消息收到确认
-message MessageACk {
-    uint64 deveiceId = 1; //设备id
-    uint64 syncSNACK = 2; //同步序列号
+message MessageACK {
+    uint64 deveiceId = 1; // 设备id
+    uint64 userId = 2; // 用户id
+    uint64 syncSNACK = 3; //同步序列号
 }
 
 // 同步触发
@@ -47,32 +47,4 @@ message SyncReq {
     uint64 userId = 1;
     uint64 deveiceId = 2;
     uint64 syncSNLocal = 3;
-}
-
-// 已读反馈
-message Read {
-    uint64 deveiceId = 1;
-    uint64 userId = 2;
-    uint64 readSN = 3;
-}
-
-// 已读反馈确认
-message Read {
-    uint64 deveiceId = 1;
-    uint64 userId = 2;
-    uint64 readSNACK = 3;
-}
-
-// 已读通知
-message Read {
-    uint64 deveiceId = 1;
-    uint64 userId = 2;
-    uint64 readSN = 3;
-}
-
-// 已读通知确认
-message Read {
-    uint64 deveiceId = 1;
-    uint64 userId = 2;
-    uint64 readSN = 3;
 }

@@ -14,7 +14,7 @@ func TestStartServer(t *testing.T) {
 		MaxConnCount: 100,
 		AcceptCount:  1,
 	}
-	server := NewTCPServer(conf, &handler{})
+	server := NewTCPServer(conf)
 	server.Start()
 }
 
@@ -60,8 +60,8 @@ func TestClient(t *testing.T) {
 
 	codec := NewCodec(conn)
 
-	codec.Eecode(Message{4, []byte("hello world")})
-	codec.Eecode(Message{1, []byte("ok fuck")})
+	codec.Eecode(Message{4, []byte("hello world")}, 2*time.Second)
+	codec.Eecode(Message{1, []byte("ok fuck")}, 2*time.Second)
 	conn.Close()
 
 }
@@ -75,8 +75,8 @@ func TestClientTimeOut(t *testing.T) {
 
 	codec := NewCodec(conn)
 
-	codec.Eecode(Message{4, []byte("hello world")})
-	codec.Eecode(Message{1, []byte("ok fuck")})
+	codec.Eecode(Message{4, []byte("hello world")}, 2*time.Second)
+	codec.Eecode(Message{1, []byte("ok fuck")}, 2*time.Second)
 
 	_, err = codec.Read()
 	if err != nil {

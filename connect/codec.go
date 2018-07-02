@@ -3,6 +3,7 @@ package connect
 import (
 	"encoding/binary"
 	"net"
+	"time"
 )
 
 const (
@@ -13,13 +14,13 @@ const (
 )
 
 type Codec struct {
-	Conn     net.Conn
+	Conn     *net.TCPConn
 	ReadBuf  buffer // 读缓冲
 	WriteBuf []byte // 写缓冲
 }
 
 // newCodec 创建一个解码器
-func NewCodec(conn net.Conn) *Codec {
+func NewCodec(conn *net.TCPConn) *Codec {
 	return &Codec{
 		Conn:     conn,
 		ReadBuf:  newBuffer(conn, BufLen),
@@ -60,13 +61,14 @@ func (c *Codec) Decode() (*Message, bool) {
 }
 
 // Eecode 编码数据
-func (c *Codec) Eecode(message Message) error {
+func (c *Codec) Eecode(message Message, duration time.Duration) error {
 	contentLen := len(message.Content)
 
 	binary.BigEndian.PutUint16(c.WriteBuf[0:TypeLen], uint16(message.Code))
 	binary.BigEndian.PutUint16(c.WriteBuf[LenLen:HeadLen], uint16(len(message.Content)))
 	copy(c.WriteBuf[HeadLen:], message.Content[:contentLen])
 
+	c.Conn.SetWriteDeadline(time.Now().Add(duration))
 	_, err := c.Conn.Write(c.WriteBuf[:HeadLen+contentLen])
 	if err != nil {
 		return err
