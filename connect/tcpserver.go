@@ -62,6 +62,12 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 			log.Println(err)
 			continue
 		}
+
+		err = conn.SetKeepAlive(true)
+		if err != nil {
+			log.Println(err)
+		}
+
 		connContext := NewConnContext(conn)
 		go connContext.DoConn()
 	}

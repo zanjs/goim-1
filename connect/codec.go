@@ -14,13 +14,13 @@ const (
 )
 
 type Codec struct {
-	Conn     *net.TCPConn
+	Conn     net.Conn
 	ReadBuf  buffer // 读缓冲
 	WriteBuf []byte // 写缓冲
 }
 
 // newCodec 创建一个解码器
-func NewCodec(conn *net.TCPConn) *Codec {
+func NewCodec(conn net.Conn) *Codec {
 	return &Codec{
 		Conn:     conn,
 		ReadBuf:  newBuffer(conn, BufLen),

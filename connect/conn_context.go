@@ -31,28 +31,25 @@ func NewConnContext(conn *net.TCPConn) *ConnContext {
 func (c *ConnContext) DoConn() {
 	defer RecoverPanic()
 
-	err := c.Codec.Conn.SetKeepAlive(true)
-	if err != nil {
-		log.Println(err)
-	}
-
-	codec := NewCodec(c.Codec.Conn)
-	ctx := &ConnContext{Codec: codec}
-
-	ctx.HandleConnect()
+	c.HandleConnect()
 
 	for {
-		c.Codec.Conn.SetReadDeadline(time.Now().Add(ReadDeadline))
-		_, err := codec.Read()
+		err := c.Codec.Conn.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
-			ctx.HandleReadErr(err)
+			log.Println(err)
+			return
+		}
+
+		_, err = c.Codec.Read()
+		if err != nil {
+			c.HandleReadErr(err)
 			return
 		}
 
 		for {
-			message, ok := codec.Decode()
+			message, ok := c.Codec.Decode()
 			if ok {
-				ctx.HandleMessage(message)
+				c.HandleMessage(message)
 				continue
 			}
 			break
