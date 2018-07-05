@@ -59,12 +59,14 @@ func (c *ConnContext) DoConn() {
 
 // HandleConnect 建立连接
 func (c *ConnContext) HandleConnect() {
+	log.Println("connect")
 	return
 }
 
 // HandleMessage 处理消息
 func (c *ConnContext) HandleMessage(message *Message) {
-
+	log.Println("message", message.Code, string(message.Content))
+	return
 }
 
 // HandleReadErr 读取conn错误
@@ -87,17 +89,8 @@ func (c *ConnContext) HandleReadErr(err error) {
 	}
 }
 
-// HandleActive
-func (c *ConnContext) HandleActive(*ConnContext) {
-
-}
-
-// HandleInactive 监听到客户端停止活动
-func (c *ConnContext) HandleInactive(*ConnContext) {
-
-}
-
 // Close 关闭TCP连接
 func (c *ConnContext) Close(*ConnContext, error) {
+	log.Println("close")
 	c.Codec.Conn.Close()
 }

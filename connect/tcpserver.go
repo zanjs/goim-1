@@ -5,31 +5,26 @@ import (
 	"log"
 	"net"
 	"runtime"
-	"time"
 )
 
 // Conf server配置文件
 type Conf struct {
-	Address       string        // 端口
-	ReadDeadline  time.Duration // 读取超时时间，单位为秒
-	WriteDeadline time.Duration // 写入超时时间
-	MaxConnCount  int           // 最大连接数
-	AcceptCount   int           // 接收建立连接的groutine数量
+	Address      string // 端口
+	MaxConnCount int    // 最大连接数
+	AcceptCount  int    // 接收建立连接的groutine数量
 }
 
 // TCPServer TCP服务器
 type TCPServer struct {
-	Address      string        // 端口
-	ReadDeadline time.Duration // 读取超时时间，单位为秒
-	MaxConnCount int           // 最大连接数
-	AcceptCount  int           // 接收建立连接的groutine数量
+	Address      string // 端口
+	MaxConnCount int    // 最大连接数
+	AcceptCount  int    // 接收建立连接的groutine数量
 }
 
 // NewTCPServer 创建TCP服务器
 func NewTCPServer(conf Conf) *TCPServer {
 	return &TCPServer{
 		Address:      conf.Address,
-		ReadDeadline: conf.ReadDeadline,
 		MaxConnCount: conf.MaxConnCount,
 		AcceptCount:  conf.AcceptCount,
 	}
