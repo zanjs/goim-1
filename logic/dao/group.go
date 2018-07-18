@@ -7,12 +7,16 @@ import (
 )
 
 type GroupDao struct {
-	session.Sessioner
+	base
+}
+
+func NewGroupDao(session *session.Session) *GroupDao {
+	return &GroupDao{base{session}}
 }
 
 // Insert 插入一条群组信息
 func (d *GroupDao) Insert(group entity.Group) (int, error) {
-	result, err := d.Exec("insert into t_group(name) value(?)", group.Name)
+	result, err := d.session.Exec("insert into t_group(name) value(?)", group.Name)
 	if err != nil {
 		log.Println(err)
 	}
@@ -25,7 +29,7 @@ func (d *GroupDao) Insert(group entity.Group) (int, error) {
 
 // Get 获取群组信息
 func (d *GroupDao) Get(id int) (*entity.Group, error) {
-	row := d.QueryRow("select name from t_group where id = ?", id)
+	row := d.session.QueryRow("select name from t_group where id = ?", id)
 	group := new(entity.Group)
 	err := row.Scan(&group.Name)
 	if err != nil {
@@ -38,7 +42,7 @@ func (d *GroupDao) Get(id int) (*entity.Group, error) {
 // GetGroupUser 获取群组人员信息
 func (d *GroupDao) GetGroupUser(id int) ([]*entity.User, error) {
 	sql := `select u.number,u.name,u.sex,u.img from t_group g left join t_user u on g.user_id = u.id where id = ?`
-	rows, err := d.Query(sql, id)
+	rows, err := d.session.Query(sql, id)
 	if err != nil {
 		return nil, err
 	}

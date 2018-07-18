@@ -6,29 +6,6 @@ import (
 	"runtime"
 )
 
-type Sessioner interface {
-	// Begin 开启事务：如果已经开启，则对事务不进行任何操作
-	Begin() error
-
-	// Rollback 回滚事务
-	Rollback() error
-
-	// Commit 提交事务：如果提交事务的函数和开启事务的函数在一个函数栈内，则提交事务，否则，不提交
-	Commit() error
-
-	// Exec 执行sql语句，如果已经开启事务，就以事务方式执行，如果没有开启事务，就以非事务方式执行
-	Exec(query string, args ...interface{}) (sql.Result, error)
-
-	// QueryRow 查询单条数据，始终以非事务方式执行（查询都以非事务方式执行）
-	QueryRow(query string, args ...interface{}) *sql.Row
-
-	// Query 查询数据，始终以非事务方式执行
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-
-	// Prepare 预执行
-	Prepare(query string) (*sql.Stmt, error)
-}
-
 // Session 会话工厂
 type SessionFactory struct {
 	*sql.DB

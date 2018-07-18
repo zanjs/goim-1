@@ -16,10 +16,14 @@ func init() {
 	}
 }
 
-func SetSession(service *session.Sessioner, sessioner ...session.Sessioner) {
-	if len(sessioner) > 0 {
-		service = &sessioner[0]
+type baseService struct {
+	session *session.Session
+}
+
+func (s baseService) setSession(session ...session.Session) {
+	if len(session) > 0 {
+		s.session = &session[0]
 	} else {
-		*service = sf.GetSession()
+		s.session = sf.GetSession()
 	}
 }

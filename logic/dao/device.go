@@ -7,12 +7,16 @@ import (
 )
 
 type DeviceDao struct {
-	session.Sessioner
+	base
+}
+
+func NewDeviceDao(session *session.Session) *DeviceDao {
+	return &DeviceDao{base{session}}
 }
 
 // Insert 插入一条设备信息
 func (d *DeviceDao) Insert(device entity.Device) (int, error) {
-	result, err := d.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Model, device.Model, device.Version)
+	result, err := d.session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Model, device.Model, device.Version)
 	if err != nil {
 		return 0, err
 	}
@@ -25,7 +29,7 @@ func (d *DeviceDao) Insert(device entity.Device) (int, error) {
 
 // UpdateUserIdAndStatus 更新设备绑定用户和在线状态
 func (d *DeviceDao) UpdateUserIdAndStatus(id, userId, status int) error {
-	_, err := d.Exec("update t_device set user_id = ?,status = ? where id = ? ", userId, status, id)
+	_, err := d.session.Exec("update t_device set user_id = ?,status = ? where id = ? ", userId, status, id)
 	if err != nil {
 		log.Println(err)
 	}
@@ -34,7 +38,7 @@ func (d *DeviceDao) UpdateUserIdAndStatus(id, userId, status int) error {
 
 // ListUserOnline 查询用户所有的在线设备
 func (d *DeviceDao) ListOnlineByUserId(userId int) ([]*entity.Device, error) {
-	rows, err := d.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
+	rows, err := d.session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err
