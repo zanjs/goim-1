@@ -16,8 +16,8 @@ func NewUserDao(session *session.Session) *UserDao {
 
 // Insert 插入一条用户信息
 func (d *UserDao) Insert(user entity.User) (int, error) {
-	result, err := d.session.Exec("insert into t_user(number,name,password,sex，img) valus(?,?,?,?)",
-		user.Number, user.Name, user.Password, user.Sex, user.Img)
+	result, err := d.session.Exec("insert into t_user(number,name,sex,img,password) valus(?,?,?,?)",
+		user.Number, user.Name, user.Sex, user.Img, user.Password)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -40,6 +40,17 @@ func (d *UserDao) Get(id int) (*entity.User, error) {
 		log.Println(err)
 	}
 	return user, err
+}
+
+// Get 获取用户信息
+func (d *UserDao) GetPassword(id int) (string, error) {
+	row := d.session.QueryRow("select password from t_user where id = ?", id)
+	var password string
+	err := row.Scan(&password)
+	if err != nil {
+		log.Println(err)
+	}
+	return password, err
 }
 
 // UpdatePassword 更新用户密码

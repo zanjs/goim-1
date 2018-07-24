@@ -2,7 +2,6 @@ package session
 
 import (
 	"database/sql"
-	"fmt"
 	"runtime"
 )
 
@@ -15,8 +14,7 @@ type SessionFactory struct {
 func NewSessionFactory(driverName, dataSourseName string) (*SessionFactory, error) {
 	db, err := sql.Open(driverName, dataSourseName)
 	if err != nil {
-		return nil, err
-		fmt.Println("err:", err)
+		panic(err)
 	}
 	factory := new(SessionFactory)
 	factory.DB = db

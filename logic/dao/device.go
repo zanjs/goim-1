@@ -16,7 +16,7 @@ func NewDeviceDao(session *session.Session) *DeviceDao {
 
 // Insert 插入一条设备信息
 func (d *DeviceDao) Insert(device entity.Device) (int, error) {
-	result, err := d.session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Model, device.Model, device.Version)
+	result, err := d.session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
 		return 0, err
 	}
@@ -25,6 +25,17 @@ func (d *DeviceDao) Insert(device entity.Device) (int, error) {
 		return 0, err
 	}
 	return int(id), nil
+}
+
+// GetToken 获取设备的token
+func (d *DeviceDao) GetToken(id int) (string, error) {
+	var token string
+	row := d.session.QueryRow("select token from t_device where id = ? ", id)
+	err := row.Scan(&token)
+	if err != nil {
+		log.Println(err)
+	}
+	return token, err
 }
 
 // UpdateUserIdAndStatus 更新设备绑定用户和在线状态

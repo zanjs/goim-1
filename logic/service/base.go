@@ -20,9 +20,9 @@ type baseService struct {
 	session *session.Session
 }
 
-func (s baseService) setSession(session ...session.Session) {
+func (s *baseService) setSession(session ...*session.Session) {
 	if len(session) > 0 {
-		s.session = &session[0]
+		s.session = session[0]
 	} else {
 		s.session = sf.GetSession()
 	}

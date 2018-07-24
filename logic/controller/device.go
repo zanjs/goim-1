@@ -5,6 +5,8 @@ import (
 
 	"goim/logic/service"
 
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,11 +22,20 @@ func (DeviceController) Regist(c *gin.Context) {
 	var device entity.Device
 	err := c.ShouldBindJSON(&device)
 	if err != nil {
+		log.Println(err)
 		c.JSON(OK, BadRequest)
 		return
 	}
+
+	if device.Type == 0 || device.Model == "" || device.Version == "" {
+		log.Println(err)
+		c.JSON(OK, BadRequest)
+		return
+	}
+
 	id, token, err := service.NewDeviceService().Regist(device)
 	if err != nil {
+		log.Println(err)
 		c.JSON(OK, InternalServerError)
 		return
 	}
@@ -34,5 +45,4 @@ func (DeviceController) Regist(c *gin.Context) {
 	result["token"] = token
 
 	c.JSON(OK, result)
-
 }

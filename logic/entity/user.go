@@ -15,3 +15,11 @@ type User struct {
 	CreateTime time.Time `json:"create_time"` // 创建时间
 	UpdateTime time.Time `json:"update_time"` // 更新时间
 }
+
+// SignIn 登录结构体
+type SignIn struct {
+	DeviceId int    `json:"device_id"`
+	Token    string `json:"token"`
+	UserId   int    `json:"user_id"`
+	Password string `json:"password"`
+}
