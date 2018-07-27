@@ -15,8 +15,8 @@ func NewUserDao(session *session.Session) *UserDao {
 }
 
 // Insert 插入一条用户信息
-func (d *UserDao) Insert(user entity.User) (int, error) {
-	result, err := d.session.Exec("insert into t_user(number,name,sex,img,password) valus(?,?,?,?)",
+func (d *UserDao) Add(user entity.User) (int, error) {
+	result, err := d.session.Exec("insert ignore into t_user(number,name,sex,img,password) values(?,?,?,?,?)",
 		user.Number, user.Name, user.Sex, user.Img, user.Password)
 	if err != nil {
 		log.Println(err)

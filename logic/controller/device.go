@@ -23,20 +23,20 @@ func (DeviceController) Regist(c *gin.Context) {
 	err := c.ShouldBindJSON(&device)
 	if err != nil {
 		log.Println(err)
-		c.JSON(OK, BadRequest)
+		c.JSON(OK, NewBadRequst(err))
 		return
 	}
 
 	if device.Type == 0 || device.Model == "" || device.Version == "" {
 		log.Println(err)
-		c.JSON(OK, BadRequest)
+		c.JSON(OK, NewBadRequst(nil))
 		return
 	}
 
 	id, token, err := service.NewDeviceService().Regist(device)
 	if err != nil {
 		log.Println(err)
-		c.JSON(OK, InternalServerError)
+		c.JSON(OK, NewError(err))
 		return
 	}
 

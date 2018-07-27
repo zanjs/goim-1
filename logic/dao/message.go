@@ -15,7 +15,7 @@ func NewMessageDao(session *session.Session) *MessageDao {
 }
 
 // Insert 插入一条消息
-func (d *MessageDao) Insert(message entity.Message) error {
+func (d *MessageDao) Add(message entity.Message) error {
 	_, err := d.session.Exec("insert into t_message(user_id,sender_type,sender,recever_type,recerver,type.content,seq) values(?,?,?,?,?,?,?)",
 		message.UserId, message.SenderType, message.Sender, message.ReceiverType,
 		message.Receiver, message.Type, message.Content, message.Seq)

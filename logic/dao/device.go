@@ -15,7 +15,7 @@ func NewDeviceDao(session *session.Session) *DeviceDao {
 }
 
 // Insert 插入一条设备信息
-func (d *DeviceDao) Insert(device entity.Device) (int, error) {
+func (d *DeviceDao) Add(device entity.Device) (int, error) {
 	result, err := d.session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
 		return 0, err

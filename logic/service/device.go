@@ -39,13 +39,13 @@ func (s *DeviceService) Regist(device entity.Device) (int, string, error) {
 		return 0, "", err
 	}
 	device.Token = UUID.String()
-	id, err := dao.NewDeviceDao(s.session).Insert(device)
+	id, err := dao.NewDeviceDao(s.session).Add(device)
 	if err != nil {
 		log.Println(err)
 		return 0, "", err
 	}
 
-	err = dao.NewDeviceSeqDao(s.session).Insert(id)
+	err = dao.NewDeviceSeqDao(s.session).Add(id)
 	if err != nil {
 		log.Println(err)
 

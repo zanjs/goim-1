@@ -13,7 +13,7 @@ func NewUserSeqDao(session *session.Session) *UserSeqDao {
 	return &UserSeqDao{base{session}}
 }
 
-func (d *UserSeqDao) Insert(userId int) error {
+func (d *UserSeqDao) Add(userId int) error {
 	_, err := d.session.Exec("insert into t_user_seq(user_id) values(?)", userId)
 	if err != nil {
 		log.Println(err)

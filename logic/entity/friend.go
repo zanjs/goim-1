@@ -13,3 +13,14 @@ type Friend struct {
 	CreateTime time.Time `json:"create_time"` // 创建时间
 	UpdateTime time.Time `json:"update_time"` // 更新时间
 }
+
+type FriendAdd struct {
+	UserId      int    `json:"user_id"`      // 用户id
+	UserLable   string `json:"user_lable"`   // 用户对好友的标签
+	Friend      int    `json:"friend_id"`    // 好友id
+	FriendLable string `json:"friend_lable"` // 好友对用户的标签
+}
+
+type FriendItem struct {
+	UserId
+}

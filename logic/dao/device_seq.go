@@ -14,7 +14,7 @@ func NewDeviceSeqDao(session *session.Session) *DeviceSeqDao {
 }
 
 // GetSeq 获取设备已经同步的消息序列号
-func (d *DeviceSeqDao) Insert(deviceId int) error {
+func (d *DeviceSeqDao) Add(deviceId int) error {
 	_, err := d.session.Exec("insert into t_device_seq(device_id) values(?)", deviceId)
 	if err != nil {
 		log.Println(err)

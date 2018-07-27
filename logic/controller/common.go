@@ -4,10 +4,10 @@ const OK = 200
 
 // 请求返回值
 const (
-	success             = 0 // 成功返回
-	unauthorized        = 1 // 需要认证
-	badRequest          = 2 // 客户端请求错误
-	internalServerError = 3 // 服务器内部错误
+	CodeSuccess      = 0 // 成功返回
+	CodeUnauthorized = 1 // 需要认证
+	CodeBadRequest   = 2 // 客户端请求错误
+	CodeError        = 3 // 请求错误
 )
 
 // Response 用户响应数据
@@ -19,17 +19,30 @@ type Response struct {
 
 var (
 	// 用户没有登录
-	Unauthorized = &Response{Code: unauthorized, Message: "unauthorized"}
-	// 服务器内部错误
-	InternalServerError = &Response{Code: internalServerError, Message: "internal server error"}
-	// 客户端请求参数错误
-	BadRequest = &Response{Code: badRequest, Message: "bad request"}
+	Unauthorized = &Response{Code: CodeUnauthorized, Message: "unauthorized"}
 )
 
 func NewSuccess(data interface{}) *Response {
 	return &Response{
-		Code:    success,
+		Code:    CodeSuccess,
 		Message: "success",
 		Data:    data,
 	}
+}
+
+func NewError(err error) *Response {
+	return &Response{
+		Code:    CodeError,
+		Message: err.Error(),
+	}
+}
+
+func NewBadRequst(err error) *Response {
+	response := &Response{
+		Code: CodeBadRequest,
+	}
+	if err != nil {
+		response.Message = err.Error()
+	}
+	return response
 }
