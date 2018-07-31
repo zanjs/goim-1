@@ -16,11 +16,16 @@ type Friend struct {
 
 type FriendAdd struct {
 	UserId      int    `json:"user_id"`      // 用户id
-	UserLable   string `json:"user_lable"`   // 用户对好友的标签
-	Friend      int    `json:"friend_id"`    // 好友id
-	FriendLable string `json:"friend_lable"` // 好友对用户的标签
+	UserLabel   string `json:"user_label"`   // 用户对好友的标签
+	Friend      int    `json:"friend"`       // 好友id
+	FriendLabel string `json:"friend_label"` // 好友对用户的标签
 }
 
-type FriendItem struct {
-	UserId
+type FriendUser struct {
+	UserId int    `json:"user_id"` // 用户id
+	Label  string `json:"lable"`   // 用户对好友的标签
+	Number string `json:"number"`  // 手机号
+	Name   string `json:"name"`    // 昵称
+	Sex    int    `json:"sex"`     // 性别，1:男；2:女
+	Img    string `json:"img"`     // 用户头像
 }

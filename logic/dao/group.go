@@ -15,8 +15,8 @@ func NewGroupDao(session *session.Session) *GroupDao {
 }
 
 // Insert 插入一条群组信息
-func (d *GroupDao) Add(group entity.Group) (int, error) {
-	result, err := d.session.Exec("insert into t_group(name) value(?)", group.Name)
+func (d *GroupDao) Add(name string) (int, error) {
+	result, err := d.session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {
 		log.Println(err)
 	}
@@ -37,24 +37,4 @@ func (d *GroupDao) Get(id int) (*entity.Group, error) {
 		return nil, err
 	}
 	return group, nil
-}
-
-// GetGroupUser 获取群组人员信息
-func (d *GroupDao) ListGroupUser(id int) ([]*entity.User, error) {
-	sql := `select u.number,u.name,u.sex,u.img from t_group g left join t_user u on g.user_id = u.id where id = ?`
-	rows, err := d.session.Query(sql, id)
-	if err != nil {
-		return nil, err
-	}
-	users := make([]*entity.User, 0, 5)
-	for rows.Next() {
-		user := new(entity.User)
-		err := rows.Scan(&user.Number, &user.Name, &user.Sex, &user.Img)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		users = append(users, user)
-	}
-	return users, nil
 }

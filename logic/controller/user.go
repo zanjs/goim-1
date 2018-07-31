@@ -10,7 +10,7 @@ import (
 func init() {
 	g := Engine.Group("/user")
 	g.POST("", UserController{}.Regist)
-	g.PUT("/signin", UserController{}.SignIn)
+	g.POST("/signin", UserController{}.SignIn)
 }
 
 type UserController struct{}
@@ -31,7 +31,7 @@ func (UserController) Regist(c *gin.Context) {
 	c.JSON(OK, NewSuccess(id))
 }
 
-// Regist 用户注册
+// SignIn 用户登录
 func (UserController) SignIn(c *gin.Context) {
 	var signIn entity.SignIn
 	err := c.ShouldBindJSON(&signIn)

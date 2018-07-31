@@ -18,6 +18,16 @@ func NewFriendService(session ...*session.Session) *FriendService {
 	return service
 }
 
+func (s *FriendService) ListUserFriend(userId int) ([]entity.FriendUser, error) {
+	users, err := dao.NewFriendDao(s.session).ListUserFriend(userId)
+	if err != nil {
+		log.Println(err)
+	}
+	return users, err
+
+}
+
+// Add 添加好友关系
 func (s *FriendService) Add(add entity.FriendAdd) error {
 	err := s.session.Begin()
 	if err != nil {
@@ -29,7 +39,7 @@ func (s *FriendService) Add(add entity.FriendAdd) error {
 	friend1 := entity.Friend{
 		UserId: add.UserId,
 		Friend: add.Friend,
-		Label:  add.UserLable,
+		Label:  add.UserLabel,
 	}
 	err = dao.NewFriendDao(s.session).Add(friend1)
 	if err != nil {
@@ -40,11 +50,35 @@ func (s *FriendService) Add(add entity.FriendAdd) error {
 	friend2 := entity.Friend{
 		UserId: add.Friend,
 		Friend: add.UserId,
-		Label:  add.FriendLable,
+		Label:  add.FriendLabel,
 	}
 	err = dao.NewFriendDao(s.session).Add(friend2)
 	if err != nil {
 		fmt.Println(err)
+		return err
+	}
+
+	s.session.Commit()
+	return nil
+}
+
+// Delete 删除好友关系
+func (s *FriendService) Delete(userId, friend int) error {
+	err := s.session.Begin()
+	if err != nil {
+		log.Println(err)
+	}
+	defer s.session.Rollback()
+
+	err = dao.NewFriendDao(s.session).Delete(userId, friend)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	err = dao.NewFriendDao(s.session).Delete(friend, userId)
+	if err != nil {
+		log.Println(err)
 		return err
 	}
 
