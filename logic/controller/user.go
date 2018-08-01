@@ -4,16 +4,37 @@ import (
 	"goim/logic/entity"
 	"goim/logic/service"
 
+	"log"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	g := Engine.Group("/user")
+	g.GET("/group/:id", UserController{}.ListGroupByUserId)
 	g.POST("", UserController{}.Regist)
 	g.POST("/signin", UserController{}.SignIn)
 }
 
 type UserController struct{}
+
+// ListByUserId 获取用户群组
+func (UserController) ListGroupByUserId(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Println(err)
+		c.JSON(OK, NewBadRequst(err))
+	}
+
+	groups, err := service.NewGroupService().ListByUserId(id)
+	if err != nil {
+		log.Println(err)
+		c.JSON(OK, NewError(err))
+	}
+	c.JSON(OK, NewSuccess(groups))
+}
 
 // Regist 用户注册
 func (UserController) Regist(c *gin.Context) {

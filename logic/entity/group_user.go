@@ -1,14 +1,11 @@
 package entity
 
-import (
-	"time"
-)
-
-// GroupUser 群组成员关系
+// GroupUser 群组成员
 type GroupUser struct {
-	Id         int       `json:"id"`          // 自增主键
-	GroupId    int       `json:"group_id"`    // 组id
-	UserId     int       `json:"user_id"`     // 用户id
-	CreateTime time.Time `json:"create_time"` // 创建时间
-	UpdateTime time.Time `json:"update_time"` // 更新时间
+	UserId int    `json:"user_id"` // 用户id
+	Label  string `json:"label"`   // 用户标签
+	Number string `json:"number"`  // 手机号
+	Name   string `json:"name"`    // 昵称
+	Sex    int    `json:"sex"`     // 性别，1:男；2:女
+	Img    string `json:"img"`     // 用户头像
 }
