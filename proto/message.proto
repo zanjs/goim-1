@@ -1,57 +1,18 @@
 syntax = "proto3";
-package packagename;
-
-// 设备上线
-message DeveiceLogon {
-    uint64 deviceId = 1; // 设备id
-    uint64 userId = 2; // 用户id
-    string token = 3; // 设备token
-}
-
-// 消息发送
-message MessageSend {
-    uint64 deviceId = 1; // 发送者userId
-    uint64 sender = 2; // 发送者userId
-    uint64 msgSn = 4; // 消息id
-    uint32 receiverType = 5; // 接收者类型，0：user;1:group
-    uint64 receiver = 6; // 接收者id
-    uint32 type = 7; // 消息类型
-    bytes content = 8; // 消息内容
-}
-
-// 消息发送回执
-message MessageSendACK {
-    uint64 DeviceId = 2; // 发送者deviceId
-    uint32 msgSN = 3; // 发送消息同步序列
-}
-
-// 单条投递消息
-message MessageItem {
-    uint64 deveiceId = 1; // 接受者设备id
-    uint64 sender = 2; // 发送者userId
-    uint64 receiver = 3; // 接收者userId
-    uint64 deviceId = 4; // 发送者userId
-    uint64 groupId = 5; // 接收群组id
-    uint32 type = 6; // 消息类型
-    bytes content = 7; // 消息内容
-    uint64 sn = 8; // 同步序列号
-}
+package pb;
 
 // 投递消息
 message Message {
     repeated MessageItem Messages = 1;
 }
 
-// 投递消息回执
-message MessageACK {
-    uint64 deveiceId = 1; // 设备id
-    uint64 userId = 2; // 用户id
-    uint64 syncSNACK = 3; //同步序列号
-}
-
-// 同步触发
-message SyncReq {
-    uint64 deveiceId = 1;
-    uint64 userId = 2;
-    uint64 syncSNLocal = 3;
+// 消息投递
+message MessageItem {
+    uint64 device_id = 1; // 接受者设备id
+    uint64 sender = 2; // 发送者userId
+    uint64 receiver = 3; // 接收者userId
+    uint64 group_id = 5; // 接收群组id，如果为0，表示单发消息，如果为1，表示群组消息
+    uint32 type = 6; // 消息类型
+    bytes content = 7; // 消息内容
+    uint64 sn = 8; // 同步序列号
 }

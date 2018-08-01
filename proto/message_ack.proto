@@ -1,0 +1,8 @@
+syntax = "proto3";
+package pb;
+// 投递消息回执
+message MessageACK {
+    uint64 deveice_id = 1; // 设备id
+    uint64 user_id = 2; // 用户id
+    uint64 sn_ack = 3; //同步序列号
+}
