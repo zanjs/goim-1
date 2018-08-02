@@ -1,0 +1,8 @@
+syntax = "proto3";
+package pb;
+
+// 设备上线回执 type:2
+message OnLineAck {
+    bool ok = 1; // 设备是否上线成功
+    string message = 2; // 描述
+}

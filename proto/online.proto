@@ -1,8 +1,8 @@
 syntax = "proto3";
 package pb;
 
-// 设备上线
-message DeveiceOnLine {
+// 设备上线 type:1
+message OnLine {
     uint64 device_id = 1; // 设备id
     uint64 user_id = 2; // 用户id
     string token = 3; // 设备token

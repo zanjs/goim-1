@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-// 消息发送
+// 消息发送 type:5
 message MessageSend {
     uint64 device_id = 1; // 发送者设备id
     uint32 device_type = 2; // 设备类型

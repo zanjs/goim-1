@@ -1,6 +1,6 @@
 syntax = "proto3";
 package pb;
-// 投递消息回执
+// 投递消息回执 type:8
 message MessageACK {
     uint64 deveice_id = 1; // 设备id
     uint64 user_id = 2; // 用户id

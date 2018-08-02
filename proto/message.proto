@@ -1,12 +1,12 @@
 syntax = "proto3";
 package pb;
 
-// 投递消息
+// 消息投递 type:7
 message Message {
     repeated MessageItem Messages = 1;
 }
 
-// 消息投递
+// 单条消息投递
 message MessageItem {
     uint64 device_id = 1; // 接受者设备id
     uint64 sender = 2; // 发送者userId

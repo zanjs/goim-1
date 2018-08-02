@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-// 消息发送回执
+// 消息发送回执 type:6
 message MessageSendACK {
     uint64 device_id = 2; // 发送者deviceId
     uint32 sign = 3; // 设备发送消息唯一标记
