@@ -1,6 +1,9 @@
 package connect
 
 import (
+	"fmt"
+	"github.com/golang/protobuf/proto"
+	"goim/pb"
 	"io"
 	"log"
 	"net"
@@ -10,14 +13,25 @@ import (
 
 const ReadDeadline = 10 * time.Minute
 
+const (
+	Online         = 1
+	OnLineACK      = 2
+	Headbeat       = 3
+	HeadbeatACK    = 4
+	MessageSend    = 5
+	MessageSendACK = 6
+	Message        = 7
+	MessageACK     = 8
+)
+
 // ConnContext 连接上下文
 type ConnContext struct {
 	Codec *Codec      // 编解码器
 	Info  interface{} // 附加信息
 }
 
-// Message 消息
-type Message struct {
+// Package 消息包
+type Package struct {
 	Code    int    // 消息类型
 	Content []byte // 消息体
 }
@@ -64,8 +78,44 @@ func (c *ConnContext) HandleConnect() {
 }
 
 // HandleMessage 处理消息
-func (c *ConnContext) HandleMessage(message *Message) {
-	log.Println("message", message.Code, string(message.Content))
+func (c *ConnContext) HandleMessage(pack *Package) {
+	log.Println("message", pack.Code, string(pack.Content))
+	switch pack.Code {
+	case Online:
+		var online pb.OnLine
+		err := proto.Unmarshal(pack.Content, &online)
+		if err != nil {
+			fmt.Println(err)
+			c.Close()
+			return
+		}
+
+	case Headbeat:
+		var headbeat pb.Headbeat
+		err := proto.Unmarshal(pack.Content, &headbeat)
+		if err != nil {
+			fmt.Println(err)
+			c.Close()
+			return
+		}
+
+	case MessageSend:
+		var messageSend pb.MessageSend
+		err := proto.Unmarshal(pack.Content, &messageSend)
+		if err != nil {
+			fmt.Println(err)
+			c.Close()
+			return
+		}
+	case MessageACK:
+		var messageACK pb.MessageACK
+		err := proto.Unmarshal(pack.Content, &messageACK)
+		if err != nil {
+			fmt.Println(err)
+			c.Close()
+			return
+		}
+	}
 	return
 }
 
@@ -90,7 +140,7 @@ func (c *ConnContext) HandleReadErr(err error) {
 }
 
 // Close 关闭TCP连接
-func (c *ConnContext) Close(*ConnContext, error) {
+func (c *ConnContext) Close() {
 	log.Println("close")
 	c.Codec.Conn.Close()
 }

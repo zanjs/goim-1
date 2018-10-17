@@ -83,7 +83,7 @@ func (s *UserService) SignIn(signIn entity.SignIn) error {
 		return ErrPassword
 	}
 
-	err = dao.NewDeviceDao(s.session).UpdateUserIdAndStatus(signIn.DeviceId, signIn.UserId, DeviceOnline)
+	err = dao.NewDeviceDao(s.session).UpdateUserId(signIn.DeviceId, signIn.UserId)
 	if err != nil {
 		log.Println(err)
 		return err

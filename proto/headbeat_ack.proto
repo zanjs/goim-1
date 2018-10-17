@@ -1,7 +1,0 @@
-syntax = "proto3";
-package pb;
-
-// 心跳回执 type：4
-message Headbeat {
-    uint64 device_id = 1; // 设备id
-}

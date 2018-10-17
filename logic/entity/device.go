@@ -4,8 +4,8 @@ import "time"
 
 // Device 设备
 type Device struct {
-	Id         int       `json:"id"`          // 设备id
-	UserId     int       `json:"user_id"`     // 用户id
+	Id         int64     `json:"id"`          // 设备id
+	UserId     int64     `json:"user_id"`     // 用户id
 	Token      string    `json:"token"`       // 设备登录的token
 	Type       int       `json:"type"`        // 设备类型,1:Android；2:IOS；3：Windows;4:Web
 	Model      string    `json:"model"`       // 机型

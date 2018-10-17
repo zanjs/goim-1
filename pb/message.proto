@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-// 消息投递 type:7
+// 消息投递 type:5
 message Message {
     repeated MessageItem Messages = 1;
 }
@@ -13,6 +13,6 @@ message MessageItem {
     uint64 receiver = 3; // 接收者userId
     uint64 group_id = 5; // 接收群组id，如果为0，表示单发消息，如果为1，表示群组消息
     uint32 type = 6; // 消息类型
-    bytes content = 7; // 消息内容
+    string content = 7; // 消息内容
     uint64 sn = 8; // 同步序列号
 }

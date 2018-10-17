@@ -2,15 +2,24 @@ package session
 
 import (
 	"database/sql"
-	"runtime"
 )
 
-// Session 会话工厂
+const beginStatus = 1
+
+// SessionFactory 会话工厂
 type SessionFactory struct {
 	*sql.DB
 }
 
-// NewSession 创建一个Session
+// Session 会话
+type Session struct {
+	DB           *sql.DB // 原生db
+	tx           *sql.Tx // 原生事务
+	commitSign   int8    // 提交标记，控制是否提交事务
+	rollbackSign bool    // 回滚标记，控制是否回滚事务
+}
+
+// NewSessionFactory 创建一个会话工厂
 func NewSessionFactory(driverName, dataSourseName string) (*SessionFactory, error) {
 	db, err := sql.Open(driverName, dataSourseName)
 	if err != nil {
@@ -21,57 +30,57 @@ func NewSessionFactory(driverName, dataSourseName string) (*SessionFactory, erro
 	return factory, nil
 }
 
-// NewSession 创建一个Session
+// GetSession 获取一个Session
 func (sf *SessionFactory) GetSession() *Session {
 	session := new(Session)
-	session.db = sf.DB
+	session.DB = sf.DB
 	return session
 }
 
-// Session 会话
-type Session struct {
-	db *sql.DB
-	tx *sql.Tx
-	f  *runtime.Func
-}
-
-// Begin 开启事务：如果已经开启，则对事务不进行任何操作
+// Begin 开启事务
 func (s *Session) Begin() error {
+	s.rollbackSign = true
 	if s.tx == nil {
-		tx, err := s.db.Begin()
+		tx, err := s.DB.Begin()
 		if err != nil {
 			return err
 		}
 		s.tx = tx
-
-		// 记录下首次开启事务的函数
-		pc, _, _, _ := runtime.Caller(1)
-		s.f = runtime.FuncForPC(pc)
+		s.commitSign = beginStatus
+		return nil
 	}
+	s.commitSign++
 	return nil
 }
 
 // Rollback 回滚事务
 func (s *Session) Rollback() error {
-	if s.tx != nil {
-		return s.tx.Rollback()
+	if s.tx != nil && s.rollbackSign == true {
+		err := s.tx.Rollback()
+		if err != nil {
+			return err
+		}
 		s.tx = nil
+		return nil
 	}
 	return nil
 }
 
-// Commit 提交事务：如果提交事务的函数和开启事务的函数在一个函数栈内，则提交事务，否则，不提交
+// Commit 提交事务
 func (s *Session) Commit() error {
+	s.rollbackSign = false
 	if s.tx != nil {
-		pc, _, _, _ := runtime.Caller(1)
-		f := runtime.FuncForPC(pc)
-		if s.f == f {
+		if s.commitSign == beginStatus {
 			err := s.tx.Commit()
 			if err != nil {
 				return err
 			}
 			s.tx = nil
+			return nil
+		} else {
+			s.commitSign--
 		}
+		return nil
 	}
 	return nil
 }
@@ -81,23 +90,29 @@ func (s *Session) Exec(query string, args ...interface{}) (sql.Result, error) {
 	if s.tx != nil {
 		return s.tx.Exec(query, args...)
 	}
-	return s.db.Exec(query, args...)
+	return s.DB.Exec(query, args...)
 }
 
-// QueryRow 查询单条数据，始终以非事务方式执行（查询都以非事务方式执行）
+// QueryRow 如果已经开启事务，就以事务方式执行，如果没有开启事务，就以非事务方式执行
 func (s *Session) QueryRow(query string, args ...interface{}) *sql.Row {
-	return s.db.QueryRow(query, args...)
+	if s.tx != nil {
+		return s.tx.QueryRow(query, args...)
+	}
+	return s.DB.QueryRow(query, args...)
 }
 
-// Query 查询数据，始终以非事务方式执行
+// Query 查询数据，如果已经开启事务，就以事务方式执行，如果没有开启事务，就以非事务方式执行
 func (s *Session) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	return s.db.Query(query, args...)
+	if s.tx != nil {
+		return s.tx.Query(query, args...)
+	}
+	return s.DB.Query(query, args...)
 }
 
-// Prepare 预执行
+// Prepare 预执行，如果已经开启事务，就以事务方式执行，如果没有开启事务，就以非事务方式执行
 func (s *Session) Prepare(query string) (*sql.Stmt, error) {
 	if s.tx != nil {
 		return s.tx.Prepare(query)
 	}
-	return s.db.Prepare(query)
+	return s.DB.Prepare(query)
 }

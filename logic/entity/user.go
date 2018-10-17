@@ -6,7 +6,7 @@ import (
 
 // User 账户
 type User struct {
-	Id         int       `json:"id"`          // 用户id
+	Id         int64     `json:"id"`          // 用户id
 	Number     string    `json:"number"`      // 手机号
 	Name       string    `json:"name"`        // 昵称
 	Sex        int       `json:"sex"`         // 性别，1:男；2:女
@@ -18,8 +18,8 @@ type User struct {
 
 // SignIn 登录结构体
 type SignIn struct {
-	DeviceId int    `json:"device_id"`
+	DeviceId int64  `json:"device_id"`
 	Token    string `json:"token"`
-	UserId   int    `json:"user_id"`
+	UserId   int64  `json:"user_id"`
 	Password string `json:"password"`
 }

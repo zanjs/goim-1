@@ -28,7 +28,7 @@ func (d *DeviceDao) Add(device entity.Device) (int, error) {
 }
 
 // GetToken 获取设备的token
-func (d *DeviceDao) GetToken(id int) (string, error) {
+func (d *DeviceDao) GetToken(id int64) (string, error) {
 	var token string
 	row := d.session.QueryRow("select token from t_device where id = ? ", id)
 	err := row.Scan(&token)
@@ -38,9 +38,18 @@ func (d *DeviceDao) GetToken(id int) (string, error) {
 	return token, err
 }
 
-// UpdateUserIdAndStatus 更新设备绑定用户和在线状态
-func (d *DeviceDao) UpdateUserIdAndStatus(id, userId, status int) error {
-	_, err := d.session.Exec("update t_device set user_id = ?,status = ? where id = ? ", userId, status, id)
+// UpdateUserId 更新设备绑定用户
+func (d *DeviceDao) UpdateUserId(id, userId int) error {
+	_, err := d.session.Exec("update t_device set user_id = ? where id = ? ", userId, id)
+	if err != nil {
+		log.Println(err)
+	}
+	return nil
+}
+
+// UpdateUserId 更新设备绑定用户
+func (d *DeviceDao) UpdateStatus(id, status int) error {
+	_, err := d.session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {
 		log.Println(err)
 	}

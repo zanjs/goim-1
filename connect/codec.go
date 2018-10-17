@@ -34,7 +34,7 @@ func (c *Codec) Read() (int, error) {
 }
 
 // Decode 解码数据
-func (c *Codec) Decode() (*Message, bool) {
+func (c *Codec) Decode() (*Package, bool) {
 	var err error
 	// 读取数据类型
 	typeBuf, err := c.ReadBuf.seek(0, TypeLen)
@@ -56,12 +56,12 @@ func (c *Codec) Decode() (*Message, bool) {
 	if err != nil {
 		return nil, false
 	}
-	message := Message{Code: valueType, Content: valueBuf}
+	message := Package{Code: valueType, Content: valueBuf}
 	return &message, true
 }
 
 // Eecode 编码数据
-func (c *Codec) Eecode(message Message, duration time.Duration) error {
+func (c *Codec) Eecode(message Package, duration time.Duration) error {
 	contentLen := len(message.Content)
 
 	binary.BigEndian.PutUint16(c.WriteBuf[0:TypeLen], uint16(message.Code))

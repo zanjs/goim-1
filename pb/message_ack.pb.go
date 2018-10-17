@@ -27,7 +27,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// 投递消息回执 type:8
+// 投递消息回执 type:6
 type MessageACK struct {
 	DeveiceId uint64 `protobuf:"varint,1,opt,name=deveice_id,json=deveiceId" json:"deveice_id,omitempty"`
 	UserId    uint64 `protobuf:"varint,2,opt,name=user_id,json=userId" json:"user_id,omitempty"`
