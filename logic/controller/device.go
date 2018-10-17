@@ -2,9 +2,7 @@ package controller
 
 import (
 	"goim/logic/entity"
-
 	"goim/logic/service"
-
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +31,7 @@ func (DeviceController) Regist(c *gin.Context) {
 		return
 	}
 
-	id, token, err := service.NewDeviceService().Regist(device)
+	id, token, err := service.DeviceService.Regist(Context(), device)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))

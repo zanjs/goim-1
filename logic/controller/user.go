@@ -28,7 +28,7 @@ func (UserController) ListGroupByUserId(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 	}
 
-	groups, err := service.NewGroupService().ListByUserId(id)
+	groups, err := service.GroupService.ListByUserId(Context(), id)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))
@@ -44,7 +44,7 @@ func (UserController) Regist(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	id, err := service.NewUserService().Regist(user)
+	id, err := service.UserService.Regist(Context(), user)
 	if err != nil {
 		c.JSON(OK, NewError(err))
 		return
@@ -60,7 +60,7 @@ func (UserController) SignIn(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	err = service.NewUserService().SignIn(signIn)
+	err = service.UserService.SignIn(Context(), signIn)
 	if err != nil {
 		c.JSON(OK, NewError(err))
 		return

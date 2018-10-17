@@ -1,22 +1,18 @@
 package dao
 
 import (
+	"goim/lib/context"
 	"goim/logic/entity"
-	"goim/logic/lib/session"
 	"log"
 )
 
-type DeviceDao struct {
-	base
-}
+type deviceDao struct{}
 
-func NewDeviceDao(session *session.Session) *DeviceDao {
-	return &DeviceDao{base{session}}
-}
+var DeviceDao = new(deviceDao)
 
 // Insert 插入一条设备信息
-func (d *DeviceDao) Add(device entity.Device) (int, error) {
-	result, err := d.session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
+func (*deviceDao) Add(ctx *context.Context, device entity.Device) (int64, error) {
+	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
 		return 0, err
 	}
@@ -24,13 +20,13 @@ func (d *DeviceDao) Add(device entity.Device) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(id), nil
+	return id, nil
 }
 
 // GetToken 获取设备的token
-func (d *DeviceDao) GetToken(id int64) (string, error) {
+func (*deviceDao) GetToken(ctx *context.Context, id int64) (string, error) {
 	var token string
-	row := d.session.QueryRow("select token from t_device where id = ? ", id)
+	row := ctx.Session.QueryRow("select token from t_device where id = ? ", id)
 	err := row.Scan(&token)
 	if err != nil {
 		log.Println(err)
@@ -39,8 +35,8 @@ func (d *DeviceDao) GetToken(id int64) (string, error) {
 }
 
 // UpdateUserId 更新设备绑定用户
-func (d *DeviceDao) UpdateUserId(id, userId int) error {
-	_, err := d.session.Exec("update t_device set user_id = ? where id = ? ", userId, id)
+func (*deviceDao) UpdateUserId(ctx *context.Context, id, userId int64) error {
+	_, err := ctx.Session.Exec("update t_device set user_id = ? where id = ? ", userId, id)
 	if err != nil {
 		log.Println(err)
 	}
@@ -48,8 +44,8 @@ func (d *DeviceDao) UpdateUserId(id, userId int) error {
 }
 
 // UpdateUserId 更新设备绑定用户
-func (d *DeviceDao) UpdateStatus(id, status int) error {
-	_, err := d.session.Exec("update t_device set status = ? where id = ? ", status, id)
+func (*deviceDao) UpdateStatus(ctx context.Context, id, status int) error {
+	_, err := ctx.Session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {
 		log.Println(err)
 	}
@@ -57,8 +53,8 @@ func (d *DeviceDao) UpdateStatus(id, status int) error {
 }
 
 // ListUserOnline 查询用户所有的在线设备
-func (d *DeviceDao) ListOnlineByUserId(userId int) ([]*entity.Device, error) {
-	rows, err := d.session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
+func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int) ([]*entity.Device, error) {
+	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err

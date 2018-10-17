@@ -1,22 +1,18 @@
 package dao
 
 import (
+	"goim/lib/context"
 	"goim/logic/entity"
-	"goim/logic/lib/session"
 	"log"
 )
 
-type GroupDao struct {
-	base
-}
+type groupDao struct{}
 
-func NewGroupDao(session *session.Session) *GroupDao {
-	return &GroupDao{base{session}}
-}
+var GroupDao = new(groupDao)
 
 // Get 获取群组信息
-func (d *GroupDao) Get(id int) (*entity.Group, error) {
-	row := d.session.QueryRow("select name from t_group where id = ?", id)
+func (*groupDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
+	row := ctx.Session.QueryRow("select name from t_group where id = ?", id)
 	group := new(entity.Group)
 	err := row.Scan(&group.Name)
 	if err != nil {
@@ -27,8 +23,8 @@ func (d *GroupDao) Get(id int) (*entity.Group, error) {
 }
 
 // Insert 插入一条群组信息
-func (d *GroupDao) Add(name string) (int, error) {
-	result, err := d.session.Exec("insert into t_group(name) value(?)", name)
+func (*groupDao) Add(ctx *context.Context, name string) (int64, error) {
+	result, err := ctx.Session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -37,5 +33,5 @@ func (d *GroupDao) Add(name string) (int, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	return int(id), nil
+	return id, nil
 }

@@ -3,33 +3,27 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"goim/lib/context"
 	"goim/logic/dao"
 	"goim/logic/entity"
-	"goim/logic/lib/session"
 	"log"
 )
 
-type UserService struct {
-	baseService
-}
+type userService struct{}
 
-func NewUserService(session ...*session.Session) *UserService {
-	service := new(UserService)
-	service.setSession(session...)
-	return service
-}
+var UserService = new(userService)
 
 var ErrNumberExist = errors.New("user number exist")
 
-func (s *UserService) Regist(user entity.User) (int, error) {
-	err := s.session.Begin()
+func (*userService) Regist(ctx *context.Context, user entity.User) (int64, error) {
+	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
-	defer s.session.Rollback()
+	defer ctx.Session.Rollback()
 
-	id, err := dao.NewUserDao(s.session).Add(user)
+	id, err := dao.UserDao.Add(ctx, user)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -39,12 +33,12 @@ func (s *UserService) Regist(user entity.User) (int, error) {
 		return 0, ErrNumberExist
 	}
 
-	err = dao.NewUserSeqDao(s.session).Add(id)
+	err = dao.DeviceSequenceDao.Add(ctx, id)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
-	s.session.Commit()
+	ctx.Session.Commit()
 	return id, nil
 }
 
@@ -56,8 +50,8 @@ var (
 )
 
 // SignIn 登录
-func (s *UserService) SignIn(signIn entity.SignIn) error {
-	token, err := dao.NewDeviceDao(s.session).GetToken(signIn.DeviceId)
+func (*userService) SignIn(ctx *context.Context, signIn entity.SignIn) error {
+	token, err := dao.DeviceDao.GetToken(ctx, signIn.DeviceId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrDeviceNotFound
@@ -70,7 +64,7 @@ func (s *UserService) SignIn(signIn entity.SignIn) error {
 		return ErrToken
 	}
 
-	password, err := dao.NewUserDao(s.session).GetPassword(signIn.UserId)
+	password, err := dao.UserDao.GetPassword(ctx, signIn.UserId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrUserNotFound
@@ -83,7 +77,7 @@ func (s *UserService) SignIn(signIn entity.SignIn) error {
 		return ErrPassword
 	}
 
-	err = dao.NewDeviceDao(s.session).UpdateUserId(signIn.DeviceId, signIn.UserId)
+	err = dao.DeviceDao.UpdateUserId(ctx, signIn.DeviceId, signIn.UserId)
 	if err != nil {
 		log.Println(err)
 		return err

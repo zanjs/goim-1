@@ -3,8 +3,9 @@ package service
 import (
 	"goim/logic/dao"
 	"goim/logic/entity"
-	"goim/logic/lib/session"
 	"log"
+
+	"goim/lib/context"
 
 	"github.com/satori/go.uuid"
 )
@@ -14,24 +15,18 @@ const (
 	DeviceOffline = 0
 )
 
-type DeviceService struct {
-	baseService
-}
+type deviceService struct{}
 
-func NewDeviceService(session ...*session.Session) *DeviceService {
-	service := new(DeviceService)
-	service.setSession(session...)
-	return service
-}
+var DeviceService = new(deviceService)
 
 // Regist 注册设备
-func (s *DeviceService) Regist(device entity.Device) (int, string, error) {
-	err := s.session.Begin()
+func (*deviceService) Regist(ctx *context.Context, device entity.Device) (int64, string, error) {
+	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
 		return 0, "", err
 	}
-	defer s.session.Rollback()
+	defer ctx.Session.Rollback()
 
 	UUID, err := uuid.NewV4()
 	if err != nil {
@@ -39,17 +34,16 @@ func (s *DeviceService) Regist(device entity.Device) (int, string, error) {
 		return 0, "", err
 	}
 	device.Token = UUID.String()
-	id, err := dao.NewDeviceDao(s.session).Add(device)
+	id, err := dao.DeviceDao.Add(ctx, device)
 	if err != nil {
 		log.Println(err)
 		return 0, "", err
 	}
 
-	err = dao.NewDeviceSeqDao(s.session).Add(id)
+	err = dao.DeviceSequenceDao.Add(ctx, id)
 	if err != nil {
 		log.Println(err)
 
 	}
-
 	return id, device.Token, nil
 }

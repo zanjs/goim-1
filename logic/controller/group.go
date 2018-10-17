@@ -31,7 +31,7 @@ func (GroupController) Get(c *gin.Context) {
 		return
 	}
 
-	group, err := service.NewGroupService().Get(id)
+	group, err := service.GroupService.Get(Context(), id)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))
@@ -48,7 +48,7 @@ func (GroupController) CreateAndAddUser(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	id, err := service.NewGroupService().CreateAndAddUser(add)
+	id, err := service.GroupService.CreateAndAddUser(Context(), add)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))
@@ -66,7 +66,7 @@ func (GroupController) AddUser(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	err = service.NewGroupService().AddUser(update)
+	err = service.GroupService.AddUser(Context(), update)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))
@@ -84,7 +84,7 @@ func (GroupController) DeleteUser(c *gin.Context) {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	err = service.NewGroupService().DeleteUser(update)
+	err = service.GroupService.DeleteUser(Context(), update)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))
@@ -102,7 +102,7 @@ func (GroupController) UpdateLabel(c *gin.Context) {
 		Label   string `json:"label"`
 	}
 	c.ShouldBindJSON(&json)
-	err := service.NewGroupService().UpdateLabel(json.GroupId, json.UserId, json.Label)
+	err := service.GroupService.UpdateLabel(Context(), json.GroupId, json.UserId, json.Label)
 	if err != nil {
 		c.JSON(OK, NewError(err))
 		return

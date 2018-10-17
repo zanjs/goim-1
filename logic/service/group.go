@@ -1,32 +1,26 @@
 package service
 
 import (
+	"goim/lib/context"
 	"goim/logic/dao"
 	"goim/logic/entity"
-	"goim/logic/lib/session"
 	"log"
 )
 
-type GroupService struct {
-	baseService
-}
+type groupService struct{}
 
-func NewGroupService(session ...*session.Session) *GroupService {
-	service := new(GroupService)
-	service.setSession(session...)
-	return service
-}
+var GroupService = new(groupService)
 
 // ListByUserId 获取用户群组
-func (s *GroupService) ListByUserId(userId int) ([]*entity.Group, error) {
-	ids, err := dao.NewGroupUserDao(s.session).ListbyUserId(userId)
+func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*entity.Group, error) {
+	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 	groups := make([]*entity.Group, 0, 5)
 	for i := range ids {
-		group, err := NewGroupService(s.session).Get(ids[i])
+		group, err := GroupService.Get(ctx, ids[i])
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -37,14 +31,14 @@ func (s *GroupService) ListByUserId(userId int) ([]*entity.Group, error) {
 }
 
 // ListGroupUser 获取群组的用户信息
-func (s *GroupService) Get(id int) (*entity.Group, error) {
-	group, err := dao.NewGroupUserDao(s.session).Get(id)
+func (*groupService) Get(ctx *context.Context, id int) (*entity.Group, error) {
+	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	group.GroupUser, err = dao.NewGroupUserDao(s.session).ListGroupUser(id)
+	group.GroupUser, err = dao.GroupUserDao.ListGroupUser(ctx, id)
 	if err != nil {
 		log.Println(err)
 	}
@@ -52,71 +46,71 @@ func (s *GroupService) Get(id int) (*entity.Group, error) {
 }
 
 // CreateAndAddUser 创建群组并且添加群成员
-func (s *GroupService) CreateAndAddUser(add entity.GroupAdd) (int, error) {
-	err := s.session.Begin()
+func (*groupService) CreateAndAddUser(ctx *context.Context, add entity.GroupAdd) (int64, error) {
+	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
-	defer s.session.Rollback()
+	defer ctx.Session.Rollback()
 
-	id, err := dao.NewGroupDao(s.session).Add(add.Name)
+	id, err := dao.GroupDao.Add(ctx, add.Name)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
 	for i := range add.UserIds {
-		err := dao.NewGroupUserDao(s.session).Add(id, add.UserIds[i])
+		err := dao.GroupUserDao.Add(ctx, id, add.UserIds[i])
 		if err != nil {
 			log.Println(err)
 			return 0, err
 		}
 	}
-	s.session.Commit()
+	ctx.Session.Commit()
 	return id, nil
 }
 
 // AddUser 给群组添加用户
-func (s *GroupService) AddUser(update entity.GroupUserUpdate) error {
-	err := s.session.Begin()
+func (*groupService) AddUser(ctx *context.Context, update entity.GroupUserUpdate) error {
+	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	defer s.session.Rollback()
+	defer ctx.Session.Rollback()
 
 	for i := range update.UserIds {
-		err := dao.NewGroupUserDao(s.session).Add(update.GroupId, update.UserIds[i])
+		err := dao.GroupUserDao.Add(ctx, update.GroupId, update.UserIds[i])
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 	}
-	s.session.Commit()
+	ctx.Session.Commit()
 	return nil
 }
 
 // DeleteUser 从群组移除用户
-func (s *GroupService) DeleteUser(update entity.GroupUserUpdate) error {
-	err := s.session.Begin()
+func (*groupService) DeleteUser(ctx *context.Context, update entity.GroupUserUpdate) error {
+	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	defer s.session.Rollback()
+	defer ctx.Session.Rollback()
 
 	for i := range update.UserIds {
-		err := dao.NewGroupUserDao(s.session).Delete(update.GroupId, update.UserIds[i])
+		err := dao.GroupUserDao.Delete(ctx, update.GroupId, update.UserIds[i])
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 	}
-	s.session.Commit()
+	ctx.Session.Commit()
 	return nil
 }
 
-func (s *GroupService) UpdateLabel(groupId int, userId int, label string) error {
-	return dao.NewGroupUserDao(s.session).UpdateLabel(groupId, userId, label)
+func (*groupService) UpdateLabel(ctx *context.Context, groupId int, userId int, label string) error {
+	return dao.GroupUserDao.UpdateLabel(ctx, groupId, userId, label)
 }

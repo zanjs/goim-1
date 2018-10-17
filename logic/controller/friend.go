@@ -28,7 +28,7 @@ func (FriendControlelr) Friends(c *gin.Context) {
 	if err != nil {
 		c.JSON(OK, NewBadRequst(errors.New("error id")))
 	}
-	users, err := service.NewFriendService().ListUserFriend(id)
+	users, err := service.FriendService.ListUserFriend(Context(), id)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))

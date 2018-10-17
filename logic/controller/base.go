@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"goim/lib/context"
+	"goim/logic/db"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,4 +16,8 @@ func init() {
 
 func verify(c *gin.Context) {
 
+}
+
+func Context() *context.Context {
+	return context.NewContext(db.Factoty.GetSession())
 }
