@@ -2,7 +2,7 @@ package service
 
 import (
 	"goim/logic/dao"
-	"goim/pb"
+	"goim/public/pb"
 )
 
 type handlerService struct{}

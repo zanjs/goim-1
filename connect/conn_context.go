@@ -2,13 +2,14 @@ package connect
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	"goim/pb"
+	"goim/public/pb"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/golang/protobuf/proto"
 )
 
 const ReadDeadline = 10 * time.Minute

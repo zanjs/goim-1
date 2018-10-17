@@ -1,9 +1,9 @@
 package service
 
 import (
-	"goim/lib/context"
 	"goim/logic/dao"
 	"goim/logic/entity"
+	"goim/public/context"
 	"log"
 )
 

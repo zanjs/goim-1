@@ -3,9 +3,9 @@ package service
 import (
 	"database/sql"
 	"errors"
-	"goim/lib/context"
 	"goim/logic/dao"
 	"goim/logic/entity"
+	"goim/public/context"
 	"log"
 )
 

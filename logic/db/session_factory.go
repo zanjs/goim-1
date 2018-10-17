@@ -1,6 +1,6 @@
 package db
 
-import "goim/lib/session"
+import "goim/public/session"
 
 var Factoty *session.SessionFactory
 

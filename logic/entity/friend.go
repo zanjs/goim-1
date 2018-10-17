@@ -8,7 +8,7 @@ import (
 type Friend struct {
 	Id         int64     `json:"id"`          // 自增主键
 	UserId     int64     `json:"user_id"`     // 账户id
-	Friend     int64     `json:"friend"`      // 好友账户id
+	FriendId   int64     `json:"friend_id"`   // 好友账户id
 	Label      string    `json:"label"`       // 备注，标签
 	CreateTime time.Time `json:"create_time"` // 创建时间
 	UpdateTime time.Time `json:"update_time"` // 更新时间

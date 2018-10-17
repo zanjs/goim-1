@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/lib/context"
+	"goim/public/context"
 	"log"
 )
 

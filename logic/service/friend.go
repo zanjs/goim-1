@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"goim/lib/context"
 	"goim/logic/dao"
 	"goim/logic/entity"
+	"goim/public/context"
 	"log"
 )
 
@@ -22,9 +22,9 @@ func (*friendService) Add(ctx *context.Context, add entity.FriendAdd) error {
 	defer ctx.Session.Rollback()
 
 	friend1 := entity.Friend{
-		UserId: add.UserId,
-		Friend: add.Friend,
-		Label:  add.UserLabel,
+		UserId:   add.UserId,
+		FriendId: add.Friend,
+		Label:    add.UserLabel,
 	}
 	err = dao.FriendDao.Add(ctx, friend1)
 	if err != nil {
@@ -33,9 +33,9 @@ func (*friendService) Add(ctx *context.Context, add entity.FriendAdd) error {
 	}
 
 	friend2 := entity.Friend{
-		UserId: add.Friend,
-		Friend: add.UserId,
-		Label:  add.FriendLabel,
+		UserId:   add.Friend,
+		FriendId: add.UserId,
+		Label:    add.FriendLabel,
 	}
 	err = dao.FriendDao.Add(ctx, friend2)
 	if err != nil {

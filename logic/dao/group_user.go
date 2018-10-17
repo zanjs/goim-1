@@ -1,8 +1,8 @@
 package dao
 
 import (
-	"goim/lib/context"
 	"goim/logic/entity"
+	"goim/public/context"
 	"log"
 )
 

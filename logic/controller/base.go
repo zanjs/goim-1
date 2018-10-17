@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"goim/lib/context"
 	"goim/logic/db"
+	"goim/public/context"
 
 	"github.com/gin-gonic/gin"
 )

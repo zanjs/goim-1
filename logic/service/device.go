@@ -5,7 +5,7 @@ import (
 	"goim/logic/entity"
 	"log"
 
-	"goim/lib/context"
+	"goim/public/context"
 
 	"github.com/satori/go.uuid"
 )

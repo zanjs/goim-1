@@ -46,7 +46,7 @@ func (FriendControlelr) Add(c *gin.Context) {
 		return
 	}
 
-	err = service.NewFriendService().Add(friendAdd)
+	err = service.FriendService.Add(Context(), friendAdd)
 	if err != nil {
 		c.JSON(OK, NewError(err))
 		return
@@ -65,7 +65,7 @@ func (FriendControlelr) Delete(c *gin.Context) {
 		return
 	}
 
-	err = service.NewFriendService().Delete(json.UserId, json.Friend)
+	err = service.FriendService.Delete(Context(), json.UserId, json.Friend)
 	if err != nil {
 		c.JSON(OK, NewError(err))
 		return

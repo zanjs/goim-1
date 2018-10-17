@@ -1,6 +1,6 @@
 package context
 
-import "goim/lib/session"
+import "goim/public/session"
 
 type Context struct {
 	Session *session.Session
