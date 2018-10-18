@@ -6,5 +6,4 @@ message OnLine {
     uint64 device_id = 1; // 设备id
     uint64 user_id = 2; // 用户id
     string token = 3; // 设备token
-    uint64 local_sn = 4; // 设备本地同步序列号
 }
