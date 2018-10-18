@@ -42,13 +42,16 @@ func (GroupController) Get(c *gin.Context) {
 
 // CreateAndAddUser 创建群组并且添加成员
 func (GroupController) CreateAndAddUser(c *gin.Context) {
-	var add entity.GroupAdd
-	err := c.ShouldBindJSON(&add)
+	var data = struct {
+		Name    string  `json:"name"`     // 群组名称
+		UserIds []int64 `json:"user_ids"` // 群组成员
+	}{}
+	err := c.ShouldBindJSON(&data)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
-	id, err := service.GroupService.CreateAndAddUser(Context(), add)
+	id, err := service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds)
 	if err != nil {
 		log.Println(err)
 		c.JSON(OK, NewError(err))

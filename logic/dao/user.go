@@ -13,7 +13,7 @@ var UserDao = new(userDao)
 // Add 插入一条用户信息
 func (*userDao) Add(ctx *context.Context, user entity.User) (int64, error) {
 	result, err := ctx.Session.Exec("insert ignore into t_user(number,name,sex,img,password) values(?,?,?,?,?)",
-		user.Number, user.Name, user.Sex, user.Img, user.Password)
+		user.Number, user.Name, user.Sex, user.Avatar, user.Password)
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -31,7 +31,7 @@ func (*userDao) Add(ctx *context.Context, user entity.User) (int64, error) {
 func (*userDao) Get(ctx *context.Context, id int) (*entity.User, error) {
 	row := ctx.Session.QueryRow("select number,name,password,sex,img from t_user where id = ?", id)
 	user := new(entity.User)
-	err := row.Scan(&user.Number, &user.Name, &user.Password, &user.Sex, &user.Img)
+	err := row.Scan(&user.Number, &user.Name, &user.Password, &user.Sex, &user.Avatar)
 	if err != nil {
 		log.Println(err)
 	}

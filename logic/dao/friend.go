@@ -12,7 +12,7 @@ var FriendDao = new(friendDao)
 
 // Add 插入一条朋友关系
 func (*friendDao) Add(ctx *context.Context, friend entity.Friend) error {
-	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend,label) values(?,?,?)", friend.UserId, friend.Friend, friend.Label)
+	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend_id,label) values(?,?,?)", friend.UserId, friend.FriendId, friend.Label)
 	if err != nil {
 		log.Println(err)
 	}
@@ -21,7 +21,7 @@ func (*friendDao) Add(ctx *context.Context, friend entity.Friend) error {
 
 // Delete 删除一条朋友关系
 func (*friendDao) Delete(ctx *context.Context, userId, friend int) error {
-	_, err := ctx.Session.Exec("delete from t_friend where user_id = ? and friend = ? ", userId, friend)
+	_, err := ctx.Session.Exec("delete from t_friend where user_id = ? and friend_id = ? ", userId, friend)
 	if err != nil {
 		log.Println(err)
 	}

@@ -35,7 +35,6 @@ func (FriendControlelr) Friends(c *gin.Context) {
 		return
 	}
 	c.JSON(OK, NewSuccess(users))
-
 }
 
 func (FriendControlelr) Add(c *gin.Context) {

@@ -11,7 +11,7 @@ type groupUserDao struct{}
 var GroupUserDao = new(groupUserDao)
 
 func (*groupUserDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
-	row := ctx.Session.QueryRow("select id,name from t_user where id = ?", id)
+	row := ctx.Session.QueryRow("select id,name from t_group where id = ?", id)
 	var group entity.Group
 	err := row.Scan(&group.Id, &group.Name)
 	if err != nil {
@@ -23,7 +23,7 @@ func (*groupUserDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
 
 // ListGroupUser 获取群组用户信息
 func (*groupUserDao) ListGroupUser(ctx *context.Context, id int) ([]entity.GroupUser, error) {
-	sql := `select g.label,u.number,u.name,u.sex,u.img from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
+	sql := `select g.label,u.id,u.number,u.name,u.sex,u.avatar from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
 	rows, err := ctx.Session.Query(sql, id)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (*groupUserDao) ListGroupUser(ctx *context.Context, id int) ([]entity.Group
 	groupUsers := make([]entity.GroupUser, 0, 5)
 	for rows.Next() {
 		var groupUser entity.GroupUser
-		err := rows.Scan(&groupUser.Label, &groupUser.Number, &groupUser.Name, &groupUser.Sex, &groupUser.Img)
+		err := rows.Scan(&groupUser.Label, &groupUser.UserId, &groupUser.Number, &groupUser.Name, &groupUser.Sex, &groupUser.Img)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -81,7 +81,7 @@ func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int, erro
 }
 
 // Add 将用户添加到群组
-func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int) error {
+func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("insert ignore into t_group_user(group_id,user_id) values(?,?)", groupId, userId)
 	if err != nil {
 		log.Println(err)
@@ -90,7 +90,7 @@ func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int) error 
 }
 
 // Delete 将用户从群组删除
-func (d *groupUserDao) Delete(ctx *context.Context, groupId int64, userId int) error {
+func (d *groupUserDao) Delete(ctx *context.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("delete from t_group_user where group_id = ? and user_id = ?", groupId, userId)
 	if err != nil {
 		log.Println(err)

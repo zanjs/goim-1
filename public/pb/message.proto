@@ -14,5 +14,5 @@ message MessageItem {
     uint64 group_id = 5; // 接收群组id，如果为0，表示单发消息，如果为1，表示群组消息
     uint32 type = 6; // 消息类型
     string content = 7; // 消息内容
-    uint64 sn = 8; // 同步序列号
+    uint64 sequence = 8; // 同步序列号
 }

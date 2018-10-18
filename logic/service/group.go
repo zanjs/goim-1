@@ -46,7 +46,7 @@ func (*groupService) Get(ctx *context.Context, id int) (*entity.Group, error) {
 }
 
 // CreateAndAddUser 创建群组并且添加群成员
-func (*groupService) CreateAndAddUser(ctx *context.Context, add entity.GroupAdd) (int64, error) {
+func (*groupService) CreateAndAddUser(ctx *context.Context, groupName string, userIds []int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
@@ -54,14 +54,14 @@ func (*groupService) CreateAndAddUser(ctx *context.Context, add entity.GroupAdd)
 	}
 	defer ctx.Session.Rollback()
 
-	id, err := dao.GroupDao.Add(ctx, add.Name)
+	id, err := dao.GroupDao.Add(ctx, groupName)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
-	for i := range add.UserIds {
-		err := dao.GroupUserDao.Add(ctx, id, add.UserIds[i])
+	for _, userId := range userIds {
+		err := dao.GroupUserDao.Add(ctx, id, userId)
 		if err != nil {
 			log.Println(err)
 			return 0, err
@@ -72,7 +72,7 @@ func (*groupService) CreateAndAddUser(ctx *context.Context, add entity.GroupAdd)
 }
 
 // AddUser 给群组添加用户
-func (*groupService) AddUser(ctx *context.Context, update entity.GroupUserUpdate) error {
+func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
@@ -80,8 +80,8 @@ func (*groupService) AddUser(ctx *context.Context, update entity.GroupUserUpdate
 	}
 	defer ctx.Session.Rollback()
 
-	for i := range update.UserIds {
-		err := dao.GroupUserDao.Add(ctx, update.GroupId, update.UserIds[i])
+	for _, userId := range userIds {
+		err := dao.GroupUserDao.Add(ctx, groupId, userId)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -92,7 +92,7 @@ func (*groupService) AddUser(ctx *context.Context, update entity.GroupUserUpdate
 }
 
 // DeleteUser 从群组移除用户
-func (*groupService) DeleteUser(ctx *context.Context, update entity.GroupUserUpdate) error {
+func (*groupService) DeleteUser(ctx *context.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
@@ -100,8 +100,8 @@ func (*groupService) DeleteUser(ctx *context.Context, update entity.GroupUserUpd
 	}
 	defer ctx.Session.Rollback()
 
-	for i := range update.UserIds {
-		err := dao.GroupUserDao.Delete(ctx, update.GroupId, update.UserIds[i])
+	for _, userId := range userIds {
+		err := dao.GroupUserDao.Delete(ctx, groupId, userId)
 		if err != nil {
 			log.Println(err)
 			return err
