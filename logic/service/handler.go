@@ -1,9 +1,5 @@
 package service
 
-import (
-	"goim/public/pb"
-)
-
 type handlerService struct{}
 
 var HandlerService = new(handlerService)

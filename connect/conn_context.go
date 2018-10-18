@@ -2,7 +2,7 @@ package connect
 
 import (
 	"fmt"
-	"goim/public/pb"
+	"goim/public/proto"
 	"io"
 	"log"
 	"net"
