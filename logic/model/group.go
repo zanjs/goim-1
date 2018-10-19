@@ -1,4 +1,4 @@
-package entity
+package model
 
 // Group 群组
 type Group struct {

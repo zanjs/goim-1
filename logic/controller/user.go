@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/logic/service"
 
 	"log"
@@ -38,7 +38,7 @@ func (UserController) ListGroupByUserId(c *gin.Context) {
 
 // Regist 用户注册
 func (UserController) Regist(c *gin.Context) {
-	var user entity.User
+	var user model.User
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))
@@ -54,7 +54,7 @@ func (UserController) Regist(c *gin.Context) {
 
 // SignIn 用户登录
 func (UserController) SignIn(c *gin.Context) {
-	var signIn entity.SignIn
+	var signIn model.SignIn
 	err := c.ShouldBindJSON(&signIn)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))

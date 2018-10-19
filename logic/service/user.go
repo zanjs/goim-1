@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"goim/logic/dao"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -15,7 +15,7 @@ var UserService = new(userService)
 
 var ErrNumberExist = errors.New("user number exist")
 
-func (*userService) Regist(ctx *context.Context, user entity.User) (int64, error) {
+func (*userService) Regist(ctx *context.Context, user model.User) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
@@ -50,7 +50,7 @@ var (
 )
 
 // SignIn 登录
-func (*userService) SignIn(ctx *context.Context, signIn entity.SignIn) error {
+func (*userService) SignIn(ctx *context.Context, signIn model.SignIn) error {
 	token, err := dao.DeviceDao.GetToken(ctx, signIn.DeviceId)
 	if err != nil {
 		if err == sql.ErrNoRows {

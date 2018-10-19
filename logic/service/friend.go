@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"goim/logic/dao"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -13,7 +13,7 @@ type friendService struct{}
 var FriendService = new(friendService)
 
 // Add 添加好友关系
-func (*friendService) Add(ctx *context.Context, add entity.FriendAdd) error {
+func (*friendService) Add(ctx *context.Context, add model.FriendAdd) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)
@@ -21,7 +21,7 @@ func (*friendService) Add(ctx *context.Context, add entity.FriendAdd) error {
 	}
 	defer ctx.Session.Rollback()
 
-	friend1 := entity.Friend{
+	friend1 := model.Friend{
 		UserId:   add.UserId,
 		FriendId: add.Friend,
 		Label:    add.UserLabel,
@@ -32,7 +32,7 @@ func (*friendService) Add(ctx *context.Context, add entity.FriendAdd) error {
 		return err
 	}
 
-	friend2 := entity.Friend{
+	friend2 := model.Friend{
 		UserId:   add.Friend,
 		FriendId: add.UserId,
 		Label:    add.FriendLabel,

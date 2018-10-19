@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 
 	"goim/logic/service"
 
@@ -38,7 +38,7 @@ func (FriendControlelr) Friends(c *gin.Context) {
 }
 
 func (FriendControlelr) Add(c *gin.Context) {
-	var friendAdd entity.FriendAdd
+	var friendAdd model.FriendAdd
 	err := c.ShouldBindJSON(&friendAdd)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))

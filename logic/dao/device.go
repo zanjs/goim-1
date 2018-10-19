@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -11,7 +11,7 @@ type deviceDao struct{}
 var DeviceDao = new(deviceDao)
 
 // Insert 插入一条设备信息
-func (*deviceDao) Add(ctx *context.Context, device entity.Device) (int64, error) {
+func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
 		return 0, err
@@ -53,16 +53,16 @@ func (*deviceDao) UpdateStatus(ctx context.Context, id, status int) error {
 }
 
 // ListUserOnline 查询用户所有的在线设备
-func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int) ([]*entity.Device, error) {
+func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int) ([]*model.Device, error) {
 	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	devices := make([]*entity.Device, 0, 5)
+	devices := make([]*model.Device, 0, 5)
 	for rows.Next() {
-		device := new(entity.Device)
+		device := new(model.Device)
 		err = rows.Scan(&device.Id, &device.Type, &device.Model, &device.Version)
 		if err != nil {
 			log.Println(err)

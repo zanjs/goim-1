@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -10,9 +10,9 @@ type groupUserDao struct{}
 
 var GroupUserDao = new(groupUserDao)
 
-func (*groupUserDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
+func (*groupUserDao) Get(ctx *context.Context, id int) (*model.Group, error) {
 	row := ctx.Session.QueryRow("select id,name from t_group where id = ?", id)
-	var group entity.Group
+	var group model.Group
 	err := row.Scan(&group.Id, &group.Name)
 	if err != nil {
 		log.Println(err)
@@ -22,15 +22,15 @@ func (*groupUserDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
 }
 
 // ListGroupUser 获取群组用户信息
-func (*groupUserDao) ListGroupUser(ctx *context.Context, id int) ([]entity.GroupUser, error) {
+func (*groupUserDao) ListGroupUser(ctx *context.Context, id int) ([]model.GroupUser, error) {
 	sql := `select g.label,u.id,u.number,u.name,u.sex,u.avatar from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
 	rows, err := ctx.Session.Query(sql, id)
 	if err != nil {
 		return nil, err
 	}
-	groupUsers := make([]entity.GroupUser, 0, 5)
+	groupUsers := make([]model.GroupUser, 0, 5)
 	for rows.Next() {
-		var groupUser entity.GroupUser
+		var groupUser model.GroupUser
 		err := rows.Scan(&groupUser.Label, &groupUser.UserId, &groupUser.Number, &groupUser.Name, &groupUser.Sex, &groupUser.Img)
 		if err != nil {
 			log.Println(err)

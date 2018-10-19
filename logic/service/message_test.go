@@ -2,14 +2,14 @@ package service
 
 import (
 	"fmt"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"log"
 	"step-wx/lib"
 	"testing"
 )
 
 func TestMessageService_Add(t *testing.T) {
-	message := entity.Message{
+	message := model.Message{
 		UserId:       1,
 		SenderType:   1,
 		SenderId:     1,

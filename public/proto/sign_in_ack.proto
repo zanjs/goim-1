@@ -3,6 +3,6 @@ package pb;
 
 // 设备登录回执
 message SignInACK {
-    bool ok = 1; // 设备是否上线成功
+    int32 code = 1; // 返回码
     string message = 2; // 描述
 }

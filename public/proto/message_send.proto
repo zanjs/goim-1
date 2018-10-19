@@ -4,8 +4,8 @@ package pb;
 // 消息发送
 message MessageSend {
     int32 receiver_type = 1; // 接收者类型，0：user;1:group
-    uint64 receiver_id = 2; // 接收者id
+    int64 receiver_id = 2; // 接收者id
     int32 type = 3; // 消息类型
     string content = 4; // 消息内容
-    uint64 sequence =5; // 消息id
+    int64 sequence =5; // 消息id
 }

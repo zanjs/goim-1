@@ -2,7 +2,7 @@ package service
 
 import (
 	"goim/logic/dao"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"log"
 
 	"goim/public/context"
@@ -20,7 +20,7 @@ type deviceService struct{}
 var DeviceService = new(deviceService)
 
 // Regist 注册设备
-func (*deviceService) Regist(ctx *context.Context, device entity.Device) (int64, string, error) {
+func (*deviceService) Regist(ctx *context.Context, device model.Device) (int64, string, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		log.Println(err)

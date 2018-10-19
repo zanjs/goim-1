@@ -2,7 +2,7 @@ package service
 
 import (
 	"goim/logic/dao"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -12,13 +12,13 @@ type groupService struct{}
 var GroupService = new(groupService)
 
 // ListByUserId 获取用户群组
-func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*entity.Group, error) {
+func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Group, error) {
 	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	groups := make([]*entity.Group, 0, 5)
+	groups := make([]*model.Group, 0, 5)
 	for i := range ids {
 		group, err := GroupService.Get(ctx, ids[i])
 		if err != nil {
@@ -31,7 +31,7 @@ func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*entity.G
 }
 
 // ListGroupUser 获取群组的用户信息
-func (*groupService) Get(ctx *context.Context, id int) (*entity.Group, error) {
+func (*groupService) Get(ctx *context.Context, id int) (*model.Group, error) {
 	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
 		log.Println(err)

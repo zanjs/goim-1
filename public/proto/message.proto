@@ -9,11 +9,11 @@ message Message {
 // 单条消息投递
 message MessageItem {
     int32 sender_type = 1; // 发送者类型
-    uint64 sender_id = 2; // 发送者userId
-    uint64 device_id = 3; // 接受者设备id
-    uint64 receiver_type = 5; // 接收者userId
-    uint64 receiver_id = 6; // 接收群组id，如果为0，表示单发消息，如果为1，表示群组消息
-    uint32 type = 7; // 消息类型
+    int64 sender_id = 2; // 发送者userId
+    int64 device_id = 3; // 接受者设备id
+    int32 receiver_type = 5; // 接收者userId
+    int64 receiver_id = 6; // 接收群组id，如果为0，表示单发消息，如果为1，表示群组消息
+    int32 type = 7; // 消息类型
     string content = 8; // 消息内容
-    uint64 sequence = 9; // 同步序列号
+    int64 sequence = 9; // 同步序列号
 }

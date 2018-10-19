@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/logic/service"
 	"log"
 
@@ -63,7 +63,7 @@ func (GroupController) CreateAndAddUser(c *gin.Context) {
 
 // AddUser 给群组添加用户
 func (GroupController) AddUser(c *gin.Context) {
-	var update entity.GroupUserUpdate
+	var update model.GroupUserUpdate
 	err := c.ShouldBindJSON(&update)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))
@@ -81,7 +81,7 @@ func (GroupController) AddUser(c *gin.Context) {
 
 // DeleteUser 从群组删除成员
 func (GroupController) DeleteUser(c *gin.Context) {
-	var update entity.GroupUserUpdate
+	var update model.GroupUserUpdate
 	err := c.ShouldBindJSON(&update)
 	if err != nil {
 		c.JSON(OK, NewBadRequst(err))

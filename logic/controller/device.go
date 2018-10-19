@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/logic/service"
 	"log"
 
@@ -17,7 +17,7 @@ type DeviceController struct{}
 
 // Regist 设备注册
 func (DeviceController) Regist(c *gin.Context) {
-	var device entity.Device
+	var device model.Device
 	err := c.ShouldBindJSON(&device)
 	if err != nil {
 		log.Println(err)

@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -11,9 +11,9 @@ type groupDao struct{}
 var GroupDao = new(groupDao)
 
 // Get 获取群组信息
-func (*groupDao) Get(ctx *context.Context, id int) (*entity.Group, error) {
+func (*groupDao) Get(ctx *context.Context, id int) (*model.Group, error) {
 	row := ctx.Session.QueryRow("select name from t_group where id = ?", id)
-	group := new(entity.Group)
+	group := new(model.Group)
 	err := row.Scan(&group.Name)
 	if err != nil {
 		log.Println(err)

@@ -2,7 +2,7 @@ package service
 
 import (
 	"goim/logic/db"
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 	"testing"
@@ -11,7 +11,7 @@ import (
 var ctx = context.NewContext(db.Factoty.GetSession())
 
 func TestFriendService_Add(t *testing.T) {
-	add := entity.FriendAdd{
+	add := model.FriendAdd{
 		UserId:      1,
 		UserLabel:   "alber",
 		Friend:      2,

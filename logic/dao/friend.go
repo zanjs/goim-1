@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/logic/entity"
+	"goim/logic/model"
 	"goim/public/context"
 	"log"
 )
@@ -11,7 +11,7 @@ type friendDao struct{}
 var FriendDao = new(friendDao)
 
 // Add 插入一条朋友关系
-func (*friendDao) Add(ctx *context.Context, friend entity.Friend) error {
+func (*friendDao) Add(ctx *context.Context, friend model.Friend) error {
 	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend_id,label) values(?,?,?)", friend.UserId, friend.FriendId, friend.Label)
 	if err != nil {
 		log.Println(err)
@@ -29,16 +29,16 @@ func (*friendDao) Delete(ctx *context.Context, userId, friend int) error {
 }
 
 // ListFriends 获取用户的朋友列表
-func (*friendDao) ListUserFriend(ctx *context.Context, id int) ([]entity.FriendUser, error) {
+func (*friendDao) ListUserFriend(ctx *context.Context, id int) ([]model.FriendUser, error) {
 	rows, err := ctx.Session.Query("select f.label,u.id,u.number,u.name,u.sex,u.img from t_friend f left join t_user u on f.friend = u.id where f.user_id = ?", id)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	users := make([]entity.FriendUser, 0, 5)
+	users := make([]model.FriendUser, 0, 5)
 	for rows.Next() {
-		var user entity.FriendUser
+		var user model.FriendUser
 		err := rows.Scan(&user.Label, &user.UserId, &user.Number, &user.Name, &user.Sex, &user.Img)
 		if err != nil {
 			log.Println(err)
