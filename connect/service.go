@@ -1,3 +1,1 @@
 package connect
-
-func Message
