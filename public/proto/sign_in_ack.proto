@@ -1,8 +1,8 @@
 syntax = "proto3";
 package pb;
 
-// 设备上线回执 type:2
-message OnLineACK {
+// 设备登录回执
+message SignInACK {
     bool ok = 1; // 设备是否上线成功
     string message = 2; // 描述
 }

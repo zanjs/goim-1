@@ -2,7 +2,7 @@ package connect
 
 import (
 	"fmt"
-	"goim/public/proto"
+	"goim/public/pb"
 	"io"
 	"log"
 	"net"
@@ -14,15 +14,17 @@ import (
 
 const ReadDeadline = 10 * time.Minute
 
+// 消息协议
 const (
-	Online         = 1
-	OnLineACK      = 2
-	Headbeat       = 3
-	HeadbeatACK    = 4
-	MessageSend    = 5
-	MessageSendACK = 6
-	Message        = 7
-	MessageACK     = 8
+	CodeSignIn         = 1 // 设备登录
+	CodeSignInACK      = 2 // 设备登录回执
+	CodeSyncTrigger    = 3 // 消息同步触发
+	CodeHeadbeat       = 4 // 心跳
+	CodeHeadbeatACK    = 5 // 心跳回执
+	CodeMessageSend    = 5 // 消息发送
+	CodeMessageSendACK = 6 // 消息发送回执
+	CodeMessage        = 7 // 消息投递
+	CodeMessageACK     = 8 // 消息投递回执
 )
 
 // ConnContext 连接上下文
@@ -82,25 +84,28 @@ func (c *ConnContext) HandleConnect() {
 func (c *ConnContext) HandleMessage(pack *Package) {
 	log.Println("message", pack.Code, string(pack.Content))
 	switch pack.Code {
-	case Online:
-		var online pb.OnLine
-		err := proto.Unmarshal(pack.Content, &online)
+	case CodeSignIn:
+		var signIn pb.SignIn
+		err := proto.Unmarshal(pack.Content, &signIn)
 		if err != nil {
 			fmt.Println(err)
 			c.Close()
 			return
 		}
 
-	case Headbeat:
-		var headbeat pb.Headbeat
-		err := proto.Unmarshal(pack.Content, &headbeat)
+	case CodeSyncTrigger:
+		var trigger pb.SyncTrigger
+		err := proto.Unmarshal(pack.Content, &trigger)
 		if err != nil {
 			fmt.Println(err)
 			c.Close()
 			return
 		}
 
-	case MessageSend:
+	case CodeHeadbeat:
+		// 心跳逻辑
+
+	case CodeMessageSend:
 		var messageSend pb.MessageSend
 		err := proto.Unmarshal(pack.Content, &messageSend)
 		if err != nil {
@@ -108,7 +113,7 @@ func (c *ConnContext) HandleMessage(pack *Package) {
 			c.Close()
 			return
 		}
-	case MessageACK:
+	case CodeMessageACK:
 		var messageACK pb.MessageACK
 		err := proto.Unmarshal(pack.Content, &messageACK)
 		if err != nil {

@@ -1,6 +1,6 @@
 syntax = "proto3";
 package pb;
-// 投递消息回执 type:6
+// 投递消息回执
 message MessageACK {
     uint64 sequence_ack = 1; //同步序列号
 }

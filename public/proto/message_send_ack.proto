@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-// 消息发送回执 type:4
+// 消息发送回执
 message MessageSendACK {
     uint32 sequence = 1; // 序列号
 }

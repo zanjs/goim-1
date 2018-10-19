@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-// 消息投递 type:5
+// 消息投递
 message Message {
     repeated MessageItem Messages = 1;
 }
