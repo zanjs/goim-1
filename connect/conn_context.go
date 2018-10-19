@@ -1,13 +1,15 @@
 package connect
 
 import (
-	"fmt"
 	"goim/public/pb"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"goim/logic/service"
+	"goim/public/model"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -29,8 +31,9 @@ const (
 
 // ConnContext 连接上下文
 type ConnContext struct {
-	Codec *Codec      // 编解码器
-	Info  interface{} // 附加信息
+	Codec    *Codec // 编解码器
+	DeviceId int64  // 设备id
+	UserId   int64  // 用户id
 }
 
 // Package 消息包
@@ -66,7 +69,7 @@ func (c *ConnContext) DoConn() {
 		for {
 			message, ok := c.Codec.Decode()
 			if ok {
-				c.HandleMessage(message)
+				c.HandlePackage(message)
 				continue
 			}
 			break
@@ -80,54 +83,95 @@ func (c *ConnContext) HandleConnect() {
 	return
 }
 
-// HandleMessage 处理消息
-func (c *ConnContext) HandleMessage(pack *Package) {
+// HandlePackage 处理消息包
+func (c *ConnContext) HandlePackage(pack *Package) {
 	log.Println("message", pack.Code, string(pack.Content))
 	switch pack.Code {
 	case CodeSignIn:
-		var signIn pb.SignIn
-		err := proto.Unmarshal(pack.Content, &signIn)
-		if err != nil {
-			fmt.Println(err)
-			c.Close()
-			return
-		}
-
+		c.HandlePackageSignIn(pack)
 	case CodeSyncTrigger:
-		var trigger pb.SyncTrigger
-		err := proto.Unmarshal(pack.Content, &trigger)
-		if err != nil {
-			fmt.Println(err)
-			c.Close()
-			return
-		}
-
+		c.HandlePackageSyncTrigger(pack)
 	case CodeHeadbeat:
-		// 心跳逻辑
-
+		c.HandlePackageHeadbeat(pack)
 	case CodeMessageSend:
-		var messageSend pb.MessageSend
-		err := proto.Unmarshal(pack.Content, &messageSend)
-		if err != nil {
-			fmt.Println(err)
-			c.Close()
-			return
-		}
+		c.HandlePackageMessageSend(pack)
 	case CodeMessageACK:
-		var messageACK pb.MessageACK
-		err := proto.Unmarshal(pack.Content, &messageACK)
-		if err != nil {
-			fmt.Println(err)
-			c.Close()
-			return
-		}
+		c.HandlePackageMessageACK(pack)
 	}
 	return
+}
+
+// HandlePackageSignIn 处理登录消息包
+func (c *ConnContext) HandlePackageSignIn(pack *Package) {
+	var signIn pb.SignIn
+	err := proto.Unmarshal(pack.Content, &signIn)
+	if err != nil {
+		log.Println(err)
+		c.Close()
+		return
+	}
+
+	// 处理设备登录逻辑
+	ack := service.HandlerService.HandleSignIn(model.SignIn{
+		DeviceId: signIn.DeviceId,
+		UserId:   signIn.UserId,
+		Token:    signIn.Token,
+	})
+
+	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, 10*time.Second)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+// HandlePackageSyncTrigger 处理同步触发消息包
+func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
+	var trigger pb.SyncTrigger
+	err := proto.Unmarshal(pack.Content, &trigger)
+	if err != nil {
+		log.Println(err)
+		c.Close()
+		return
+	}
+}
+
+// HandlePackageHeadbeat 处理同步触发消息包
+func (c *ConnContext) HandlePackageHeadbeat(pack *Package) {
+
+}
+
+// HandlePackageMessageSend 处理心跳消息包
+func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
+	var messageSend pb.MessageSend
+	err := proto.Unmarshal(pack.Content, &messageSend)
+	if err != nil {
+		log.Println(err)
+		c.Close()
+		return
+	}
+}
+
+// HandlePackageMessageACK 处理消息回执消息包
+func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
+	var messageACK pb.MessageACK
+	err := proto.Unmarshal(pack.Content, &messageACK)
+	if err != nil {
+		log.Println(err)
+		c.Close()
+		return
+	}
 }
 
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
 	log.Println(err)
+	delete(c.DeviceId)
 	// 客户端主动关闭连接或者异常程序退出
 	if err == io.EOF {
 		c.Codec.Conn.Close()

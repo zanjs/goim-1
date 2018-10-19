@@ -1,9 +1,14 @@
 package model
 
+const (
+	CodeSignInSuccess = 1
+	CodeSignInFail    = 2
+)
+
 // SignIn 设备登录
 type SignIn struct {
-	DeviceId uint64 // 设备id
-	UserId   uint64 // 用户id
+	DeviceId int64  // 设备id
+	UserId   int64  // 用户id
 	Token    string // token
 }
 

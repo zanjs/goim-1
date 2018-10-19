@@ -23,6 +23,17 @@ func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) 
 	return id, nil
 }
 
+// Get 获取设备
+func (*deviceDao) Get(ctx *context.Context, id int64) (*model.Device, error) {
+	device := model.Device{Id: id}
+	row := ctx.Session.QueryRow("select user_id,token,type,model,version.status,create_time,update_time from t_device where id = ? ", id)
+	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version, &device.Status, &device.CreateTime, &device.UpdateTime)
+	if err != nil {
+		log.Println(err)
+	}
+	return &device, err
+}
+
 // GetToken 获取设备的token
 func (*deviceDao) GetToken(ctx *context.Context, id int64) (string, error) {
 	var token string
@@ -43,7 +54,7 @@ func (*deviceDao) UpdateUserId(ctx *context.Context, id, userId int64) error {
 	return nil
 }
 
-// UpdateUserId 更新设备绑定用户
+// UpdateStatus 更新设备的在线状态
 func (*deviceDao) UpdateStatus(ctx context.Context, id, status int) error {
 	_, err := ctx.Session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {

@@ -61,12 +61,12 @@ func (c *Codec) Decode() (*Package, bool) {
 }
 
 // Eecode 编码数据
-func (c *Codec) Eecode(message Package, duration time.Duration) error {
-	contentLen := len(message.Content)
+func (c *Codec) Eecode(pack Package, duration time.Duration) error {
+	contentLen := len(pack.Content)
 
-	binary.BigEndian.PutUint16(c.WriteBuf[0:TypeLen], uint16(message.Code))
-	binary.BigEndian.PutUint16(c.WriteBuf[LenLen:HeadLen], uint16(len(message.Content)))
-	copy(c.WriteBuf[HeadLen:], message.Content[:contentLen])
+	binary.BigEndian.PutUint16(c.WriteBuf[0:TypeLen], uint16(pack.Code))
+	binary.BigEndian.PutUint16(c.WriteBuf[LenLen:HeadLen], uint16(len(pack.Content)))
+	copy(c.WriteBuf[HeadLen:], pack.Content[:contentLen])
 
 	c.Conn.SetWriteDeadline(time.Now().Add(duration))
 	_, err := c.Conn.Write(c.WriteBuf[:HeadLen+contentLen])
