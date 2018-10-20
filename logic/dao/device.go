@@ -55,7 +55,7 @@ func (*deviceDao) UpdateUserId(ctx *context.Context, id, userId int64) error {
 }
 
 // UpdateStatus 更新设备的在线状态
-func (*deviceDao) UpdateStatus(ctx context.Context, id, status int) error {
+func (*deviceDao) UpdateStatus(ctx *context.Context, id int64, status int) error {
 	_, err := ctx.Session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {
 		log.Println(err)
@@ -64,7 +64,7 @@ func (*deviceDao) UpdateStatus(ctx context.Context, id, status int) error {
 }
 
 // ListUserOnline 查询用户所有的在线设备
-func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int) ([]*model.Device, error) {
+func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int64) ([]*model.Device, error) {
 	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
 	if err != nil {
 		log.Println(err)

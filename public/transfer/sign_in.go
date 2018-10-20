@@ -1,4 +1,4 @@
-package model
+package transfer
 
 const (
 	CodeSignInSuccess = 1

@@ -15,6 +15,6 @@ type Message struct {
 	ReceiverId   int64     `json:"receiver"`      // 接收者id,如果是单聊信息，则为user_id，如果是群组消息，则为group_id
 	Type         int       `json:"type"`          // 消息类型,0：文本；1：语音；2：图片
 	Content      string    `json:"content"`       // 内容
-	Sequence     int       `json:"sequence"`      // 消息同步序列
+	Sequence     int64     `json:"sequence"`      // 消息同步序列
 	CreateTime   time.Time `json:"create_time"`   // 创建时间
 }

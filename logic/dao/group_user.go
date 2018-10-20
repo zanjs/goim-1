@@ -10,7 +10,7 @@ type groupUserDao struct{}
 
 var GroupUserDao = new(groupUserDao)
 
-func (*groupUserDao) Get(ctx *context.Context, id int) (*model.Group, error) {
+func (*groupUserDao) Get(ctx *context.Context, id int64) (*model.Group, error) {
 	row := ctx.Session.QueryRow("select id,name from t_group where id = ?", id)
 	var group model.Group
 	err := row.Scan(&group.Id, &group.Name)

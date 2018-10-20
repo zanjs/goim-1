@@ -2,6 +2,7 @@ package connect
 
 import (
 	"goim/public/pb"
+	"goim/public/transfer"
 	"io"
 	"log"
 	"net"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"goim/logic/service"
-	"goim/public/model"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -112,7 +112,7 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	}
 
 	// 处理设备登录逻辑
-	ack := service.HandlerService.HandleSignIn(model.SignIn{
+	ack := service.HandlerService.HandleSignIn(Context(), transfer.SignIn{
 		DeviceId: signIn.DeviceId,
 		UserId:   signIn.UserId,
 		Token:    signIn.Token,

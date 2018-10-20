@@ -31,7 +31,7 @@ func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Gr
 }
 
 // ListGroupUser 获取群组的用户信息
-func (*groupService) Get(ctx *context.Context, id int) (*model.Group, error) {
+func (*groupService) Get(ctx *context.Context, id int64) (*model.Group, error) {
 	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
 		log.Println(err)
