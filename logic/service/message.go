@@ -94,7 +94,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 
 	// 持久化到数据库
 	for _, user := range group.GroupUser {
-		sequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
+		sequence, err := UserRequenceService.GetNext(ctx, user.UserId)
 		if err != nil {
 			log.Println(err)
 			return err
