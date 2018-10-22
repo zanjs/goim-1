@@ -7,11 +7,32 @@ import (
 	"log"
 	"time"
 
+	"goim/public/context"
+
 	"github.com/golang/protobuf/proto"
 )
 
-// HandleMessage 处理消息投递
-func HandleMessage(message transfer.Message) {
+type LogicRPCer interface {
+	// SignIn 设备登录
+	SignIn(ctx *context.Context, signIn transfer.SignIn) *transfer.SignInACK
+	// SyncTrigger 消息同步触发
+	SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error
+	// MessageSend 消息发送
+	MessageSend(ctx *context.Context, send transfer.MessageSend) error
+	// MessageACK 消息投递回执
+	MessageACK(ctx *context.Context, ack transfer.MessageACK) error
+	// OffLine 下线
+	OffLine(ctx *context.Context, deviceId int64) error
+}
+
+var LogicRPC LogicRPCer
+
+type connectRPC struct{}
+
+var ConnectRPC = new(connectRPC)
+
+// SendMessage 处理消息投递
+func (*connectRPC) SendMessage(message transfer.Message) {
 	ctx := load(message.DeviceId)
 	if ctx == nil {
 		log.Println("ctx id nil")
@@ -23,7 +44,7 @@ func HandleMessage(message transfer.Message) {
 		item := new(pb.MessageItem)
 		item.SenderType = int32(v.SenderType)
 		item.SenderId = v.SenderId
-		item.DeviceId = v.DeviceId
+		item.SenderDeviceId = v.SenderDeviceId
 		item.ReceiverType = int32(v.ReceiverType)
 		item.ReceiverId = v.ReceiverId
 		item.Type = int32(v.Type)
@@ -42,10 +63,11 @@ func HandleMessage(message transfer.Message) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	log.Printf("TCP消息投递：%#v\n", message)
 }
 
-// HandleMessageSendACK 处理消息发送回执
-func HandleMessageSendACK(ack transfer.MessageSendACK) {
+// SendMessageSendACK 处理消息发送回执
+func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) {
 	content, err := proto.Marshal(&pb.MessageSendACK{ack.SendSequence})
 	if err != nil {
 		log.Println(err)
@@ -56,6 +78,7 @@ func HandleMessageSendACK(ack transfer.MessageSendACK) {
 		log.Println("ctx id nil")
 		return
 	}
+
 	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, 10*time.Second)
 	if err != nil {
 		log.Println(err)

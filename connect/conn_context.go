@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"goim/logic/service"
+	"fmt"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -85,14 +85,14 @@ func (c *ConnContext) HandleConnect() {
 
 // HandlePackage 处理消息包
 func (c *ConnContext) HandlePackage(pack *Package) {
-	log.Println("message", pack.Code, string(pack.Content))
+	log.Println("package:code", pack.Code)
 	switch pack.Code {
 	case CodeSignIn:
 		c.HandlePackageSignIn(pack)
 	case CodeSyncTrigger:
 		c.HandlePackageSyncTrigger(pack)
 	case CodeHeadbeat:
-		c.HandlePackageHeadbeat(pack)
+		c.HandlePackageHeadbeat()
 	case CodeMessageSend:
 		c.HandlePackageMessageSend(pack)
 	case CodeMessageACK:
@@ -112,7 +112,7 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	}
 
 	// 处理设备登录逻辑
-	ack := service.HandlerService.HandleSignIn(Context(), transfer.SignIn{
+	ack := LogicRPC.SignIn(Context(), transfer.SignIn{
 		DeviceId: signIn.DeviceId,
 		UserId:   signIn.UserId,
 		Token:    signIn.Token,
@@ -128,6 +128,13 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	if err != nil {
 		log.Println(err)
 	}
+
+	if ack.Code == 1 {
+		c.DeviceId = signIn.DeviceId
+		c.UserId = signIn.UserId
+		store(c.DeviceId, c)
+	}
+
 }
 
 // HandlePackageSyncTrigger 处理同步触发消息包
@@ -139,21 +146,39 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 		c.Close()
 		return
 	}
+	LogicRPC.SyncTrigger(Context(), transfer.SyncTrigger{DeviceId: c.DeviceId, UserId: c.UserId, SyncSequence: trigger.SyncSequence})
 }
 
-// HandlePackageHeadbeat 处理同步触发消息包
-func (c *ConnContext) HandlePackageHeadbeat(pack *Package) {
-
+// HandlePackageHeadbeat 处理心跳包
+func (c *ConnContext) HandlePackageHeadbeat() {
+	log.Println("收到心跳")
+	err := c.Codec.Eecode(Package{Code: CodeHeadbeatACK, Content: []byte{}}, 10*time.Second)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
-// HandlePackageMessageSend 处理心跳消息包
+// HandlePackageMessageSend 处理消息发送包
 func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
-	var messageSend pb.MessageSend
-	err := proto.Unmarshal(pack.Content, &messageSend)
+	var send pb.MessageSend
+	err := proto.Unmarshal(pack.Content, &send)
 	if err != nil {
 		log.Println(err)
 		c.Close()
 		return
+	}
+	fmt.Printf("消息发送:%#v\n", send)
+	err = LogicRPC.MessageSend(Context(), transfer.MessageSend{
+		SenderDeviceId: c.DeviceId,
+		SenderUserId:   c.UserId,
+		ReceiverType:   send.ReceiverType,
+		ReceiverId:     send.ReceiverId,
+		Type:           send.Type,
+		Content:        send.Content,
+		SendSequence:   send.SendSequence,
+	})
+	if err != nil {
+		log.Println(err)
 	}
 }
 
@@ -166,6 +191,11 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 		c.Close()
 		return
 	}
+	LogicRPC.MessageACK(Context(), transfer.MessageACK{
+		DeviceId:     c.DeviceId,
+		UserId:       c.UserId,
+		SyncSequence: messageACK.SyncSequence,
+	})
 }
 
 // HandleReadErr 读取conn错误

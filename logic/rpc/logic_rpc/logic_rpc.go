@@ -1,20 +1,21 @@
-package service
+package logic_rpc
 
 import (
 	"database/sql"
-	"goim/connect"
 	"goim/logic/dao"
+	"goim/logic/rpc/connect_rpc"
+	"goim/logic/service"
 	"goim/public/context"
 	"goim/public/transfer"
 	"log"
 )
 
-type handlerService struct{}
+type logicRPC struct{}
 
-var HandlerService = new(handlerService)
+var LogicRPC = new(logicRPC)
 
-// HandleSignIn 处理设备登录
-func (s *handlerService) HandleSignIn(ctx *context.Context, signIn transfer.SignIn) *transfer.SignInACK {
+// SignIn 处理设备登录
+func (s *logicRPC) SignIn(ctx *context.Context, signIn transfer.SignIn) *transfer.SignInACK {
 	device, err := dao.DeviceDao.Get(ctx, signIn.DeviceId)
 	if err == sql.ErrNoRows {
 		return &transfer.SignInACK{
@@ -41,9 +42,9 @@ func (s *handlerService) HandleSignIn(ctx *context.Context, signIn transfer.Sign
 	return nil
 }
 
-// HandleSyncTrigger 处理消息同步触发
-func (s *handlerService) HandleSyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error {
-	dbMessages, err := dao.MessageDao.ListByUserIdAndSequence(ctx, trigger.UserId, trigger.Sequence)
+// SyncTrigger 处理消息同步触发
+func (s *logicRPC) SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error {
+	dbMessages, err := dao.MessageDao.ListByUserIdAndSequence(ctx, trigger.UserId, trigger.SyncSequence)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -54,7 +55,7 @@ func (s *handlerService) HandleSyncTrigger(ctx *context.Context, trigger transfe
 		item := transfer.MessageItem{}
 		item.SenderType = v.SenderType
 		item.SenderId = v.SenderId
-		item.DeviceId = v.DeviceId
+		item.SenderDeviceId = v.SenderDeviceId
 		item.ReceiverType = v.ReceiverType
 		item.ReceiverId = v.ReceiverId
 		item.Type = v.Type
@@ -64,14 +65,14 @@ func (s *handlerService) HandleSyncTrigger(ctx *context.Context, trigger transfe
 	}
 
 	message := transfer.Message{DeviceId: trigger.DeviceId, Messages: messages}
-	connect.HandleMessage(message)
+	connect_rpc.ConnectRPC.SendMessage(message)
 	return nil
 }
 
-// HandleMessageSend 处理消息发送
-func (s *handlerService) HandleMessageSend(ctx *context.Context, send transfer.MessageSend) error {
+// MessageSend 处理消息发送
+func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) error {
 	// 检查消息是否重复发送
-	sendSequence, err := dao.DeviceSendSequenceDao.Get(ctx, send.DeviceId)
+	sendSequence, err := dao.DeviceSendSequenceDao.Get(ctx, send.SenderDeviceId)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -79,36 +80,36 @@ func (s *handlerService) HandleMessageSend(ctx *context.Context, send transfer.M
 	if send.SendSequence <= sendSequence {
 		return nil
 	}
-	err = dao.DeviceSendSequenceDao.UpdateSequence(ctx, send.DeviceId, send.SendSequence)
+	err = dao.DeviceSendSequenceDao.UpdateSequence(ctx, send.SenderDeviceId, send.SendSequence)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	if send.ReceiverType == ReceiverUser {
-		MessageService.SendToUser(ctx, send)
+	if send.ReceiverType == service.ReceiverUser {
+		service.MessageService.SendToFriend(ctx, send)
 		return nil
 	}
-	if send.ReceiverType == ReceiverGroup {
-		MessageService.SendToGroup(ctx, send)
+	if send.ReceiverType == service.ReceiverGroup {
+		service.MessageService.SendToGroup(ctx, send)
 		return nil
 	}
 
 	return nil
 }
 
-// HandleMessageACK 处理消息回执
-func (s *handlerService) HandleMessageACK(ctx *context.Context, ack transfer.MessageACK) error {
-	err := dao.DeviceSyncSequenceDao.UpdateSequence(ctx, ack.DeviceId, ack.Sequence)
+// MessageACK 处理消息回执
+func (s *logicRPC) MessageACK(ctx *context.Context, ack transfer.MessageACK) error {
+	err := dao.DeviceSyncSequenceDao.UpdateSequence(ctx, ack.DeviceId, ack.SyncSequence)
 	if err != nil {
 		log.Println(err)
 	}
 	return nil
 }
 
-// HandleOffLine 处理设备离线
-func (s *handlerService) HandleOffLine(ctx *context.Context, deviceId int64) error {
-	err := dao.DeviceDao.UpdateStatus(ctx, deviceId, DeviceOffline)
+// OffLine 处理设备离线
+func (s *logicRPC) OffLine(ctx *context.Context, deviceId int64) error {
+	err := dao.DeviceDao.UpdateStatus(ctx, deviceId, service.DeviceOffline)
 	if err != nil {
 		log.Println(err)
 	}

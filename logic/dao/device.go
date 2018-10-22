@@ -26,7 +26,7 @@ func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) 
 // Get 获取设备
 func (*deviceDao) Get(ctx *context.Context, id int64) (*model.Device, error) {
 	device := model.Device{Id: id}
-	row := ctx.Session.QueryRow("select user_id,token,type,model,version.status,create_time,update_time from t_device where id = ? ", id)
+	row := ctx.Session.QueryRow("select user_id,token,type,model,version,status,create_time,update_time from t_device where id = ? ", id)
 	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version, &device.Status, &device.CreateTime, &device.UpdateTime)
 	if err != nil {
 		log.Println(err)

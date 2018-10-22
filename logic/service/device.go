@@ -40,7 +40,7 @@ func (*deviceService) Regist(ctx *context.Context, device model.Device) (int64, 
 		return 0, "", err
 	}
 
-	err = dao.DeviceSequenceDao.Add(ctx, id)
+	err = dao.DeviceSyncSequenceDao.Add(ctx, id, 0)
 	if err != nil {
 		log.Println(err)
 

@@ -1,9 +1,9 @@
 package service
 
 import (
-	"goim/connect"
 	"goim/logic/dao"
 	"goim/logic/model"
+	"goim/logic/rpc/connect_rpc"
 	"goim/public/context"
 	"goim/public/transfer"
 	"log"
@@ -35,25 +35,25 @@ func (*messageService) ListByUserIdAndSequence(ctx *context.Context, userId int6
 
 // SendToUser 消息发送至用户
 func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageSend) error {
-	selfSequence, err := UserRequenceService.GetNext(ctx, send.UserId)
+	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	selfMessage := model.Message{
-		UserId:       send.UserId,
-		SenderType:   SendTypeUser,
-		SenderId:     send.UserId,
-		DeviceId:     send.DeviceId,
-		ReceiverType: int(send.ReceiverType),
-		ReceiverId:   send.ReceiverId,
-		Type:         int(send.Type),
-		Content:      send.Content,
-		Sequence:     selfSequence,
+		UserId:         send.SenderUserId,
+		SenderType:     SendTypeUser,
+		SenderId:       send.SenderUserId,
+		SenderDeviceId: send.SenderDeviceId,
+		ReceiverType:   int(send.ReceiverType),
+		ReceiverId:     send.ReceiverId,
+		Type:           int(send.Type),
+		Content:        send.Content,
+		Sequence:       selfSequence,
 	}
 
 	// 发给发送者
-	err = MessageService.SendToUser(ctx, send.UserId, &selfMessage)
+	err = MessageService.SendToUser(ctx, send.SenderUserId, &selfMessage)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -65,15 +65,15 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		return err
 	}
 	friendMessage := model.Message{
-		UserId:       send.ReceiverId,
-		SenderType:   SendTypeUser,
-		SenderId:     send.UserId,
-		DeviceId:     send.DeviceId,
-		ReceiverType: int(send.ReceiverType),
-		ReceiverId:   send.ReceiverId,
-		Type:         int(send.Type),
-		Content:      send.Content,
-		Sequence:     friendSequence,
+		UserId:         send.ReceiverId,
+		SenderType:     SendTypeUser,
+		SenderId:       send.SenderUserId,
+		SenderDeviceId: send.SenderDeviceId,
+		ReceiverType:   int(send.ReceiverType),
+		ReceiverId:     send.ReceiverId,
+		Type:           int(send.Type),
+		Content:        send.Content,
+		Sequence:       friendSequence,
 	}
 	// 发给接收者
 	err = MessageService.SendToUser(ctx, send.ReceiverId, &friendMessage)
@@ -81,7 +81,6 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		log.Println(err)
 		return err
 	}
-
 	return nil
 }
 
@@ -95,21 +94,21 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 
 	// 持久化到数据库
 	for _, user := range group.GroupUser {
-		sequence, err := UserRequenceService.GetNext(ctx, send.UserId)
+		sequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 		message := model.Message{
-			UserId:       user.UserId,
-			SenderType:   SendTypeUser,
-			SenderId:     send.UserId,
-			DeviceId:     send.DeviceId,
-			ReceiverType: int(send.ReceiverType),
-			ReceiverId:   send.ReceiverId,
-			Type:         int(send.Type),
-			Content:      send.Content,
-			Sequence:     sequence,
+			UserId:         user.UserId,
+			SenderType:     SendTypeUser,
+			SenderId:       send.SenderUserId,
+			SenderDeviceId: send.SenderDeviceId,
+			ReceiverType:   int(send.ReceiverType),
+			ReceiverId:     send.ReceiverId,
+			Type:           int(send.Type),
+			Content:        send.Content,
+			Sequence:       sequence,
 		}
 
 		err = MessageService.SendToUser(ctx, user.UserId, &message)
@@ -131,14 +130,14 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 	}
 
 	selfItem := transfer.MessageItem{
-		SenderType:   message.SenderType,
-		SenderId:     message.SenderId,
-		DeviceId:     message.DeviceId,
-		ReceiverType: message.ReceiverType,
-		ReceiverId:   message.ReceiverId,
-		Type:         message.Type,
-		Content:      message.Content,
-		Sequence:     message.Sequence,
+		SenderType:     message.SenderType,
+		SenderId:       message.SenderId,
+		SenderDeviceId: message.SenderDeviceId,
+		ReceiverType:   message.ReceiverType,
+		ReceiverId:     message.ReceiverId,
+		Type:           message.Type,
+		Content:        message.Content,
+		Sequence:       message.Sequence,
 	}
 
 	// 查询用户在线设备
@@ -150,7 +149,7 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 
 	for _, v := range devices {
 		message := transfer.Message{DeviceId: v.Id, Messages: []transfer.MessageItem{selfItem}}
-		connect.HandleMessage(message)
+		connect_rpc.ConnectRPC.SendMessage(message)
 	}
 	return nil
 }

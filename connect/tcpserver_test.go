@@ -26,8 +26,8 @@ func TestClient(t *testing.T) {
 
 	codec := NewCodec(conn)
 
-	codec.Eecode(Message{4, []byte("hello world")}, 2*time.Second)
-	codec.Eecode(Message{1, []byte("ok fuck")}, 2*time.Second)
+	codec.Eecode(Package{4, []byte("hello world")}, 2*time.Second)
+	codec.Eecode(Package{1, []byte("ok fuck")}, 2*time.Second)
 	conn.Close()
 
 }
@@ -41,8 +41,8 @@ func TestClientTimeOut(t *testing.T) {
 
 	codec := NewCodec(conn)
 
-	codec.Eecode(Message{4, []byte("hello world")}, 2*time.Second)
-	codec.Eecode(Message{1, []byte("ok fuck")}, 2*time.Second)
+	codec.Eecode(Package{4, []byte("hello world")}, 2*time.Second)
+	codec.Eecode(Package{1, []byte("ok fuck")}, 2*time.Second)
 
 	_, err = codec.Read()
 	if err != nil {

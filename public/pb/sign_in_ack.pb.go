@@ -36,7 +36,7 @@ type SignInACK struct {
 func (m *SignInACK) Reset()                    { *m = SignInACK{} }
 func (m *SignInACK) String() string            { return proto.CompactTextString(m) }
 func (*SignInACK) ProtoMessage()               {}
-func (*SignInACK) Descriptor() ([]byte, []int) { return syncTriggerFileDescriptor, []int{0} }
+func (*SignInACK) Descriptor() ([]byte, []int) { return signInACKFileDescriptor, []int{0} }
 
 func (m *SignInACK) GetCode() int32 {
 	if m != nil {
@@ -56,9 +56,9 @@ func init() {
 	proto.RegisterType((*SignInACK)(nil), "pb.SignInACK")
 }
 
-func init() { proto.RegisterFile("sign_in_ack.proto", syncTriggerFileDescriptor) }
+func init() { proto.RegisterFile("sign_in_ack.proto", signInACKFileDescriptor) }
 
-var syncTriggerFileDescriptor = []byte{
+var signInACKFileDescriptor = []byte{
 	// 102 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2c, 0xce, 0x4c, 0xcf,
 	0x8b, 0xcf, 0xcc, 0x8b, 0x4f, 0x4c, 0xce, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2a,

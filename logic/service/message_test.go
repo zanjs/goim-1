@@ -10,15 +10,15 @@ import (
 
 func TestMessageService_Add(t *testing.T) {
 	message := model.Message{
-		UserId:       1,
-		SenderType:   1,
-		SenderId:     1,
-		DeviceId:     1,
-		ReceiverType: 1,
-		ReceiverId:   1,
-		Type:         1,
-		Content:      "1",
-		Sequence:     1,
+		UserId:         1,
+		SenderType:     1,
+		SenderId:       1,
+		SenderDeviceId: 1,
+		ReceiverType:   1,
+		ReceiverId:     1,
+		Type:           1,
+		Content:        "1",
+		Sequence:       1,
 	}
 	err := MessageService.Add(ctx, message)
 	fmt.Println(err)

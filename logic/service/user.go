@@ -33,7 +33,7 @@ func (*userService) Regist(ctx *context.Context, user model.User) (int64, error)
 		return 0, ErrNumberExist
 	}
 
-	err = dao.DeviceSequenceDao.Add(ctx, id)
+	err = dao.DeviceSyncSequenceDao.Add(ctx, id, 0)
 	if err != nil {
 		log.Println(err)
 		return 0, err
