@@ -15,8 +15,8 @@ const (
 )
 
 const (
-	SendTypeUser = 1 // 用户发送
-	SendTypOther = 2 // 其他发送，业务推送
+	SenderTypeUser  = 1 // 用户发送
+	SenderTypeOther = 2 // 其他发送，业务推送
 )
 
 type messageService struct{}
@@ -42,7 +42,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 	}
 	selfMessage := model.Message{
 		UserId:         send.SenderUserId,
-		SenderType:     SendTypeUser,
+		SenderType:     SenderTypeUser,
 		SenderId:       send.SenderUserId,
 		SenderDeviceId: send.SenderDeviceId,
 		ReceiverType:   int(send.ReceiverType),
@@ -66,7 +66,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 	}
 	friendMessage := model.Message{
 		UserId:         send.ReceiverId,
-		SenderType:     SendTypeUser,
+		SenderType:     SenderTypeUser,
 		SenderId:       send.SenderUserId,
 		SenderDeviceId: send.SenderDeviceId,
 		ReceiverType:   int(send.ReceiverType),
@@ -101,7 +101,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 		}
 		message := model.Message{
 			UserId:         user.UserId,
-			SenderType:     SendTypeUser,
+			SenderType:     SenderTypeUser,
 			SenderId:       send.SenderUserId,
 			SenderDeviceId: send.SenderDeviceId,
 			ReceiverType:   int(send.ReceiverType),

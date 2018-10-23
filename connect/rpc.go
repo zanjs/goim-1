@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+// LogicRPCer 逻辑层接口
 type LogicRPCer interface {
 	// SignIn 设备登录
 	SignIn(ctx *context.Context, signIn transfer.SignIn) *transfer.SignInACK
