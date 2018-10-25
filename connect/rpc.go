@@ -33,11 +33,11 @@ type connectRPC struct{}
 var ConnectRPC = new(connectRPC)
 
 // SendMessage 处理消息投递
-func (*connectRPC) SendMessage(message transfer.Message) {
+func (*connectRPC) SendMessage(message transfer.Message) error {
 	ctx := load(message.DeviceId)
 	if ctx == nil {
 		log.Println("ctx id nil")
-		return
+		return nil
 	}
 
 	messages := make([]*pb.MessageItem, 0, len(message.Messages))
@@ -57,32 +57,35 @@ func (*connectRPC) SendMessage(message transfer.Message) {
 	content, err := proto.Marshal(&pb.Message{Messages: messages})
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessage, Content: content}, 10*time.Second)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	log.Printf("TCP消息投递：%#v\n", message)
+	return nil
 }
 
 // SendMessageSendACK 处理消息发送回执
-func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) {
+func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) error {
 	content, err := proto.Marshal(&pb.MessageSendACK{ack.SendSequence})
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	ctx := load(ack.DeviceId)
 	if ctx == nil {
 		log.Println("ctx id nil")
-		return
+		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, 10*time.Second)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
+	return nil
 }
