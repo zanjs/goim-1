@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 	"goim/logic/model"
-	"log"
+	"goim/public/logger"
 	"step-wx/lib"
 	"testing"
 )
@@ -21,17 +21,17 @@ func TestMessageService_Add(t *testing.T) {
 		Sequence:       1,
 	}
 	err := MessageService.Add(ctx, message)
-	fmt.Println(err)
+	logger.Sugaer.Error(err)
 }
 
 func TestMessageService_ListByUserIdAndSequence(t *testing.T) {
 	messages, err := MessageService.ListByUserIdAndSequence(ctx, 1, 0)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return
 	}
 	for _, message := range messages {
-		fmt.Printf("%#v\n", message)
+		fmt.Println(message)
 		fmt.Println(lib.FormatTime(message.CreateTime))
 	}
 }

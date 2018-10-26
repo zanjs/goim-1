@@ -1,15 +1,13 @@
 package connect
 
 import (
+	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
 	"io"
-	"log"
 	"net"
 	"strings"
 	"time"
-
-	"fmt"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -56,7 +54,7 @@ func (c *ConnContext) DoConn() {
 	for {
 		err := c.Codec.Conn.SetReadDeadline(time.Now().Add(ReadDeadline))
 		if err != nil {
-			log.Println(err)
+			c.HandleReadErr(err)
 			return
 		}
 
@@ -79,13 +77,12 @@ func (c *ConnContext) DoConn() {
 
 // HandleConnect 建立连接
 func (c *ConnContext) HandleConnect() {
-	log.Println("connect")
+	logger.Logger.Info("connect")
 	return
 }
 
 // HandlePackage 处理消息包
 func (c *ConnContext) HandlePackage(pack *Package) {
-	log.Println("package:code", pack.Code)
 	switch pack.Code {
 	case CodeSignIn:
 		c.HandlePackageSignIn(pack)
@@ -106,7 +103,7 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	var signIn pb.SignIn
 	err := proto.Unmarshal(pack.Content, &signIn)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.Close()
 		return
 	}
@@ -120,13 +117,14 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 
 	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return
 	}
 
 	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, 10*time.Second)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return
 	}
 
 	if ack.Code == 1 {
@@ -142,7 +140,7 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 	var trigger pb.SyncTrigger
 	err := proto.Unmarshal(pack.Content, &trigger)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.Close()
 		return
 	}
@@ -151,11 +149,7 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 
 // HandlePackageHeadbeat 处理心跳包
 func (c *ConnContext) HandlePackageHeadbeat() {
-	log.Println("收到心跳")
-	err := c.Codec.Eecode(Package{Code: CodeHeadbeatACK, Content: []byte{}}, 10*time.Second)
-	if err != nil {
-		log.Println(err)
-	}
+
 }
 
 // HandlePackageMessageSend 处理消息发送包
@@ -163,11 +157,11 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 	var send pb.MessageSend
 	err := proto.Unmarshal(pack.Content, &send)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.Close()
 		return
 	}
-	fmt.Printf("消息发送:%#v\n", send)
+	logger.Sugaer.Info("消息发送:%#v\n", send)
 	err = LogicRPC.MessageSend(Context(), transfer.MessageSend{
 		SenderDeviceId: c.DeviceId,
 		SenderUserId:   c.UserId,
@@ -178,7 +172,7 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 		SendSequence:   send.SendSequence,
 	})
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 }
 
@@ -187,7 +181,7 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 	var messageACK pb.MessageACK
 	err := proto.Unmarshal(pack.Content, &messageACK)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.Close()
 		return
 	}
@@ -200,7 +194,7 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
-	log.Println(err)
+	logger.Sugaer.Error(err)
 	delete(c.DeviceId)
 	// 客户端主动关闭连接或者异常程序退出
 	if err == io.EOF {
@@ -221,6 +215,6 @@ func (c *ConnContext) HandleReadErr(err error) {
 
 // Close 关闭TCP连接
 func (c *ConnContext) Close() {
-	log.Println("close")
+	delete(c.DeviceId)
 	c.Codec.Conn.Close()
 }

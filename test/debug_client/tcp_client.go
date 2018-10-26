@@ -3,9 +3,10 @@ package client
 import (
 	"goim/connect"
 	"goim/public/pb"
-	"log"
 	"net"
 	"time"
+
+	"goim/public/logger"
 
 	"fmt"
 
@@ -24,7 +25,7 @@ type TcpClient struct {
 func (c *TcpClient) Start() {
 	conn, err := net.Dial("tcp", "localhost:50002")
 	if err != nil {
-		log.Println("Error dialing", err.Error())
+		logger.Sugaer.Error(err)
 		return
 	}
 
@@ -45,7 +46,7 @@ func (c *TcpClient) SignIn() {
 
 	signInBytes, err := proto.Marshal(&signIn)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 
@@ -56,12 +57,12 @@ func (c *TcpClient) SignIn() {
 func (c *TcpClient) SyncTrigger() {
 	bytes, err := proto.Marshal(&pb.SyncTrigger{SyncSequence: c.SyncSequence})
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 	err = c.codec.Eecode(connect.Package{Code: connect.CodeSyncTrigger, Content: bytes}, 10*time.Second)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 }
 
@@ -70,7 +71,7 @@ func (c *TcpClient) HeadBeat() {
 	for _ = range ticker.C {
 		err := c.codec.Eecode(connect.Package{Code: connect.CodeHeadbeat, Content: []byte{}}, 10*time.Second)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}
 }
@@ -79,7 +80,7 @@ func (c *TcpClient) Receive() {
 	for {
 		_, err := c.codec.Read()
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return
 		}
 
@@ -100,33 +101,31 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 		ack := pb.SignInACK{}
 		err := proto.Unmarshal(pack.Content, &ack)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
-		log.Printf("设备登录回执：%#v\n", ack)
+		logger.Sugaer.Info("设备登录回执：%#v\n", ack)
 	case connect.CodeHeadbeatACK:
 		//log.Println("心跳回执")
 	case connect.CodeMessageSendACK:
 		ack := pb.MessageSendACK{}
 		err := proto.Unmarshal(pack.Content, &ack)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
-		log.Printf("消息发送回执：%#v\n", ack)
+		logger.Sugaer.Info("消息发送回执：%#v\n", ack)
 	case connect.CodeMessage:
 		message := pb.Message{}
 		err := proto.Unmarshal(pack.Content, &message)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 
-		fmt.Println("消息投递：")
 		for _, v := range message.Messages {
-			fmt.Printf("%#v\n", v)
+			logger.Sugaer.Info(message)
 		}
-		fmt.Println()
 
 		if len(message.Messages) == 0 {
 			return nil
@@ -135,7 +134,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 		ack := pb.MessageACK{SyncSequence: message.Messages[len(message.Messages)-1].Sequence}
 		ackBytes, err := proto.Marshal(&ack)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 
@@ -147,7 +146,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			return err
 		}
 	default:
-		log.Println("switch other")
+		logger.Sugaer.Info("switch other")
 	}
 	return nil
 }
@@ -159,14 +158,13 @@ func (c *TcpClient) SendMessage() {
 	send.Type = 1
 	c.SendSequence++
 	send.SendSequence = c.SendSequence
-	fmt.Printf("%#v\n", send)
 	bytes, err := proto.Marshal(&send)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
 	}
 	err = c.codec.Eecode(connect.Package{Code: connect.CodeMessageSend, Content: bytes}, 10*time.Second)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 }

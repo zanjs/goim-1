@@ -6,8 +6,8 @@ import (
 	"goim/logic/rpc/connect_rpc"
 	"goim/logic/service"
 	"goim/public/context"
+	"goim/public/logger"
 	"goim/public/transfer"
-	"log"
 )
 
 type logicRPC struct{}
@@ -25,7 +25,8 @@ func (s *logicRPC) SignIn(ctx *context.Context, signIn transfer.SignIn) *transfe
 	}
 
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return nil
 	}
 
 	if device.UserId == signIn.UserId && device.Token == signIn.Token {
@@ -46,7 +47,7 @@ func (s *logicRPC) SignIn(ctx *context.Context, signIn transfer.SignIn) *transfe
 func (s *logicRPC) SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error {
 	dbMessages, err := dao.MessageDao.ListByUserIdAndSequence(ctx, trigger.UserId, trigger.SyncSequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -74,7 +75,7 @@ func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) 
 	// 检查消息是否重复发送
 	sendSequence, err := dao.DeviceSendSequenceDao.Get(ctx, send.SenderDeviceId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	if send.SendSequence <= sendSequence {
@@ -82,7 +83,7 @@ func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) 
 	}
 	err = dao.DeviceSendSequenceDao.UpdateSequence(ctx, send.SenderDeviceId, send.SendSequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -102,7 +103,7 @@ func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) 
 func (s *logicRPC) MessageACK(ctx *context.Context, ack transfer.MessageACK) error {
 	err := dao.DeviceSyncSequenceDao.UpdateSequence(ctx, ack.DeviceId, ack.SyncSequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return nil
 }
@@ -111,7 +112,7 @@ func (s *logicRPC) MessageACK(ctx *context.Context, ack transfer.MessageACK) err
 func (s *logicRPC) OffLine(ctx *context.Context, deviceId int64) error {
 	err := dao.DeviceDao.UpdateStatus(ctx, deviceId, service.DeviceOffline)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return nil
 }

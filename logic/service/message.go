@@ -5,8 +5,8 @@ import (
 	"goim/logic/model"
 	"goim/logic/rpc/connect_rpc"
 	"goim/public/context"
+	"goim/public/logger"
 	"goim/public/transfer"
-	"log"
 )
 
 const (
@@ -37,7 +37,7 @@ func (*messageService) ListByUserIdAndSequence(ctx *context.Context, userId int6
 func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageSend) error {
 	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	selfMessage := model.Message{
@@ -55,13 +55,13 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 	// 发给发送者
 	err = MessageService.SendToUser(ctx, send.SenderUserId, &selfMessage)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
 	friendSequence, err := UserRequenceService.GetNext(ctx, send.ReceiverId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	friendMessage := model.Message{
@@ -78,7 +78,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 	// 发给接收者
 	err = MessageService.SendToUser(ctx, send.ReceiverId, &friendMessage)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	return nil
@@ -88,7 +88,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSend) error {
 	group, err := GroupService.Get(ctx, send.ReceiverId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -96,7 +96,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 	for _, user := range group.GroupUser {
 		sequence, err := UserRequenceService.GetNext(ctx, user.UserId)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 		message := model.Message{
@@ -113,7 +113,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 
 		err = MessageService.SendToUser(ctx, user.UserId, &message)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 
@@ -125,7 +125,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 func (*messageService) SendToUser(ctx *context.Context, userId int64, message *model.Message) error {
 	err := MessageService.Add(ctx, *message)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 	// 查询用户在线设备
 	devices, err := dao.DeviceDao.ListOnlineByUserId(ctx, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 

@@ -3,8 +3,7 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-
-	"log"
+	"goim/public/logger"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -24,13 +23,13 @@ func (UserController) ListGroupByUserId(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewBadRequst(err))
 	}
 
 	groups, err := service.GroupService.ListByUserId(Context(), id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 	}
 	c.JSON(OK, NewSuccess(groups))

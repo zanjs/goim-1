@@ -3,7 +3,7 @@ package service
 import (
 	"goim/logic/dao"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type userRequenceService struct{}
@@ -14,20 +14,20 @@ var UserRequenceService = new(userRequenceService)
 func (*userRequenceService) GetNext(ctx *context.Context, userId int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	ctx.Session.Rollback()
 
 	err = dao.UserSequenceDao.Increase(ctx, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 
 	sequence, err := dao.UserSequenceDao.GetSequence(ctx, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 

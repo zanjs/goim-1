@@ -2,7 +2,7 @@ package dao
 
 import (
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type userSequenceDao struct{}
@@ -13,16 +13,17 @@ var UserSequenceDao = new(userSequenceDao)
 func (*userSequenceDao) Add(ctx *context.Context, userId int64, sequence int64) error {
 	_, err := ctx.Session.Exec("insert into t_user_sequence (user_id,sequence) values(?,?)", userId, sequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
-	return err
+	return nil
 }
 
 // Increase sequence++
 func (*userSequenceDao) Increase(ctx *context.Context, userId int64) error {
 	_, err := ctx.Session.Exec("update t_user_sequence set sequence = sequence + 1 where user_id = ?", userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return err
 }
@@ -33,8 +34,9 @@ func (*userSequenceDao) GetSequence(ctx *context.Context, userId int64) (int64, 
 	err := ctx.Session.QueryRow("select sequence from t_user_sequence where user_id = ?", userId).
 		Scan(&sequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return 0, err
 
 	}
-	return sequence, err
+	return sequence, nil
 }

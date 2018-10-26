@@ -1,10 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"goim/logic/db"
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
 	"testing"
 )
 
@@ -19,13 +19,13 @@ func TestFriendService_Add(t *testing.T) {
 	}
 	err := FriendService.Add(ctx, add)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 }
 
 func TestFriendService_Delete(t *testing.T) {
 	err := FriendService.Delete(ctx, 1, 2)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 	}
 }

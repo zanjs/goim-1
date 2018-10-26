@@ -1,15 +1,14 @@
 package connect
 
 import (
-	"fmt"
+	"goim/public/context"
+	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
-	"log"
 	"time"
 
-	"goim/public/context"
-
 	"github.com/golang/protobuf/proto"
+	"go.uber.org/zap"
 )
 
 // LogicRPCer 逻辑层接口
@@ -36,7 +35,7 @@ var ConnectRPC = new(connectRPC)
 func (*connectRPC) SendMessage(message transfer.Message) error {
 	ctx := load(message.DeviceId)
 	if ctx == nil {
-		log.Println("ctx id nil")
+		logger.Sugaer.Error("ctx id nil")
 		return nil
 	}
 
@@ -56,16 +55,16 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 
 	content, err := proto.Marshal(&pb.Message{Messages: messages})
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessage, Content: content}, 10*time.Second)
 	if err != nil {
-		fmt.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
-	log.Printf("TCP消息投递：%#v\n", message)
+	logger.Logger.Debug("TCP消息投递", zap.Reflect("message", message))
 	return nil
 }
 
@@ -73,18 +72,18 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) error {
 	content, err := proto.Marshal(&pb.MessageSendACK{ack.SendSequence})
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	ctx := load(ack.DeviceId)
 	if ctx == nil {
-		log.Println("ctx id nil")
+		logger.Sugaer.Error(err)
 		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, 10*time.Second)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	return nil

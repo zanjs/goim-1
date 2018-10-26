@@ -6,8 +6,9 @@ import (
 	"goim/logic/service"
 
 	"errors"
-	"log"
 	"strconv"
+
+	"goim/public/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,7 @@ func (FriendControlelr) Friends(c *gin.Context) {
 	}
 	users, err := service.FriendService.ListUserFriend(Context(), id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 		return
 	}

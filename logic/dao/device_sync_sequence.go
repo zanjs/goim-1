@@ -2,7 +2,7 @@ package dao
 
 import (
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type deviceSyncSequenceDao struct{}
@@ -14,7 +14,7 @@ func (*deviceSyncSequenceDao) Add(ctx *context.Context, deviceId int64, syncSequ
 	_, err := ctx.Session.Exec("insert into t_device_seq(device_id,sync_sequence) values(?,?)",
 		deviceId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	return nil
@@ -26,7 +26,7 @@ func (*deviceSyncSequenceDao) Get(ctx *context.Context, id int) (int, error) {
 	var syncSeq int
 	err := row.Scan(&syncSeq)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	return syncSeq, nil
@@ -37,7 +37,7 @@ func (*deviceSyncSequenceDao) UpdateSequence(ctx *context.Context, deviceId int6
 	_, err := ctx.Session.Exec("update t_device_sync_sequence set sync_sequence = ? where device_id = ?",
 		sequence, deviceId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	return nil

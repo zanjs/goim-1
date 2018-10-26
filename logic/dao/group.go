@@ -3,7 +3,7 @@ package dao
 import (
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type groupDao struct{}
@@ -16,7 +16,7 @@ func (*groupDao) Get(ctx *context.Context, id int) (*model.Group, error) {
 	group := new(model.Group)
 	err := row.Scan(&group.Name)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	return group, nil
@@ -26,12 +26,13 @@ func (*groupDao) Get(ctx *context.Context, id int) (*model.Group, error) {
 func (*groupDao) Add(ctx *context.Context, name string) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return 0, err
 	}
 	return id, nil
 }

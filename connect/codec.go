@@ -3,7 +3,6 @@ package connect
 import (
 	"encoding/binary"
 	"errors"
-	"log"
 	"net"
 	"time"
 )
@@ -70,7 +69,6 @@ func (c *Codec) Decode() (*Package, bool) {
 func (c *Codec) Eecode(pack Package, duration time.Duration) error {
 	contentLen := len(pack.Content)
 	if contentLen > ContentMaxLen {
-		log.Println(ErrOutOfSize)
 		return ErrOutOfSize
 	}
 
@@ -81,7 +79,6 @@ func (c *Codec) Eecode(pack Package, duration time.Duration) error {
 	c.Conn.SetWriteDeadline(time.Now().Add(duration))
 	_, err := c.Conn.Write(c.WriteBuf[:HeadLen+contentLen])
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil

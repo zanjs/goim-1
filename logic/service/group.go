@@ -4,7 +4,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type groupService struct{}
@@ -15,14 +15,14 @@ var GroupService = new(groupService)
 func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Group, error) {
 	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	groups := make([]*model.Group, 0, 5)
 	for i := range ids {
 		group, err := GroupService.Get(ctx, ids[i])
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		groups = append(groups, group)
@@ -34,13 +34,13 @@ func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Gr
 func (*groupService) Get(ctx *context.Context, id int64) (*model.Group, error) {
 	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 
 	group.GroupUser, err = dao.GroupUserDao.ListGroupUser(ctx, id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return group, err
 }
@@ -49,21 +49,21 @@ func (*groupService) Get(ctx *context.Context, id int64) (*model.Group, error) {
 func (*groupService) CreateAndAddUser(ctx *context.Context, groupName string, userIds []int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	defer ctx.Session.Rollback()
 
 	id, err := dao.GroupDao.Add(ctx, groupName)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Add(ctx, id, userId)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return 0, err
 		}
 	}
@@ -75,7 +75,7 @@ func (*groupService) CreateAndAddUser(ctx *context.Context, groupName string, us
 func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil
 	}
 	defer ctx.Session.Rollback()
@@ -83,7 +83,7 @@ func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int6
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Add(ctx, groupId, userId)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 	}
@@ -95,7 +95,7 @@ func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int6
 func (*groupService) DeleteUser(ctx *context.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil
 	}
 	defer ctx.Session.Rollback()
@@ -103,7 +103,7 @@ func (*groupService) DeleteUser(ctx *context.Context, groupId int64, userIds []i
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Delete(ctx, groupId, userId)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return err
 		}
 	}

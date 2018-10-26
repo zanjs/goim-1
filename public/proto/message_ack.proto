@@ -3,4 +3,5 @@ package pb;
 // 投递消息回执
 message MessageACK {
     int64 sync_sequence = 1; //同步序列号
+    int64 receive_time = 2; // 接收时间戳，精确到毫秒
 }

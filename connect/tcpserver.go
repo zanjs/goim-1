@@ -2,7 +2,7 @@ package connect
 
 import (
 	"fmt"
-	"log"
+	"goim/public/logger"
 	"net"
 	"runtime"
 )
@@ -34,11 +34,11 @@ func NewTCPServer(conf Conf) *TCPServer {
 func (t *TCPServer) Start() {
 	addr, err := net.ResolveTCPAddr("tcp", t.Address)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	listener, err := net.ListenTCP("tcp", addr)
 	if err != nil {
-		log.Println("error listening", err.Error())
+		logger.Sugaer.Error("error listening", err.Error())
 		return
 	}
 	for i := 0; i < t.AcceptCount; i++ {
@@ -54,13 +54,13 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 	for {
 		conn, err := listener.AcceptTCP()
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			continue
 		}
 
 		err = conn.SetKeepAlive(true)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 		}
 
 		connContext := NewConnContext(conn)
@@ -72,7 +72,7 @@ func (t *TCPServer) Accept(listener *net.TCPListener) {
 func RecoverPanic() {
 	err := recover()
 	if err != nil {
-		GetPanicInfo()
+		logger.Sugaer.Error(GetPanicInfo())
 	}
 
 }

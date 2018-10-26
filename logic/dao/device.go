@@ -3,7 +3,7 @@ package dao
 import (
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type deviceDao struct{}
@@ -14,10 +14,12 @@ var DeviceDao = new(deviceDao)
 func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	return id, nil
@@ -29,7 +31,7 @@ func (*deviceDao) Get(ctx *context.Context, id int64) (*model.Device, error) {
 	row := ctx.Session.QueryRow("select user_id,token,type,model,version,status,create_time,update_time from t_device where id = ? ", id)
 	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version, &device.Status, &device.CreateTime, &device.UpdateTime)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return &device, err
 }
@@ -40,7 +42,7 @@ func (*deviceDao) GetToken(ctx *context.Context, id int64) (string, error) {
 	row := ctx.Session.QueryRow("select token from t_device where id = ? ", id)
 	err := row.Scan(&token)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 	}
 	return token, err
 }
@@ -49,7 +51,8 @@ func (*deviceDao) GetToken(ctx *context.Context, id int64) (string, error) {
 func (*deviceDao) UpdateUserId(ctx *context.Context, id, userId int64) error {
 	_, err := ctx.Session.Exec("update t_device set user_id = ? where id = ? ", userId, id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
 	return nil
 }
@@ -58,7 +61,8 @@ func (*deviceDao) UpdateUserId(ctx *context.Context, id, userId int64) error {
 func (*deviceDao) UpdateStatus(ctx *context.Context, id int64, status int) error {
 	_, err := ctx.Session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
 	return nil
 }
@@ -67,7 +71,7 @@ func (*deviceDao) UpdateStatus(ctx *context.Context, id int64, status int) error
 func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int64) ([]*model.Device, error) {
 	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 
@@ -76,11 +80,10 @@ func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int64) ([]*mod
 		device := new(model.Device)
 		err = rows.Scan(&device.Id, &device.Type, &device.Model, &device.Version)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		devices = append(devices, device)
 	}
 	return devices, nil
-
 }

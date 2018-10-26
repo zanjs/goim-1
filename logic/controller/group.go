@@ -3,8 +3,7 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"log"
-
+	"goim/public/logger"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -26,14 +25,14 @@ func (GroupController) Get(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewBadRequst(err))
 		return
 	}
 
 	group, err := service.GroupService.Get(Context(), id)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 		return
 	}
@@ -53,7 +52,7 @@ func (GroupController) CreateAndAddUser(c *gin.Context) {
 	}
 	id, err := service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 		return
 	}
@@ -71,7 +70,7 @@ func (GroupController) AddUser(c *gin.Context) {
 	}
 	err = service.GroupService.AddUser(Context(), update)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 		return
 	}
@@ -89,7 +88,7 @@ func (GroupController) DeleteUser(c *gin.Context) {
 	}
 	err = service.GroupService.DeleteUser(Context(), update)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		c.JSON(OK, NewError(err))
 		return
 	}

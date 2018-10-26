@@ -6,7 +6,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type userService struct{}
@@ -18,14 +18,14 @@ var ErrNumberExist = errors.New("user number exist")
 func (*userService) Regist(ctx *context.Context, user model.User) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	defer ctx.Session.Rollback()
 
 	id, err := dao.UserDao.Add(ctx, user)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 
@@ -35,7 +35,7 @@ func (*userService) Regist(ctx *context.Context, user model.User) (int64, error)
 
 	err = dao.DeviceSyncSequenceDao.Add(ctx, id, 0)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return 0, err
 	}
 	ctx.Session.Commit()
@@ -56,7 +56,7 @@ func (*userService) SignIn(ctx *context.Context, signIn model.SignIn) error {
 		if err == sql.ErrNoRows {
 			return ErrDeviceNotFound
 		}
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -69,7 +69,7 @@ func (*userService) SignIn(ctx *context.Context, signIn model.SignIn) error {
 		if err == sql.ErrNoRows {
 			return ErrUserNotFound
 		}
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 
@@ -79,7 +79,7 @@ func (*userService) SignIn(ctx *context.Context, signIn model.SignIn) error {
 
 	err = dao.DeviceDao.UpdateUserId(ctx, signIn.DeviceId, signIn.UserId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return err
 	}
 	return nil

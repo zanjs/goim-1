@@ -3,7 +3,7 @@ package dao
 import (
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type groupUserDao struct{}
@@ -15,7 +15,7 @@ func (*groupUserDao) Get(ctx *context.Context, id int64) (*model.Group, error) {
 	var group model.Group
 	err := row.Scan(&group.Id, &group.Name)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	return &group, nil
@@ -33,7 +33,7 @@ func (*groupUserDao) ListGroupUser(ctx *context.Context, id int64) ([]model.Grou
 		var groupUser model.GroupUser
 		err := rows.Scan(&groupUser.Label, &groupUser.UserId, &groupUser.Number, &groupUser.Name, &groupUser.Sex, &groupUser.Img)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		groupUsers = append(groupUsers, groupUser)
@@ -45,6 +45,7 @@ func (*groupUserDao) ListGroupUser(ctx *context.Context, id int64) ([]model.Grou
 func (*groupUserDao) ListGroupUserId(ctx *context.Context, id int) ([]int, error) {
 	rows, err := ctx.Session.Query("select user_id t_group_user where group_id = ?", id)
 	if err != nil {
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	userIds := make([]int, 0, 5)
@@ -52,7 +53,7 @@ func (*groupUserDao) ListGroupUserId(ctx *context.Context, id int) ([]int, error
 		var userId int
 		err := rows.Scan(&userId)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		userIds = append(userIds, userId)
@@ -64,7 +65,7 @@ func (*groupUserDao) ListGroupUserId(ctx *context.Context, id int) ([]int, error
 func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int64, error) {
 	rows, err := ctx.Session.Query("select group_id from t_group_user where user_id = ?", userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	var ids []int64
@@ -72,7 +73,7 @@ func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int64, er
 	for rows.Next() {
 		err := rows.Scan(&id)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		ids = append(ids, id)
@@ -84,25 +85,28 @@ func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int64, er
 func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("insert ignore into t_group_user(group_id,user_id) values(?,?)", groupId, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
-	return err
+	return nil
 }
 
 // Delete 将用户从群组删除
 func (d *groupUserDao) Delete(ctx *context.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("delete from t_group_user where group_id = ? and user_id = ?", groupId, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
-	return err
+	return nil
 }
 
 // UpdateLabel 更新用户群组备注
 func (*groupUserDao) UpdateLabel(ctx *context.Context, groupId int, userId int, label string) error {
 	_, err := ctx.Session.Exec("update t_group_user set label = ? where group_id = ? and user_id = ?", label, groupId, userId)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
-	return err
+	return nil
 }

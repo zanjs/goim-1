@@ -3,7 +3,7 @@ package dao
 import (
 	"goim/logic/model"
 	"goim/public/context"
-	"log"
+	"goim/public/logger"
 )
 
 type messageDao struct{}
@@ -16,9 +16,10 @@ func (*messageDao) Add(ctx *context.Context, message model.Message) error {
 		message.UserId, message.SenderType, message.SenderId, message.SenderDeviceId, message.ReceiverType,
 		message.ReceiverId, message.Type, message.Content, message.Sequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
+		return err
 	}
-	return err
+	return nil
 }
 
 // ListByUserIdAndSequence 根据用户id查询大于序号大于sequence的消息
@@ -26,7 +27,7 @@ func (*messageDao) ListByUserIdAndSequence(ctx *context.Context, userId int64, s
 	rows, err := ctx.Session.Query("select id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,sequence,create_time from t_message where user_id = ? and sequence >= ?",
 		userId, sequence)
 	if err != nil {
-		log.Println(err)
+		logger.Sugaer.Error(err)
 		return nil, err
 	}
 
@@ -36,7 +37,7 @@ func (*messageDao) ListByUserIdAndSequence(ctx *context.Context, userId int64, s
 		err := rows.Scan(&message.Id, &message.UserId, &message.SenderType, &message.SenderId, &message.SenderDeviceId, &message.ReceiverType,
 			&message.ReceiverId, &message.Type, &message.Content, &message.Sequence, &message.CreateTime)
 		if err != nil {
-			log.Println(err)
+			logger.Sugaer.Error(err)
 			return nil, err
 		}
 		messages = append(messages, message)
