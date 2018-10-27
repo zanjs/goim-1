@@ -2,112 +2,66 @@ package lid
 
 import (
 	"database/sql"
-	"errors"
 	"goim/public/logger"
-	"sync"
-	"time"
-)
-
-var (
-	ErrLidUnavailable    = errors.New("lid unavailable")    // lid不可用
-	ErrBufferUnavailable = errors.New("buffer unavailable") // buffer不可用
 )
 
 type Lid struct {
 	db         *sql.DB    // 数据库连接
 	businessId string     // 业务id
-	buffers    [2]buffer  // 自增健缓存
-	being_used int        // 正在使用的buffer
-	lock       sync.Mutex // 互斥锁
-	available  bool       // 是否可用
+	ch         chan int64 // id缓冲池
+	min, max   int64      // id段最小值，最大值
 }
 
-type buffer struct {
-	min       int64 // 最小值
-	max       int64 // 最大值
-	median    int64 // 中间值
-	available bool  // 是否可用
-}
-
-// NewLid 创建一个lid
-func NewLid(db *sql.DB, businessId string) (*Lid, error) {
+// NewLid 创建一个lid,db:数据库连接；businessId：业务id;len：缓冲池大小
+func NewLid(db *sql.DB, businessId string, len int) (*Lid, error) {
 	lid := Lid{
 		db:         db,
 		businessId: businessId,
-		being_used: 1,
-		available:  true,
+		ch:         make(chan int64, len),
 	}
-	err := lid.getFromDB()
-	lid.being_used = 0
-	if err != nil {
-		logger.Sugaer.Error(err)
-		return nil, err
-	}
+	go lid.productId()
 	return &lid, nil
 }
 
 // Get 获取自增id
-func (l *Lid) Get() (int64, error) {
+func (l *Lid) Get() int64 {
+	return <-l.ch
+}
+
+// productId 生产id
+func (l *Lid) productId() {
+	err := l.reset()
+	if err != nil {
+		logger.Sugaer.Error("lid:"+l.businessId, err)
+		return
+	}
 	for {
-		key, err := l.getKey()
-		if err == ErrBufferUnavailable {
-			time.Sleep(time.Microsecond * 200)
-			continue
+		if l.min >= l.max {
+			err := l.reset()
+			if err != nil {
+				logger.Sugaer.Error("lid:"+l.businessId, err)
+				return
+			}
 		}
-		if err == ErrLidUnavailable {
-			return 0, ErrLidUnavailable
 
-		}
-		return key, nil
+		l.min++
+		l.ch <- l.min
 	}
 }
 
-// GetKey 获取自增id
-func (l *Lid) getKey() (int64, error) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
-	if l.available == false {
-		return 0, ErrLidUnavailable
-	}
-
-	if l.buffers[l.being_used].available == false {
-		return 0, ErrBufferUnavailable
-	}
-
-	// 如果buffer已经达到中间值，从数据库初始化另一个buffer
-	if l.buffers[l.being_used].min == l.buffers[l.being_used].median {
-		go l.getFromDB()
-	}
-
-	// 如果buffer已经到最大值，切换到另一个buffer
-	if l.buffers[l.being_used].min >= l.buffers[l.being_used].max {
-		if l.buffers[1-l.being_used].available == true {
-			l.buffers[l.being_used].available = false
-			l.being_used = 1 - l.being_used
-		} else {
-			return 0, ErrBufferUnavailable
-		}
-	}
-	l.buffers[l.being_used].min++
-	return l.buffers[l.being_used].min, nil
-}
-
-func (l *Lid) initAnotherBuffer() {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
-	// 重试5次，如果5次都失败，将lid改为不可用
+// reset 在数据库获取id段时，最多重试5次
+func (l *Lid) reset() error {
+	var err error
 	for i := 0; i < 5; i++ {
-		err := l.getFromDB()
+		err = l.getFromDB()
 		if err == nil {
-			return
+			return nil
 		}
-		continue
 	}
-	l.available = false
+	return err
 }
 
+// getFromDB 从数据库获取id段
 func (l *Lid) getFromDB() error {
 	var (
 		maxId int64
@@ -139,10 +93,8 @@ func (l *Lid) getFromDB() error {
 		return err
 	}
 
-	unused := 1 - l.being_used
-	l.buffers[unused].min = maxId
-	l.buffers[unused].max = maxId + step
-	l.buffers[unused].median = (maxId + maxId + step) / 2
-	l.buffers[unused].available = true
+	l.min = maxId
+	l.max = maxId + step
+
 	return nil
 }
