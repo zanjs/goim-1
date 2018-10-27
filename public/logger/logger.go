@@ -35,7 +35,7 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 
 func init() {
 	w := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "foo.log",
+		Filename:   "log/im.log",
 		MaxSize:    500, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, // days

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"goim/public/lib"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -77,8 +79,7 @@ func (c *ConnContext) DoConn() {
 
 // HandleConnect 建立连接
 func (c *ConnContext) HandleConnect() {
-	logger.Logger.Info("connect")
-	return
+	logger.Logger.Info("tcp connect")
 }
 
 // HandlePackage 处理消息包
@@ -108,12 +109,14 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 		return
 	}
 
-	// 处理设备登录逻辑
-	ack := LogicRPC.SignIn(Context(), transfer.SignIn{
+	transferSignIn := transfer.SignIn{
 		DeviceId: signIn.DeviceId,
 		UserId:   signIn.UserId,
 		Token:    signIn.Token,
-	})
+	}
+
+	// 处理设备登录逻辑
+	ack := LogicRPC.SignIn(Context(), transferSignIn)
 
 	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
 	if err != nil {
@@ -132,7 +135,6 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 		c.UserId = signIn.UserId
 		store(c.DeviceId, c)
 	}
-
 }
 
 // HandlePackageSyncTrigger 处理同步触发消息包
@@ -144,7 +146,14 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 		c.Close()
 		return
 	}
-	LogicRPC.SyncTrigger(Context(), transfer.SyncTrigger{DeviceId: c.DeviceId, UserId: c.UserId, SyncSequence: trigger.SyncSequence})
+
+	transferTrigger := transfer.SyncTrigger{
+		DeviceId:     c.DeviceId,
+		UserId:       c.UserId,
+		SyncSequence: trigger.SyncSequence,
+	}
+
+	LogicRPC.SyncTrigger(Context(), transferTrigger)
 }
 
 // HandlePackageHeadbeat 处理心跳包
@@ -161,8 +170,8 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 		c.Close()
 		return
 	}
-	logger.Sugaer.Info("消息发送:%#v\n", send)
-	err = LogicRPC.MessageSend(Context(), transfer.MessageSend{
+
+	transferSend := transfer.MessageSend{
 		SenderDeviceId: c.DeviceId,
 		SenderUserId:   c.UserId,
 		ReceiverType:   send.ReceiverType,
@@ -170,7 +179,10 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 		Type:           send.Type,
 		Content:        send.Content,
 		SendSequence:   send.SendSequence,
-	})
+		SendTime:       lib.UnunixTime(send.SendTime),
+	}
+
+	err = LogicRPC.MessageSend(Context(), transferSend)
 	if err != nil {
 		logger.Sugaer.Error(err)
 	}
@@ -178,23 +190,28 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 
 // HandlePackageMessageACK 处理消息回执消息包
 func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
-	var messageACK pb.MessageACK
-	err := proto.Unmarshal(pack.Content, &messageACK)
+	var ack pb.MessageACK
+	err := proto.Unmarshal(pack.Content, &ack)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		c.Close()
 		return
 	}
-	LogicRPC.MessageACK(Context(), transfer.MessageACK{
+
+	transferAck := transfer.MessageACK{
+		MessageId:    ack.MessageId,
 		DeviceId:     c.DeviceId,
 		UserId:       c.UserId,
-		SyncSequence: messageACK.SyncSequence,
-	})
+		SyncSequence: ack.SyncSequence,
+		ReceiveTime:  lib.UnunixTime(ack.ReceiveTime),
+	}
+
+	LogicRPC.MessageACK(Context(), transferAck)
 }
 
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
-	logger.Sugaer.Error(err)
+	logger.Sugaer.Infow("连接读取异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
 	delete(c.DeviceId)
 	// 客户端主动关闭连接或者异常程序退出
 	if err == io.EOF {

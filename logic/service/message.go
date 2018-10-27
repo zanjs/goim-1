@@ -41,6 +41,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		return err
 	}
 	selfMessage := model.Message{
+		MessageId:      send.MessageId,
 		UserId:         send.SenderUserId,
 		SenderType:     SenderTypeUser,
 		SenderId:       send.SenderUserId,
@@ -50,6 +51,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		Type:           int(send.Type),
 		Content:        send.Content,
 		Sequence:       selfSequence,
+		SendTime:       send.SendTime,
 	}
 
 	// 发给发送者
@@ -65,6 +67,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		return err
 	}
 	friendMessage := model.Message{
+		MessageId:      send.MessageId,
 		UserId:         send.ReceiverId,
 		SenderType:     SenderTypeUser,
 		SenderId:       send.SenderUserId,
@@ -74,6 +77,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 		Type:           int(send.Type),
 		Content:        send.Content,
 		Sequence:       friendSequence,
+		SendTime:       send.SendTime,
 	}
 	// 发给接收者
 	err = MessageService.SendToUser(ctx, send.ReceiverId, &friendMessage)
@@ -100,6 +104,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 			return err
 		}
 		message := model.Message{
+			MessageId:      send.MessageId,
 			UserId:         user.UserId,
 			SenderType:     SenderTypeUser,
 			SenderId:       send.SenderUserId,
@@ -109,6 +114,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 			Type:           int(send.Type),
 			Content:        send.Content,
 			Sequence:       sequence,
+			SendTime:       send.SendTime,
 		}
 
 		err = MessageService.SendToUser(ctx, user.UserId, &message)
@@ -130,6 +136,7 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 	}
 
 	selfItem := transfer.MessageItem{
+		MessageId:      message.MessageId,
 		SenderType:     message.SenderType,
 		SenderId:       message.SenderId,
 		SenderDeviceId: message.SenderDeviceId,
@@ -138,6 +145,7 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 		Type:           message.Type,
 		Content:        message.Content,
 		Sequence:       message.Sequence,
+		SendTime:       message.SendTime,
 	}
 
 	// 查询用户在线设备

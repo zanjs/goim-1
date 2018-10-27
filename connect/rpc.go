@@ -7,8 +7,9 @@ import (
 	"goim/public/transfer"
 	"time"
 
+	"goim/public/lib"
+
 	"github.com/golang/protobuf/proto"
-	"go.uber.org/zap"
 )
 
 // LogicRPCer 逻辑层接口
@@ -22,7 +23,7 @@ type LogicRPCer interface {
 	// MessageACK 消息投递回执
 	MessageACK(ctx *context.Context, ack transfer.MessageACK) error
 	// OffLine 下线
-	OffLine(ctx *context.Context, deviceId int64) error
+	OffLine(ctx *context.Context, deviceId int64, userId int64) error
 }
 
 var LogicRPC LogicRPCer
@@ -42,6 +43,8 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 	messages := make([]*pb.MessageItem, 0, len(message.Messages))
 	for _, v := range message.Messages {
 		item := new(pb.MessageItem)
+
+		item.MessageId = v.MessageId
 		item.SenderType = int32(v.SenderType)
 		item.SenderId = v.SenderId
 		item.SenderDeviceId = v.SenderDeviceId
@@ -49,7 +52,9 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 		item.ReceiverId = v.ReceiverId
 		item.Type = int32(v.Type)
 		item.Content = v.Content
-		item.Sequence = v.Sequence
+		item.SyncSequence = v.Sequence
+		item.SendTime = lib.UnixTime(v.SendTime)
+
 		messages = append(messages, item)
 	}
 
@@ -64,7 +69,6 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 		logger.Sugaer.Error(err)
 		return err
 	}
-	logger.Logger.Debug("TCP消息投递", zap.Reflect("message", message))
 	return nil
 }
 
