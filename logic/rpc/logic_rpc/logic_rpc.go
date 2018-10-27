@@ -40,7 +40,7 @@ func (s *logicRPC) SignIn(ctx *context.Context, signIn transfer.SignIn) *transfe
 		message = "fail"
 	}
 
-	logger.Sugaer.Infof("设备登录",
+	logger.Sugaer.Infow("设备登录",
 		"device_id:", signIn.DeviceId,
 		"user_id", signIn.UserId,
 		"token", signIn.Token,
@@ -55,7 +55,7 @@ func (s *logicRPC) SignIn(ctx *context.Context, signIn transfer.SignIn) *transfe
 
 // SyncTrigger 处理消息同步触发
 func (s *logicRPC) SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error {
-	logger.Sugaer.Infof("同步触发",
+	logger.Sugaer.Infow("同步触发",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
 		"sync_sequence", trigger.SyncSequence)
@@ -87,23 +87,19 @@ func (s *logicRPC) SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigge
 	message := transfer.Message{DeviceId: trigger.DeviceId, Messages: messages}
 	connect_rpc.ConnectRPC.SendMessage(message)
 
-	logger.Sugaer.Infof("同步同步",
+	logger.Sugaer.Infow("消息同步",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
-		"sync_sequence", trigger.SyncSequence)
+		"messages", message.GetLog())
 	return nil
 }
 
 // MessageSend 处理消息发送
 func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) error {
 	var err error
-	send.MessageId, err = lib.Lid.Get()
-	if err != nil {
-		logger.Sugaer.Error(err)
-		return err
-	}
+	send.MessageId = lib.Lid.Get()
 
-	logger.Sugaer.Infof("消息发送",
+	logger.Sugaer.Infow("消息发送",
 		"device_id", send.SenderDeviceId,
 		"user_id", send.SenderUserId,
 		"message_id", send.MessageId,
@@ -142,7 +138,7 @@ func (s *logicRPC) MessageSend(ctx *context.Context, send transfer.MessageSend) 
 		logger.Sugaer.Error(err)
 	}
 
-	logger.Sugaer.Infof("消息发送回执",
+	logger.Sugaer.Infow("消息发送回执",
 		"device_id", ack.DeviceId,
 		"user_id", send.SenderUserId,
 		"message_id", send.MessageId,
@@ -158,7 +154,7 @@ func (s *logicRPC) MessageACK(ctx *context.Context, ack transfer.MessageACK) err
 		logger.Sugaer.Error(err)
 	}
 
-	logger.Sugaer.Infof("消息投递回执",
+	logger.Sugaer.Infow("消息投递回执",
 		"device_id", ack.DeviceId,
 		"user_id", ack.UserId,
 		"message_id", ack.MessageId,
@@ -174,7 +170,7 @@ func (s *logicRPC) OffLine(ctx *context.Context, deviceId int64, userId int64) e
 		logger.Sugaer.Error(err)
 	}
 
-	logger.Sugaer.Infof("设备离线", "device_id", deviceId, "user_id", userId)
+	logger.Sugaer.Infow("设备离线", "device_id", deviceId, "user_id", userId)
 
 	return nil
 }

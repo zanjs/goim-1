@@ -135,7 +135,7 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 		return err
 	}
 
-	selfItem := transfer.MessageItem{
+	messageItem := transfer.MessageItem{
 		MessageId:      message.MessageId,
 		SenderType:     message.SenderType,
 		SenderId:       message.SenderId,
@@ -156,8 +156,13 @@ func (*messageService) SendToUser(ctx *context.Context, userId int64, message *m
 	}
 
 	for _, v := range devices {
-		message := transfer.Message{DeviceId: v.Id, Messages: []transfer.MessageItem{selfItem}}
+		message := transfer.Message{DeviceId: v.Id, Messages: []transfer.MessageItem{messageItem}}
 		connect_rpc.ConnectRPC.SendMessage(message)
+
+		logger.Sugaer.Infow("消息投递",
+			"device_id:", message.DeviceId,
+			"user_id", userId,
+			"messages", message.GetLog())
 	}
 	return nil
 }

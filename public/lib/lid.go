@@ -17,7 +17,7 @@ func init() {
 		panic(err)
 	}
 
-	Lid, err = lid.NewLid(db, "message_id")
+	Lid, err = lid.NewLid(db, "message_id", 1000)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		panic(err)

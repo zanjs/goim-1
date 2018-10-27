@@ -12,7 +12,7 @@ var MessageDao = new(messageDao)
 
 // Add 插入一条消息
 func (*messageDao) Add(ctx *context.Context, message model.Message) error {
-	_, err := ctx.Session.Exec("insert into t_message(message_id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,send_time,sequence) values(?,?,?,?,?,?,?,?,?)",
+	_, err := ctx.Session.Exec("insert into t_message(message_id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,send_time,sequence) values(?,?,?,?,?,?,?,?,?,?,?)",
 		message.MessageId, message.UserId, message.SenderType, message.SenderId, message.SenderDeviceId,
 		message.ReceiverType, message.ReceiverId, message.Type, message.Content, message.SendTime, message.Sequence)
 	if err != nil {

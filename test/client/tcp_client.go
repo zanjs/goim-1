@@ -8,6 +8,8 @@ import (
 
 	"fmt"
 
+	"goim/public/lib"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -141,7 +143,11 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			return nil
 		}
 
-		ack := pb.MessageACK{SyncSequence: message.Messages[len(message.Messages)-1].Sequence}
+		ack := pb.MessageACK{
+			MessageId:    message.Messages[len(message.Messages)-1].MessageId,
+			SyncSequence: message.Messages[len(message.Messages)-1].SyncSequence,
+			ReceiveTime:  lib.UnixTime(time.Now()),
+		}
 		ackBytes, err := proto.Marshal(&ack)
 		if err != nil {
 			fmt.Println(err)
@@ -168,6 +174,7 @@ func (c *TcpClient) SendMessage() {
 	send.Type = 1
 	c.SendSequence++
 	send.SendSequence = c.SendSequence
+	send.SendTime = lib.UnixTime(time.Now())
 	bytes, err := proto.Marshal(&send)
 	if err != nil {
 		fmt.Println(err)

@@ -2,7 +2,7 @@ package lid
 
 import (
 	"database/sql"
-	"goim/public/logger"
+	"time"
 )
 
 type Lid struct {
@@ -30,18 +30,11 @@ func (l *Lid) Get() int64 {
 
 // productId 生产id
 func (l *Lid) productId() {
-	err := l.reset()
-	if err != nil {
-		logger.Sugaer.Error("lid:"+l.businessId, err)
-		return
-	}
+	l.reset()
 	for {
 		if l.min >= l.max {
-			err := l.reset()
-			if err != nil {
-				logger.Sugaer.Error("lid:"+l.businessId, err)
-				return
-			}
+			l.reset()
+
 		}
 
 		l.min++
@@ -49,16 +42,16 @@ func (l *Lid) productId() {
 	}
 }
 
-// reset 在数据库获取id段时，最多重试5次
-func (l *Lid) reset() error {
-	var err error
-	for i := 0; i < 5; i++ {
-		err = l.getFromDB()
+// reset 不断尝试从数据库获取，直到成功
+func (l *Lid) reset() {
+	for {
+		err := l.getFromDB()
 		if err == nil {
-			return nil
+			return
 		}
+		time.Sleep(time.Second)
+		continue
 	}
-	return err
 }
 
 // getFromDB 从数据库获取id段
@@ -70,7 +63,6 @@ func (l *Lid) getFromDB() error {
 
 	tx, err := l.db.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
 		return err
 	}
 	defer tx.Rollback()
@@ -78,18 +70,15 @@ func (l *Lid) getFromDB() error {
 	row := tx.QueryRow("select max_id,step from t_lid where business_id = ? for update", l.businessId)
 	err = row.Scan(&maxId, &step)
 	if err != nil {
-		logger.Sugaer.Error(err)
 		return err
 	}
 
 	_, err = tx.Exec("update t_lid set max_id = ? where business_id = ?", maxId+step, l.businessId)
 	if err != nil {
-		logger.Sugaer.Error(err)
 		return err
 	}
 	err = tx.Commit()
 	if err != nil {
-		logger.Sugaer.Error(err)
 		return err
 	}
 

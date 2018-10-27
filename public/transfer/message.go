@@ -1,10 +1,30 @@
 package transfer
 
-import "time"
+import (
+	"goim/public/lib"
+	"time"
+)
 
 type Message struct {
 	DeviceId int64
 	Messages []MessageItem
+}
+
+// GetLog 获取消息日志
+func (m *Message) GetLog() string {
+	list := make([]messageLogItem, 0, len(m.Messages))
+	var item messageLogItem
+	for _, v := range m.Messages {
+		item.MessageId = v.MessageId
+		item.Sequence = v.Sequence
+		list = append(list, item)
+	}
+	return lib.JsonMarshal(list)
+}
+
+type messageLogItem struct {
+	MessageId int64 `json:"message_id"` // 消息id
+	Sequence  int64 `json:"sequence"`   // 消息序列
 }
 
 // 单条消息投递

@@ -12,7 +12,8 @@ var DeviceDao = new(deviceDao)
 
 // Insert 插入一条设备信息
 func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) {
-	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)", device.Token, device.Type, device.Model, device.Version)
+	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)",
+		device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return 0, err
@@ -28,8 +29,10 @@ func (*deviceDao) Add(ctx *context.Context, device model.Device) (int64, error) 
 // Get 获取设备
 func (*deviceDao) Get(ctx *context.Context, id int64) (*model.Device, error) {
 	device := model.Device{Id: id}
-	row := ctx.Session.QueryRow("select user_id,token,type,model,version,status,create_time,update_time from t_device where id = ? ", id)
-	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version, &device.Status, &device.CreateTime, &device.UpdateTime)
+	row := ctx.Session.QueryRow("select user_id,token,type,model,version,status,create_time,update_time "+
+		"from t_device where id = ? ", id)
+	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version,
+		&device.Status, &device.CreateTime, &device.UpdateTime)
 	if err != nil {
 		logger.Sugaer.Error(err)
 	}
@@ -69,7 +72,8 @@ func (*deviceDao) UpdateStatus(ctx *context.Context, id int64, status int) error
 
 // ListUserOnline 查询用户所有的在线设备
 func (*deviceDao) ListOnlineByUserId(ctx *context.Context, userId int64) ([]*model.Device, error) {
-	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1", userId)
+	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1",
+		userId)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
