@@ -1,3 +1,25 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : localhost
+ Source Server Type    : MySQL
+ Source Server Version : 80011
+ Source Host           : localhost:3306
+ Source Schema         : im
+
+ Target Server Type    : MySQL
+ Target Server Version : 80011
+ File Encoding         : 65001
+
+ Date: 28/10/2018 10:44:08
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for t_device
+-- ----------------------------
 DROP TABLE IF EXISTS `t_device`;
 CREATE TABLE `t_device` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '设备id',
@@ -11,17 +33,39 @@ CREATE TABLE `t_device` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备';
 
-DROP TABLE IF EXISTS `t_device_sequence`;
-CREATE TABLE `t_device_sequence` (
-  `device_id` bigint(20) NOT NULL COMMENT '设备id',
-  `sync_sequence` bigint(255) NOT NULL DEFAULT '0' COMMENT '已同步序列号',
+-- ----------------------------
+-- Table structure for t_device_send_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS `t_device_send_sequence`;
+CREATE TABLE `t_device_send_sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `device_id` bigint(20) unsigned NOT NULL COMMENT '设备id',
+  `send_sequence` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '设备发送序列号',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`device_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备消息同步序列';
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_device_id` (`device_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备消息发送序列号';
 
+-- ----------------------------
+-- Table structure for t_device_sync_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS `t_device_sync_sequence`;
+CREATE TABLE `t_device_sync_sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `device_id` bigint(20) unsigned NOT NULL COMMENT '设备id',
+  `sync_sequence` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '已同步序列号',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_device_id` (`device_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='设备消息同步序列号';
+
+-- ----------------------------
+-- Table structure for t_friend
+-- ----------------------------
 DROP TABLE IF EXISTS `t_friend`;
 CREATE TABLE `t_friend` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -32,8 +76,11 @@ CREATE TABLE `t_friend` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_user_friend` (`user_id`,`friend_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='好友关系';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='好友关系';
 
+-- ----------------------------
+-- Table structure for t_group
+-- ----------------------------
 DROP TABLE IF EXISTS `t_group`;
 CREATE TABLE `t_group` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '群组id',
@@ -41,8 +88,11 @@ CREATE TABLE `t_group` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组';
 
+-- ----------------------------
+-- Table structure for t_group_user
+-- ----------------------------
 DROP TABLE IF EXISTS `t_group_user`;
 CREATE TABLE `t_group_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -54,24 +104,50 @@ CREATE TABLE `t_group_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_group_user` (`group_id`,`user_id`) USING BTREE,
   KEY `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员关系';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='群组成员关系';
 
+-- ----------------------------
+-- Table structure for t_lid
+-- ----------------------------
+DROP TABLE IF EXISTS `t_lid`;
+CREATE TABLE `t_lid` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `business_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '业务id',
+  `max_id` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '最大id',
+  `step` int(10) unsigned NOT NULL DEFAULT '1000' COMMENT '步长',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '描述',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_business_id` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='分布式自增主键';
+
+-- ----------------------------
+-- Table structure for t_message
+-- ----------------------------
 DROP TABLE IF EXISTS `t_message`;
 CREATE TABLE `t_message` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `message_id` bigint(20) unsigned NOT NULL COMMENT '消息id',
   `user_id` bigint(20) unsigned NOT NULL COMMENT '用户id',
-  `sender_type` bigint(20) NOT NULL COMMENT '发送者类型',
+  `sender_type` tinyint(3) NOT NULL COMMENT '发送者类型',
   `sender_id` bigint(20) unsigned NOT NULL COMMENT '发送者id',
-  `receiver_type` tinyint(20) unsigned NOT NULL COMMENT '接收者类型,1:个人；2：群组',
-  `receiver` bigint(20) unsigned NOT NULL COMMENT '接收者id,如果是单聊信息，则为user_id，如果是群组消息，则为group_id',
+  `sender_device_id` bigint(20) unsigned NOT NULL COMMENT '发送设备id',
+  `receiver_type` tinyint(3) unsigned NOT NULL COMMENT '接收者类型,1:个人；2：群组',
+  `receiver_id` bigint(20) unsigned NOT NULL COMMENT '接收者id,如果是单聊信息，则为user_id，如果是群组消息，则为group_id',
   `type` tinyint(3) unsigned NOT NULL COMMENT '消息类型,0：文本；1：语音；2：图片',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '内容',
   `sequence` bigint(20) unsigned NOT NULL COMMENT '消息序列号',
+  `send_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '消息发送时间',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_user_id_sequence` (`user_id`,`sequence`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
+  UNIQUE KEY `idx_user_id_sequence` (`user_id`,`sequence`),
+  KEY `idx_message_id` (`message_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='消息';
 
+-- ----------------------------
+-- Table structure for t_user
+-- ----------------------------
 DROP TABLE IF EXISTS `t_user`;
 CREATE TABLE `t_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户id',
@@ -84,5 +160,20 @@ CREATE TABLE `t_user` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_number` (`number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='账户';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='账户';
 
+-- ----------------------------
+-- Table structure for t_user_sequence
+-- ----------------------------
+DROP TABLE IF EXISTS `t_user_sequence`;
+CREATE TABLE `t_user_sequence` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `user_id` bigint(20) unsigned NOT NULL COMMENT '用户id',
+  `sequence` bigint(20) unsigned NOT NULL COMMENT '自增张序列',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用户消息的自增长序列';
+
+SET FOREIGN_KEY_CHECKS = 1;

@@ -3,111 +3,72 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"goim/public/logger"
+	"goim/public/imerror"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	g := Engine.Group("/group")
-	g.GET("/:id", GroupController{}.Get)
-	g.POST("", GroupController{}.CreateAndAddUser)
-	g.POST("/user", GroupController{}.AddUser)
-	g.DELETE("/user", GroupController{}.DeleteUser)
-	g.PUT("/user/label", GroupController{}.UpdateLabel)
+	g.GET("/:id", handler(GroupController{}.Get))
+	g.POST("", handler(GroupController{}.CreateAndAddUser))
+	g.POST("/user", handler(GroupController{}.AddUser))
+	g.DELETE("/user", handler(GroupController{}.DeleteUser))
+	g.PUT("/user/label", handler(GroupController{}.UpdateLabel))
 }
 
 type GroupController struct{}
 
 // Get 获取群组信息
-func (GroupController) Get(c *gin.Context) {
+func (GroupController) Get(c *context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewBadRequst(err))
+		c.response(nil, imerror.ErrBadRequest)
 		return
 	}
-
-	group, err := service.GroupService.Get(Context(), id)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
-		return
-	}
-	c.JSON(OK, NewSuccess(group))
+	c.response(service.GroupService.Get(Context(), id))
 }
 
 // CreateAndAddUser 创建群组并且添加成员
-func (GroupController) CreateAndAddUser(c *gin.Context) {
+func (GroupController) CreateAndAddUser(c *context) {
 	var data = struct {
 		Name    string  `json:"name"`     // 群组名称
 		UserIds []int64 `json:"user_ids"` // 群组成员
 	}{}
-	err := c.ShouldBindJSON(&data)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&data) != nil {
 		return
 	}
-	id, err := service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
-		return
-	}
-
-	c.JSON(OK, NewSuccess(id))
+	c.response(service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds))
 }
 
 // AddUser 给群组添加用户
-func (GroupController) AddUser(c *gin.Context) {
+func (GroupController) AddUser(c *context) {
 	var update model.GroupUserUpdate
-	err := c.ShouldBindJSON(&update)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&update) != nil {
 		return
 	}
-	err = service.GroupService.AddUser(Context(), update)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
-		return
-	}
-
-	c.JSON(OK, NewSuccess(nil))
+	c.response(nil, service.GroupService.AddUser(Context(), update))
 }
 
 // DeleteUser 从群组删除成员
-func (GroupController) DeleteUser(c *gin.Context) {
+func (GroupController) DeleteUser(c *context) {
 	var update model.GroupUserUpdate
-	err := c.ShouldBindJSON(&update)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&update) != nil {
 		return
 	}
-	err = service.GroupService.DeleteUser(Context(), update)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
-		return
-	}
-
-	c.JSON(OK, NewSuccess(nil))
+	c.response(nil, service.GroupService.DeleteUser(Context(), update))
 }
 
 // UpdateLabel 更新用户群组备注
-func (GroupController) UpdateLabel(c *gin.Context) {
+func (GroupController) UpdateLabel(c *context) {
 	var json struct {
 		GroupId int    `json:"group_id"`
 		UserId  int    `json:"user_id"`
 		Label   string `json:"label"`
 	}
-	c.ShouldBindJSON(&json)
-	err := service.GroupService.UpdateLabel(Context(), json.GroupId, json.UserId, json.Label)
-	if err != nil {
-		c.JSON(OK, NewError(err))
+	if c.bindJson(&json) != nil {
 		return
 	}
-	c.JSON(OK, NewSuccess(nil))
+	err := service.GroupService.UpdateLabel(Context(), json.GroupId, json.UserId, json.Label)
+	c.response(nil, err)
 }

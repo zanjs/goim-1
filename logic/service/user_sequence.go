@@ -2,7 +2,7 @@ package service
 
 import (
 	"goim/logic/dao"
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 )
 
@@ -11,7 +11,7 @@ type userRequenceService struct{}
 var UserRequenceService = new(userRequenceService)
 
 // GetNext 获取下一个序列
-func (*userRequenceService) GetNext(ctx *context.Context, userId int64) (int64, error) {
+func (*userRequenceService) GetNext(ctx *ctx.Context, userId int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)

@@ -3,7 +3,7 @@ package service
 import (
 	"goim/logic/dao"
 	"goim/logic/model"
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 )
 
@@ -12,7 +12,7 @@ type groupService struct{}
 var GroupService = new(groupService)
 
 // ListByUserId 获取用户群组
-func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Group, error) {
+func (*groupService) ListByUserId(ctx *ctx.Context, userId int) ([]*model.Group, error) {
 	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -31,7 +31,7 @@ func (*groupService) ListByUserId(ctx *context.Context, userId int) ([]*model.Gr
 }
 
 // ListGroupUser 获取群组的用户信息
-func (*groupService) Get(ctx *context.Context, id int64) (*model.Group, error) {
+func (*groupService) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -46,7 +46,7 @@ func (*groupService) Get(ctx *context.Context, id int64) (*model.Group, error) {
 }
 
 // CreateAndAddUser 创建群组并且添加群成员
-func (*groupService) CreateAndAddUser(ctx *context.Context, groupName string, userIds []int64) (int64, error) {
+func (*groupService) CreateAndAddUser(ctx *ctx.Context, groupName string, userIds []int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -72,7 +72,7 @@ func (*groupService) CreateAndAddUser(ctx *context.Context, groupName string, us
 }
 
 // AddUser 给群组添加用户
-func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int64) error {
+func (*groupService) AddUser(ctx *ctx.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -92,7 +92,7 @@ func (*groupService) AddUser(ctx *context.Context, groupId int64, userIds []int6
 }
 
 // DeleteUser 从群组移除用户
-func (*groupService) DeleteUser(ctx *context.Context, groupId int64, userIds []int64) error {
+func (*groupService) DeleteUser(ctx *ctx.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -111,6 +111,6 @@ func (*groupService) DeleteUser(ctx *context.Context, groupId int64, userIds []i
 	return nil
 }
 
-func (*groupService) UpdateLabel(ctx *context.Context, groupId int, userId int, label string) error {
+func (*groupService) UpdateLabel(ctx *ctx.Context, groupId int, userId int, label string) error {
 	return dao.GroupUserDao.UpdateLabel(ctx, groupId, userId, label)
 }

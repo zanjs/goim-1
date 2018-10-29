@@ -2,7 +2,7 @@ package dao
 
 import (
 	"goim/logic/model"
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 )
 
@@ -10,7 +10,7 @@ type groupUserDao struct{}
 
 var GroupUserDao = new(groupUserDao)
 
-func (*groupUserDao) Get(ctx *context.Context, id int64) (*model.Group, error) {
+func (*groupUserDao) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 	row := ctx.Session.QueryRow("select id,name from t_group where id = ?", id)
 	var group model.Group
 	err := row.Scan(&group.Id, &group.Name)
@@ -22,7 +22,7 @@ func (*groupUserDao) Get(ctx *context.Context, id int64) (*model.Group, error) {
 }
 
 // ListGroupUser 获取群组用户信息
-func (*groupUserDao) ListGroupUser(ctx *context.Context, id int64) ([]model.GroupUser, error) {
+func (*groupUserDao) ListGroupUser(ctx *ctx.Context, id int64) ([]model.GroupUser, error) {
 	sql := `select g.label,u.id,u.number,u.name,u.sex,u.avatar from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
 	rows, err := ctx.Session.Query(sql, id)
 	if err != nil {
@@ -43,7 +43,7 @@ func (*groupUserDao) ListGroupUser(ctx *context.Context, id int64) ([]model.Grou
 }
 
 // ListGroupUserId 获取群组用户id列表
-func (*groupUserDao) ListGroupUserId(ctx *context.Context, id int) ([]int, error) {
+func (*groupUserDao) ListGroupUserId(ctx *ctx.Context, id int) ([]int, error) {
 	rows, err := ctx.Session.Query("select user_id t_group_user where group_id = ?", id)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -63,7 +63,7 @@ func (*groupUserDao) ListGroupUserId(ctx *context.Context, id int) ([]int, error
 }
 
 // ListByUser 获取用户群组id列表
-func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int64, error) {
+func (*groupUserDao) ListbyUserId(ctx *ctx.Context, userId int) ([]int64, error) {
 	rows, err := ctx.Session.Query("select group_id from t_group_user where user_id = ?", userId)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -83,7 +83,7 @@ func (*groupUserDao) ListbyUserId(ctx *context.Context, userId int) ([]int64, er
 }
 
 // Add 将用户添加到群组
-func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int64) error {
+func (*groupUserDao) Add(ctx *ctx.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("insert ignore into t_group_user(group_id,user_id) values(?,?)",
 		groupId, userId)
 	if err != nil {
@@ -94,7 +94,7 @@ func (*groupUserDao) Add(ctx *context.Context, groupId int64, userId int64) erro
 }
 
 // Delete 将用户从群组删除
-func (d *groupUserDao) Delete(ctx *context.Context, groupId int64, userId int64) error {
+func (d *groupUserDao) Delete(ctx *ctx.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("delete from t_group_user where group_id = ? and user_id = ?",
 		groupId, userId)
 	if err != nil {
@@ -105,7 +105,7 @@ func (d *groupUserDao) Delete(ctx *context.Context, groupId int64, userId int64)
 }
 
 // UpdateLabel 更新用户群组备注
-func (*groupUserDao) UpdateLabel(ctx *context.Context, groupId int, userId int, label string) error {
+func (*groupUserDao) UpdateLabel(ctx *ctx.Context, groupId int, userId int, label string) error {
 	_, err := ctx.Session.Exec("update t_group_user set label = ? where group_id = ? and user_id = ?",
 		label, groupId, userId)
 	if err != nil {

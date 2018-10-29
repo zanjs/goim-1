@@ -1,7 +1,7 @@
 package connect
 
 import (
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
@@ -15,15 +15,15 @@ import (
 // LogicRPCer 逻辑层接口
 type LogicRPCer interface {
 	// SignIn 设备登录
-	SignIn(ctx *context.Context, signIn transfer.SignIn) *transfer.SignInACK
+	SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.SignInACK
 	// SyncTrigger 消息同步触发
-	SyncTrigger(ctx *context.Context, trigger transfer.SyncTrigger) error
+	SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) error
 	// MessageSend 消息发送
-	MessageSend(ctx *context.Context, send transfer.MessageSend) error
+	MessageSend(ctx *ctx.Context, send transfer.MessageSend) error
 	// MessageACK 消息投递回执
-	MessageACK(ctx *context.Context, ack transfer.MessageACK) error
+	MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error
 	// OffLine 下线
-	OffLine(ctx *context.Context, deviceId int64, userId int64) error
+	OffLine(ctx *ctx.Context, deviceId int64, userId int64) error
 }
 
 var LogicRPC LogicRPCer

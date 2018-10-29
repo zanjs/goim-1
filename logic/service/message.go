@@ -4,7 +4,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/logic/rpc/connect_rpc"
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 	"goim/public/transfer"
 )
@@ -24,17 +24,17 @@ type messageService struct{}
 var MessageService = new(messageService)
 
 // Add 添加消息
-func (*messageService) Add(ctx *context.Context, message model.Message) error {
+func (*messageService) Add(ctx *ctx.Context, message model.Message) error {
 	return dao.MessageDao.Add(ctx, message)
 }
 
 // ListByUserIdAndSequence 查询消息
-func (*messageService) ListByUserIdAndSequence(ctx *context.Context, userId int64, sequence int64) ([]*model.Message, error) {
+func (*messageService) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, sequence int64) ([]*model.Message, error) {
 	return dao.MessageDao.ListByUserIdAndSequence(ctx, userId, sequence)
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageSend) error {
+func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend) error {
 	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -89,7 +89,7 @@ func (*messageService) SendToFriend(ctx *context.Context, send transfer.MessageS
 }
 
 // SendToGroup 消息发送至群组
-func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSend) error {
+func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) error {
 	group, err := GroupService.Get(ctx, send.ReceiverId)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -128,7 +128,7 @@ func (*messageService) SendToGroup(ctx *context.Context, send transfer.MessageSe
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToUser(ctx *context.Context, userId int64, message *model.Message) error {
+func (*messageService) SendToUser(ctx *ctx.Context, userId int64, message *model.Message) error {
 	err := MessageService.Add(ctx, *message)
 	if err != nil {
 		logger.Sugaer.Error(err)

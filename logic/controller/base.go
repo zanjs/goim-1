@@ -2,7 +2,7 @@ package controller
 
 import (
 	"goim/logic/db"
-	"goim/public/context"
+	"goim/public/ctx"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,10 +14,12 @@ func init() {
 
 }
 
+// verify 权限校验
 func verify(c *gin.Context) {
+	token := c.GetHeader("token")
 
 }
 
-func Context() *context.Context {
-	return context.NewContext(db.Factoty.GetSession())
+func Context() *ctx.Context {
+	return ctx.NewContext(db.Factoty.GetSession())
 }

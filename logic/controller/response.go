@@ -1,13 +1,14 @@
 package controller
 
+import (
+	"goim/public/imerror"
+)
+
 const OK = 200
 
 // 请求返回值
 const (
-	CodeSuccess      = 0 // 成功返回
-	CodeUnauthorized = 1 // 需要认证
-	CodeBadRequest   = 2 // 客户端请求错误
-	CodeError        = 3 // 请求错误
+	CodeSuccess = 0 // 成功返回
 )
 
 // Response 用户响应数据
@@ -17,11 +18,6 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
-var (
-	// 用户没有登录
-	Unauthorized = &Response{Code: CodeUnauthorized, Message: "unauthorized"}
-)
-
 func NewSuccess(data interface{}) *Response {
 	return &Response{
 		Code:    CodeSuccess,
@@ -30,19 +26,10 @@ func NewSuccess(data interface{}) *Response {
 	}
 }
 
-func NewError(err error) *Response {
+func NewWithBError(err *imerror.BError) *Response {
 	return &Response{
-		Code:    CodeError,
-		Message: err.Error(),
+		Code:    err.Code,
+		Message: err.Message,
+		Data:    err.Data,
 	}
-}
-
-func NewBadRequst(err error) *Response {
-	response := &Response{
-		Code: CodeBadRequest,
-	}
-	if err != nil {
-		response.Message = err.Error()
-	}
-	return response
 }

@@ -3,66 +3,43 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"goim/public/logger"
+	"goim/public/imerror"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	g := Engine.Group("/user")
-	g.GET("/group/:id", UserController{}.ListGroupByUserId)
-	g.POST("", UserController{}.Regist)
-	g.POST("/signin", UserController{}.SignIn)
+	g.GET("/group/:id", handler(UserController{}.ListGroupByUserId))
+	g.POST("", handler(UserController{}.Regist))
+	g.POST("/signin", handler(UserController{}.SignIn))
 }
 
 type UserController struct{}
 
 // ListByUserId 获取用户群组
-func (UserController) ListGroupByUserId(c *gin.Context) {
+func (UserController) ListGroupByUserId(c *context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewBadRequst(err))
+		c.response(nil, imerror.ErrBadRequest)
 	}
-
-	groups, err := service.GroupService.ListByUserId(Context(), id)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
-	}
-	c.JSON(OK, NewSuccess(groups))
+	c.response(service.GroupService.ListByUserId(Context(), id))
 }
 
 // Regist 用户注册
-func (UserController) Regist(c *gin.Context) {
+func (UserController) Regist(c *context) {
 	var user model.User
-	err := c.ShouldBindJSON(&user)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&user) != nil {
 		return
 	}
-	id, err := service.UserService.Regist(Context(), user)
-	if err != nil {
-		c.JSON(OK, NewError(err))
-		return
-	}
-	c.JSON(OK, NewSuccess(id))
+	c.response(service.UserService.Regist(Context(), user))
 }
 
 // SignIn 用户登录
-func (UserController) SignIn(c *gin.Context) {
+func (UserController) SignIn(c *context) {
 	var signIn model.SignIn
-	err := c.ShouldBindJSON(&signIn)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&signIn) != nil {
 		return
 	}
-	err = service.UserService.SignIn(Context(), signIn)
-	if err != nil {
-		c.JSON(OK, NewError(err))
-		return
-	}
-	c.JSON(OK, NewSuccess(nil))
+	c.response(nil, service.UserService.SignIn(Context(), signIn))
 }

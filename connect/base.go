@@ -2,9 +2,9 @@ package connect
 
 import (
 	"goim/logic/db"
-	"goim/public/context"
+	"goim/public/ctx"
 )
 
-func Context() *context.Context {
-	return context.NewContext(db.Factoty.GetSession())
+func Context() *ctx.Context {
+	return ctx.NewContext(db.Factoty.GetSession())
 }

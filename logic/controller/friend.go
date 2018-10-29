@@ -2,73 +2,46 @@ package controller
 
 import (
 	"goim/logic/model"
-
 	"goim/logic/service"
-
-	"errors"
+	"goim/public/imerror"
 	"strconv"
-
-	"goim/public/logger"
-
-	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	g := Engine.Group("/friend")
-	g.GET("/:user_id", FriendControlelr{}.Friends)
-	g.POST("", FriendControlelr{}.Add)
-	g.DELETE("", FriendControlelr{}.Delete)
+	g.GET("/:user_id", handler(FriendControlelr{}.Friends))
+	g.POST("", handler(FriendControlelr{}.Add))
+	g.DELETE("", handler(FriendControlelr{}.Delete))
 }
 
 type FriendControlelr struct{}
 
 // Friend 好友
-func (FriendControlelr) Friends(c *gin.Context) {
+func (FriendControlelr) Friends(c *context) {
 	idStr := c.Param("user_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(OK, NewBadRequst(errors.New("error id")))
-	}
-	users, err := service.FriendService.ListUserFriend(Context(), id)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		c.JSON(OK, NewError(err))
+		c.response(nil, imerror.ErrBadRequest)
 		return
 	}
-	c.JSON(OK, NewSuccess(users))
+	c.response(service.FriendService.ListUserFriend(Context(), id))
 }
 
-func (FriendControlelr) Add(c *gin.Context) {
+func (FriendControlelr) Add(c *context) {
 	var friendAdd model.FriendAdd
-	err := c.ShouldBindJSON(&friendAdd)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&friendAdd) != nil {
 		return
 	}
-
-	err = service.FriendService.Add(Context(), friendAdd)
-	if err != nil {
-		c.JSON(OK, NewError(err))
-		return
-	}
-	c.JSON(OK, NewSuccess(nil))
+	c.response(nil, service.FriendService.Add(Context(), friendAdd))
 }
 
-func (FriendControlelr) Delete(c *gin.Context) {
+func (FriendControlelr) Delete(c *context) {
 	var json struct {
 		UserId int `json:"user_id"`
 		Friend int `json:"friend"`
 	}
-	err := c.ShouldBindJSON(&json)
-	if err != nil {
-		c.JSON(OK, NewBadRequst(err))
+	if c.bindJson(&json) != nil {
 		return
 	}
-
-	err = service.FriendService.Delete(Context(), json.UserId, json.Friend)
-	if err != nil {
-		c.JSON(OK, NewError(err))
-		return
-	}
-	c.JSON(OK, NewSuccess(nil))
+	c.response(nil, service.FriendService.Delete(Context(), json.UserId, json.Friend))
 }

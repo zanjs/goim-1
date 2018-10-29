@@ -3,7 +3,7 @@ package service
 import (
 	"goim/logic/dao"
 	"goim/logic/model"
-	"goim/public/context"
+	"goim/public/ctx"
 	"goim/public/logger"
 )
 
@@ -12,7 +12,7 @@ type friendService struct{}
 var FriendService = new(friendService)
 
 // Add 添加好友关系
-func (*friendService) Add(ctx *context.Context, add model.FriendAdd) error {
+func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -47,7 +47,7 @@ func (*friendService) Add(ctx *context.Context, add model.FriendAdd) error {
 }
 
 // Delete 删除好友关系
-func (*friendService) Delete(ctx *context.Context, userId, friend int) error {
+func (*friendService) Delete(ctx *ctx.Context, userId, friend int) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)

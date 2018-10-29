@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"goim/logic/db"
 	"goim/logic/model"
-	"goim/public/context"
 	"testing"
 )
 
-var ctx = context.NewContext(db.Factoty.GetSession())
+var ctx = ctx.NewContext(db.Factoty.GetSession())
 
 func TestFriendService_Add(t *testing.T) {
 	add := model.FriendAdd{
