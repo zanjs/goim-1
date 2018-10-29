@@ -21,7 +21,7 @@ type GroupController struct{}
 // Get 获取群组信息
 func (GroupController) Get(c *context) {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		c.response(nil, imerror.ErrBadRequest)
 		return
@@ -47,7 +47,7 @@ func (GroupController) AddUser(c *context) {
 	if c.bindJson(&update) != nil {
 		return
 	}
-	c.response(nil, service.GroupService.AddUser(Context(), update))
+	c.response(nil, service.GroupService.AddUser(Context(), update.GroupId, update.UserIds))
 }
 
 // DeleteUser 从群组删除成员
@@ -56,7 +56,7 @@ func (GroupController) DeleteUser(c *context) {
 	if c.bindJson(&update) != nil {
 		return
 	}
-	c.response(nil, service.GroupService.DeleteUser(Context(), update))
+	c.response(nil, service.GroupService.DeleteUser(Context(), update.GroupId, update.UserIds))
 }
 
 // UpdateLabel 更新用户群组备注

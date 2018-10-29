@@ -20,7 +20,7 @@ func (*deviceSendSequenceDao) Add(ctx *ctx.Context, deviceId int64, sendSequence
 	return nil
 }
 
-// Get 获取设备已经发送的同步序列号
+// Get 获取设备发送序列号
 func (*deviceSendSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
 	row := ctx.Session.QueryRow("select send_sequence from t_device_send_sequence where device_id = ?", id)
 	var syncSeq int64
@@ -32,8 +32,8 @@ func (*deviceSendSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
 	return syncSeq, nil
 }
 
-// UpdateSequence 更新设备已经发送的消息序列号
-func (*deviceSendSequenceDao) UpdateSequence(ctx *ctx.Context, deviceId int64, sequence int64) error {
+// UpdateSendSequence 更新设备发送序列号
+func (*deviceSendSequenceDao) UpdateSendSequence(ctx *ctx.Context, deviceId int64, sequence int64) error {
 	_, err := ctx.Session.Exec("update t_device_send_sequence set send_sequence = ? where device_id = ?",
 		sequence, deviceId)
 	if err != nil {

@@ -3,8 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"goim/public/imerror"
+
+	"github.com/gin-gonic/gin"
 )
 
 type HandlerFunc func(*context)
@@ -22,11 +23,11 @@ type context struct {
 
 func (c *context) response(data interface{}, err error) {
 	if err != nil {
-		if berr, ok := err.(*imerror.BError); ok {
+		if berr, ok := err.(*imerror.LError); ok {
 			c.JSON(http.StatusOK, NewWithBError(berr))
 			return
 		}
-		c.JSON(http.StatusOK, NewWithBError(imerror.ErrUnknowError))
+		c.JSON(http.StatusOK, NewWithBError(imerror.ErrUnknow))
 		return
 	}
 	c.Context.JSON(http.StatusOK, NewSuccess(data))
@@ -35,7 +36,7 @@ func (c *context) response(data interface{}, err error) {
 func (c *context) bindJson(value interface{}) error {
 	err := c.ShouldBindJSON(value)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.WrapBErrorWithData(imerror.ErrBadRequest, err)))
+		c.JSON(http.StatusOK, NewWithBError(imerror.WrapLErrorWithData(imerror.ErrBadRequest, err)))
 		return err
 	}
 	return nil

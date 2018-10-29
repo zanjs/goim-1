@@ -8,6 +8,6 @@ type Group struct {
 }
 
 type GroupUserUpdate struct {
-	GroupId int64 `json:"group_id"` // 群组名称
-	UserIds []int `json:"user_ids"` // 群组成员
+	GroupId int64   `json:"group_id"` // 群组名称
+	UserIds []int64 `json:"user_ids"` // 群组成员
 }

@@ -2,10 +2,10 @@ package service
 
 import (
 	"database/sql"
-	"errors"
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/public/ctx"
+	"goim/public/imerror"
 	"goim/public/logger"
 )
 
@@ -13,74 +13,139 @@ type userService struct{}
 
 var UserService = new(userService)
 
-var ErrNumberExist = errors.New("user number exist")
-
-func (*userService) Regist(ctx *ctx.Context, user model.User) (int64, error) {
+func (*userService) Regist(ctx *ctx.Context, regist model.UserRegist) (*model.SignInResp, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
-		return 0, err
+		return nil, err
 	}
 	defer ctx.Session.Rollback()
 
-	id, err := dao.UserDao.Add(ctx, user)
+	// 设备验证
+	device, err := dao.DeviceDao.Get(ctx, regist.DeviceId)
+	if err == sql.ErrNoRows {
+		return nil, imerror.ErrDeviceIdOrToken
+	}
 	if err != nil {
 		logger.Sugaer.Error(err)
-		return 0, err
+		return nil, err
+	}
+	if device.Token != regist.Token {
+		return nil, imerror.ErrDeviceIdOrToken
 	}
 
-	if id == 0 {
-		return 0, ErrNumberExist
+	// 添加用户
+	user := model.User{
+		Number:   regist.Number,
+		Nickname: regist.Nickname,
+		Sex:      regist.Sex,
+		Avatar:   regist.Avatar,
+		Password: regist.Password,
 	}
-
-	err = dao.DeviceSyncSequenceDao.Add(ctx, id, 0)
+	userId, err := dao.UserDao.Add(ctx, user)
 	if err != nil {
 		logger.Sugaer.Error(err)
-		return 0, err
+		return nil, err
 	}
-	ctx.Session.Commit()
-	return id, nil
+	if userId == 0 {
+		return nil, imerror.ErrNumberUsed
+	}
+
+	err = dao.UserSequenceDao.Add(ctx, userId, 0)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	err = dao.DeviceDao.UpdateUserId(ctx, regist.DeviceId, userId)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, regist.DeviceId, 0)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+	dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, regist.DeviceId, 0)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	err = ctx.Session.Commit()
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	return &model.SignInResp{
+		SendSequence: 0,
+		SyncSequence: 0,
+	}, nil
 }
 
-var (
-	ErrDeviceNotFound = errors.New("device not found")
-	ErrToken          = errors.New("error token")
-	ErrUserNotFound   = errors.New("user not found")
-	ErrPassword       = errors.New("error password")
-)
-
 // SignIn 登录
-func (*userService) SignIn(ctx *ctx.Context, signIn model.SignIn) error {
-	token, err := dao.DeviceDao.GetToken(ctx, signIn.DeviceId)
+func (*userService) SignIn(ctx *ctx.Context, signIn model.SignIn) (*model.SignInResp, error) {
+	err := ctx.Session.Begin()
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+	defer ctx.Session.Rollback()
+	// 设备验证
+	device, err := dao.DeviceDao.Get(ctx, signIn.DeviceId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ErrDeviceNotFound
+			return nil, imerror.ErrDeviceIdOrToken
 		}
 		logger.Sugaer.Error(err)
-		return err
+		return nil, err
 	}
 
-	if signIn.Token != token {
-		return ErrToken
+	if signIn.Token != device.Token {
+		return nil, imerror.ErrDeviceIdOrToken
 	}
 
-	password, err := dao.UserDao.GetPassword(ctx, signIn.UserId)
+	// 用户验证
+	user, err := dao.UserDao.GetByNumber(ctx, signIn.Number)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ErrUserNotFound
+			return nil, imerror.ErrNameOrPassword
 		}
 		logger.Sugaer.Error(err)
-		return err
+		return nil, err
+	}
+	if signIn.Password != user.Password {
+		return nil, imerror.ErrNameOrPassword
 	}
 
-	if signIn.Password != password {
-		return ErrPassword
-	}
-
-	err = dao.DeviceDao.UpdateUserId(ctx, signIn.DeviceId, signIn.UserId)
+	err = dao.DeviceDao.UpdateUserId(ctx, signIn.DeviceId, user.Id)
 	if err != nil {
 		logger.Sugaer.Error(err)
-		return err
+		return nil, err
 	}
-	return nil
+
+	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, signIn.DeviceId, 0)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	maxSyncSequence, err := dao.DeviceSyncSequenceDao.GetMaxSyncSequenceByUserId(ctx, user.Id)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+
+	err = ctx.Session.Commit()
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return nil, err
+	}
+	return &model.SignInResp{
+		SendSequence: 0,
+		SyncSequence: maxSyncSequence,
+	}, nil
 }

@@ -26,7 +26,7 @@ func NewSuccess(data interface{}) *Response {
 	}
 }
 
-func NewWithBError(err *imerror.BError) *Response {
+func NewWithBError(err *imerror.LError) *Response {
 	return &Response{
 		Code:    err.Code,
 		Message: err.Message,

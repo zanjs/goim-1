@@ -16,7 +16,7 @@ func init() {
 
 // verify 权限校验
 func verify(c *gin.Context) {
-	token := c.GetHeader("token")
+	//token := c.GetHeader("token")
 
 }
 

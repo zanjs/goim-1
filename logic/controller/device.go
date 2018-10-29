@@ -3,7 +3,6 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"goim/public/errors"
 	"goim/public/imerror"
 )
 

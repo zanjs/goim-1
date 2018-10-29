@@ -12,8 +12,8 @@ var UserDao = new(userDao)
 
 // Add 插入一条用户信息
 func (*userDao) Add(ctx *ctx.Context, user model.User) (int64, error) {
-	result, err := ctx.Session.Exec("insert ignore into t_user(number,name,sex,img,password) values(?,?,?,?,?)",
-		user.Number, user.Name, user.Sex, user.Avatar, user.Password)
+	result, err := ctx.Session.Exec("insert ignore into t_user(number,nickname,sex,avatar,password) values(?,?,?,?,?)",
+		user.Number, user.Nickname, user.Sex, user.Avatar, user.Password)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return 0, err
@@ -29,9 +29,9 @@ func (*userDao) Add(ctx *ctx.Context, user model.User) (int64, error) {
 
 // Get 获取用户信息
 func (*userDao) Get(ctx *ctx.Context, id int) (*model.User, error) {
-	row := ctx.Session.QueryRow("select number,name,password,sex,img from t_user where id = ?", id)
+	row := ctx.Session.QueryRow("select number,nickname,password,sex,avatar from t_user where id = ?", id)
 	user := new(model.User)
-	err := row.Scan(&user.Number, &user.Name, &user.Password, &user.Sex, &user.Avatar)
+	err := row.Scan(&user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
@@ -39,26 +39,14 @@ func (*userDao) Get(ctx *ctx.Context, id int) (*model.User, error) {
 	return user, err
 }
 
-// Get 获取用户信息
-func (*userDao) GetPassword(ctx *ctx.Context, id int64) (string, error) {
-	row := ctx.Session.QueryRow("select password from t_user where id = ?", id)
-	var password string
-	err := row.Scan(&password)
-	if err != nil {
-		logger.Sugaer.Error(err)
-		return "", err
-	}
-	return password, nil
-}
-
-// UpdatePassword 更新用户密码
-func (*userDao) UpdatePassword(ctx *ctx.Context, id int) (*model.User, error) {
-	row := ctx.Session.QueryRow("select number,name,password,sex from t_user where id = ?", id)
+// GetByNumber 获取用户信息根据手机号
+func (*userDao) GetByNumber(ctx *ctx.Context, number string) (*model.User, error) {
+	row := ctx.Session.QueryRow("select id,number,nickname,password,sex,avatar from t_user where number = ?", number)
 	user := new(model.User)
-	err := row.Scan(&user.Number, &user.Name, &user.Password, &user.Sex)
+	err := row.Scan(&user.Id, &user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
 	}
-	return user, nil
+	return user, err
 }

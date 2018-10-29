@@ -39,17 +39,6 @@ func (*deviceDao) Get(ctx *ctx.Context, id int64) (*model.Device, error) {
 	return &device, err
 }
 
-// GetToken 获取设备的token
-func (*deviceDao) GetToken(ctx *ctx.Context, id int64) (string, error) {
-	var token string
-	row := ctx.Session.QueryRow("select token from t_device where id = ? ", id)
-	err := row.Scan(&token)
-	if err != nil {
-		logger.Sugaer.Error(err)
-	}
-	return token, err
-}
-
 // UpdateUserId 更新设备绑定用户
 func (*deviceDao) UpdateUserId(ctx *ctx.Context, id, userId int64) error {
 	_, err := ctx.Session.Exec("update t_device set user_id = ? where id = ? ", userId, id)

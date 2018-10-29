@@ -19,12 +19,12 @@ type FriendControlelr struct{}
 // Friend 好友
 func (FriendControlelr) Friends(c *context) {
 	idStr := c.Param("user_id")
-	id, err := strconv.Atoi(idStr)
+	_, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.response(nil, imerror.ErrBadRequest)
 		return
 	}
-	c.response(service.FriendService.ListUserFriend(Context(), id))
+	//c.response(service.FriendService.ListUserFriend(Context(), id))
 }
 
 func (FriendControlelr) Add(c *context) {
