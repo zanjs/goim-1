@@ -28,7 +28,7 @@ func (*userDao) Add(ctx *ctx.Context, user model.User) (int64, error) {
 }
 
 // Get 获取用户信息
-func (*userDao) Get(ctx *ctx.Context, id int) (*model.User, error) {
+func (*userDao) Get(ctx *ctx.Context, id int64) (*model.User, error) {
 	row := ctx.Session.QueryRow("select number,nickname,password,sex,avatar from t_user where id = ?", id)
 	user := new(model.User)
 	err := row.Scan(&user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)

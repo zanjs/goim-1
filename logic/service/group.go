@@ -111,6 +111,6 @@ func (*groupService) DeleteUser(ctx *ctx.Context, groupId int64, userIds []int64
 	return nil
 }
 
-func (*groupService) UpdateLabel(ctx *ctx.Context, groupId int, userId int, label string) error {
+func (*groupService) UpdateLabel(ctx *ctx.Context, groupId int64, userId int64, label string) error {
 	return dao.GroupUserDao.UpdateLabel(ctx, groupId, userId, label)
 }

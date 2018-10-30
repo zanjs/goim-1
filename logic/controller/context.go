@@ -31,13 +31,18 @@ type context struct {
 	userId     int64 // 用户id
 }
 
+// badParam 参数错误
+func (c *context) badParam(err error) {
+	c.Context.JSON(http.StatusOK, NewWithBError(imerror.WrapLErrorWithData(imerror.LErrBadRequest, err)))
+}
+
 func (c *context) response(data interface{}, err error) {
 	if err != nil {
 		if berr, ok := err.(*imerror.LError); ok {
 			c.JSON(http.StatusOK, NewWithBError(berr))
 			return
 		}
-		c.JSON(http.StatusOK, NewWithBError(imerror.ErrUnknow))
+		c.JSON(http.StatusOK, NewWithBError(imerror.LErrUnknow))
 		return
 	}
 	c.Context.JSON(http.StatusOK, NewSuccess(data))
@@ -46,7 +51,7 @@ func (c *context) response(data interface{}, err error) {
 func (c *context) bindJson(value interface{}) error {
 	err := c.ShouldBindJSON(value)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.WrapLErrorWithData(imerror.ErrBadRequest, err)))
+		c.JSON(http.StatusOK, NewWithBError(imerror.WrapLErrorWithData(imerror.LErrBadRequest, err)))
 		return err
 	}
 	return nil

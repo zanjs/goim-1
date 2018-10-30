@@ -35,9 +35,9 @@ func (*friendDao) Add(ctx *ctx.Context, friend model.Friend) error {
 }
 
 // Delete 删除一条朋友关系
-func (*friendDao) Delete(ctx *ctx.Context, userId, friend int) error {
+func (*friendDao) Delete(ctx *ctx.Context, userId, friendId int64) error {
 	_, err := ctx.Session.Exec("delete from t_friend where user_id = ? and friend_id = ? ",
-		userId, friend)
+		userId, friendId)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
@@ -45,23 +45,23 @@ func (*friendDao) Delete(ctx *ctx.Context, userId, friend int) error {
 }
 
 // ListFriends 获取用户的朋友列表
-func (*friendDao) ListUserFriend(ctx *ctx.Context, id int) ([]model.FriendUser, error) {
-	rows, err := ctx.Session.Query("select f.label,u.id,u.number,u.name,u.sex,u.img from t_friend f left join "+
-		"t_user u on f.friend = u.id where f.user_id = ?", id)
+func (*friendDao) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.UserFriend, error) {
+	rows, err := ctx.Session.Query(`select f.label,u.id,u.number,u.nickname,u.sex,u.img 
+		from t_friend f left join t_user u on f.friend = u.id where f.user_id = ?`, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
 
-	users := make([]model.FriendUser, 0, 5)
+	friends := make([]model.UserFriend, 0, 5)
 	for rows.Next() {
-		var user model.FriendUser
-		err := rows.Scan(&user.Label, &user.UserId, &user.Number, &user.Name, &user.Sex, &user.Img)
+		var user model.UserFriend
+		err := rows.Scan(&user.Label, &user.UserId, &user.Number, &user.Nickname, &user.Sex, &user.Avatar)
 		if err != nil {
 			logger.Sugar.Error(err)
 			return nil, err
 		}
-		users = append(users, user)
+		friends = append(friends, user)
 	}
-	return users, nil
+	return friends, nil
 }

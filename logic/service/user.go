@@ -36,7 +36,7 @@ func (*userService) Regist(ctx *ctx.Context, deviceId int64, regist model.UserRe
 		return nil, err
 	}
 	if userId == 0 {
-		return nil, imerror.ErrNumberUsed
+		return nil, imerror.LErrNumberUsed
 	}
 
 	err = dao.UserSequenceDao.Add(ctx, userId, 0)
@@ -85,16 +85,16 @@ func (*userService) SignIn(ctx *ctx.Context, deviceId int64, number string, pass
 	// 设备验证
 
 	// 用户验证
-	user, err := dao.UserDao.GetByNumber(ctx, signIn.Number)
+	user, err := dao.UserDao.GetByNumber(ctx, number)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, imerror.ErrNameOrPassword
+			return nil, imerror.LErrNameOrPassword
 		}
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-	if signIn.Password != user.Password {
-		return nil, imerror.ErrNameOrPassword
+	if password != user.Password {
+		return nil, imerror.LErrNameOrPassword
 	}
 
 	err = dao.DeviceDao.UpdateUserId(ctx, deviceId, user.Id)
@@ -124,4 +124,15 @@ func (*userService) SignIn(ctx *ctx.Context, deviceId int64, number string, pass
 		SendSequence: 0,
 		SyncSequence: maxSyncSequence,
 	}, nil
+}
+
+// Get 获取用户信息
+func (*userService) Get(ctx *ctx.Context, userId int64) (*model.User, error) {
+	user, err := dao.UserDao.Get(ctx, userId)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return nil, err
+	}
+	user.Id = userId
+	return user, err
 }

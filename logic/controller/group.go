@@ -3,13 +3,12 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"goim/public/imerror"
 	"strconv"
 )
 
 func init() {
 	g := Engine.Group("/group")
-	g.GET("/:id", handler(GroupController{}.Get))
+	g.GET("/:group_id", handler(GroupController{}.Get))
 	g.POST("", handler(GroupController{}.CreateAndAddUser))
 	g.POST("/user", handler(GroupController{}.AddUser))
 	g.DELETE("/user", handler(GroupController{}.DeleteUser))
@@ -20,13 +19,13 @@ type GroupController struct{}
 
 // Get 获取群组信息
 func (GroupController) Get(c *context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	gourpIdStr := c.Param("group_id")
+	groupId, err := strconv.ParseInt(gourpIdStr, 10, 64)
 	if err != nil {
-		c.response(nil, imerror.ErrBadRequest)
+		c.badParam(err)
 		return
 	}
-	c.response(service.GroupService.Get(Context(), id))
+	c.response(service.GroupService.Get(Context(), groupId))
 }
 
 // CreateAndAddUser 创建群组并且添加成员
@@ -62,13 +61,12 @@ func (GroupController) DeleteUser(c *context) {
 // UpdateLabel 更新用户群组备注
 func (GroupController) UpdateLabel(c *context) {
 	var json struct {
-		GroupId int    `json:"group_id"`
-		UserId  int    `json:"user_id"`
+		GroupId int64  `json:"group_id"`
 		Label   string `json:"label"`
 	}
 	if c.bindJson(&json) != nil {
 		return
 	}
-	err := service.GroupService.UpdateLabel(Context(), json.GroupId, json.UserId, json.Label)
+	err := service.GroupService.UpdateLabel(Context(), json.GroupId, c.userId, json.Label)
 	c.response(nil, err)
 }

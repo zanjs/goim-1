@@ -105,7 +105,7 @@ func (d *groupUserDao) Delete(ctx *ctx.Context, groupId int64, userId int64) err
 }
 
 // UpdateLabel 更新用户群组备注
-func (*groupUserDao) UpdateLabel(ctx *ctx.Context, groupId int, userId int, label string) error {
+func (*groupUserDao) UpdateLabel(ctx *ctx.Context, groupId int64, userId int64, label string) error {
 	_, err := ctx.Session.Exec("update t_group_user set label = ? where group_id = ? and user_id = ?",
 		label, groupId, userId)
 	if err != nil {
@@ -130,5 +130,4 @@ func (*groupUserDao) UserInGroup(ctx *ctx.Context, groupId int64, userId int64) 
 	} else {
 		return true, nil
 	}
-
 }

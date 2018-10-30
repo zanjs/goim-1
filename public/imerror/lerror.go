@@ -29,15 +29,15 @@ func WrapLErrorWithData(err *LError, data interface{}) *LError {
 
 // 通用错误
 var (
-	ErrUnauthorized      = NewLError(1, "unauthorized")         // 需要认证
-	ErrBadRequest        = NewLError(2, "bad request")          // 请求错误
-	ErrUnknow            = NewLError(3, "unkown error")         // 未知错误
-	ErrDeviceNotBindUser = NewLError(4, "device not bind user") // 设备没有绑定用户
+	LErrUnauthorized      = NewLError(1, "unauthorized")         // 需要认证
+	LErrBadRequest        = NewLError(2, "bad request")          // 请求错误
+	LErrUnknow            = NewLError(3, "unkown error")         // 未知错误
+	LErrDeviceNotBindUser = NewLError(4, "device not bind user") // 设备没有绑定用户
 )
 
 // 业务错误
 var (
-	ErrDeviceIdOrToken = NewLError(1001, "error device token")       // 设备id或者token错误
-	ErrNumberUsed      = NewLError(1002, "number has be used")       // 手机号码已经被使用
-	ErrNameOrPassword  = NewLError(1003, "error number or password") // 用户名或者密码错误
+	LErrDeviceIdOrToken = NewLError(1001, "error device token")       // 设备id或者token错误
+	LErrNumberUsed      = NewLError(1002, "number has be used")       // 手机号码已经被使用
+	LErrNameOrPassword  = NewLError(1003, "error number or password") // 用户名或者密码错误
 )

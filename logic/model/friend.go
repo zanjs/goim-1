@@ -21,11 +21,12 @@ type FriendAdd struct {
 	FriendLabel string `json:"friend_label"` // 好友对用户的标签
 }
 
-type FriendUser struct {
-	UserId int64  `json:"user_id"` // 用户id
-	Label  string `json:"lable"`   // 用户对好友的标签
-	Number string `json:"number"`  // 手机号
-	Name   string `json:"name"`    // 昵称
-	Sex    int    `json:"sex"`     // 性别，1:男；2:女
-	Img    string `json:"img"`     // 用户头像
+// UserFriend 用户好友信息
+type UserFriend struct {
+	UserId   int64  `json:"user_id"` // 用户id
+	Label    string `json:"lable"`   // 用户对好友的标签
+	Number   string `json:"number"`  // 手机号
+	Nickname string `json:"name"`    // 昵称
+	Sex      int    `json:"sex"`     // 性别，1:男；2:女
+	Avatar   string `json:"avatar"`  // 用户头像
 }

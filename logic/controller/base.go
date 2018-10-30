@@ -37,13 +37,13 @@ func verify(c *context) {
 
 	deviceId, err := strconv.ParseInt(deviceIdStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.ErrUnauthorized))
+		c.JSON(http.StatusOK, NewWithBError(imerror.LErrUnauthorized))
 		c.Abort()
 		return
 	}
 	userId, err := service.AuthService.Auth(Context(), deviceId, token)
 	if err != nil {
-		c.JSON(http.StatusOK, NewWithBError(imerror.ErrUnauthorized))
+		c.JSON(http.StatusOK, NewWithBError(imerror.LErrUnauthorized))
 		c.Abort()
 		return
 	}
@@ -51,7 +51,7 @@ func verify(c *context) {
 	c.Keys[keyDeviceId] = deviceId
 	if c.HandlerName() != "/user" && c.HandlerName() != "/user/signin" {
 		if userId == 0 {
-			c.JSON(http.StatusOK, NewWithBError(imerror.ErrDeviceNotBindUser))
+			c.JSON(http.StatusOK, NewWithBError(imerror.LErrDeviceNotBindUser))
 			c.Abort()
 			return
 		}

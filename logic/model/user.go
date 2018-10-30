@@ -6,14 +6,14 @@ import (
 
 // User 账户
 type User struct {
-	Id         int64     `json:"id"`          // 用户id
-	Number     string    `json:"number"`      // 手机号
-	Nickname   string    `json:"nickname"`    // 昵称
-	Sex        int       `json:"sex"`         // 性别，1:男；2:女
-	Avatar     string    `json:"avatar"`      // 用户头像
-	Password   string    `json:"password"`    // 密码
-	CreateTime time.Time `json:"create_time"` // 创建时间
-	UpdateTime time.Time `json:"update_time"` // 更新时间
+	Id         int64     `json:"id"`       // 用户id
+	Number     string    `json:"number"`   // 手机号
+	Nickname   string    `json:"nickname"` // 昵称
+	Sex        int       `json:"sex"`      // 性别，1:男；2:女
+	Avatar     string    `json:"avatar"`   // 用户头像
+	Password   string    `json:"-"`        // 密码
+	CreateTime time.Time `json:"-"`        // 创建时间
+	UpdateTime time.Time `json:"-"`        // 更新时间
 }
 
 // UserRegist 用户注册

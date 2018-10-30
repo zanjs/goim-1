@@ -21,7 +21,7 @@ func (DeviceController) Regist(c *context) {
 	}
 
 	if device.Type == 0 || device.Model == "" || device.Version == "" {
-		c.response(nil, imerror.ErrBadRequest)
+		c.response(nil, imerror.LErrBadRequest)
 		return
 	}
 

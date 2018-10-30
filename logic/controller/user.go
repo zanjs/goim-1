@@ -3,15 +3,13 @@ package controller
 import (
 	"goim/logic/model"
 	"goim/logic/service"
-	"goim/public/imerror"
-	"strconv"
 )
 
 func init() {
 	g := Engine.Group("/user")
-	g.GET("/group/:id", handler(UserController{}.ListGroupByUserId))
 	g.POST("", handler(UserController{}.Regist))
 	g.POST("/signin", handler(UserController{}.SignIn))
+	g.POST("/info", handler(UserController{}.SignIn))
 }
 
 type UserController struct{}
@@ -37,12 +35,7 @@ func (UserController) SignIn(c *context) {
 	c.response(service.UserService.SignIn(Context(), c.deviceId, data.Number, data.Password))
 }
 
-// ListByUserId 获取用户群组
-func (UserController) ListGroupByUserId(c *context) {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.response(nil, imerror.ErrBadRequest)
-	}
-	c.response(service.GroupService.ListByUserId(Context(), id))
+// UserInfo 获取用户信息
+func (UserController) UserInfo(c *context) {
+	c.response(service.UserService.Get(Context(), c.userId))
 }
