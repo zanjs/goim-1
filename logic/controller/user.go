@@ -22,16 +22,19 @@ func (UserController) Regist(c *context) {
 	if c.bindJson(&regist) != nil {
 		return
 	}
-	c.response(service.UserService.Regist(Context(), regist))
+	c.response(service.UserService.Regist(Context(), c.deviceId, regist))
 }
 
 // SignIn 用户登录
 func (UserController) SignIn(c *context) {
-	var signIn model.SignIn
-	if c.bindJson(&signIn) != nil {
+	var data struct {
+		Number   string `json:"number"`
+		Password string `json:"password"`
+	}
+	if c.bindJson(&data) != nil {
 		return
 	}
-	c.response(service.UserService.SignIn(Context(), signIn))
+	c.response(service.UserService.SignIn(Context(), c.deviceId, data.Number, data.Password))
 }
 
 // ListByUserId 获取用户群组

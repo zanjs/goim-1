@@ -32,6 +32,7 @@ const (
 // ConnContext 连接上下文
 type ConnContext struct {
 	Codec    *Codec // 编解码器
+	IsSignIn bool   // 是否登录
 	DeviceId int64  // 设备id
 	UserId   int64  // 用户id
 }
@@ -84,6 +85,12 @@ func (c *ConnContext) HandleConnect() {
 
 // HandlePackage 处理消息包
 func (c *ConnContext) HandlePackage(pack *Package) {
+	// 未登录拦截
+	if pack.Code != CodeSignIn && c.IsSignIn == false {
+		c.Close()
+		return
+	}
+
 	switch pack.Code {
 	case CodeSignIn:
 		c.HandlePackageSignIn(pack)

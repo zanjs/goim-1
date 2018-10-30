@@ -6,6 +6,7 @@ import (
 	"goim/logic/rpc/connect_rpc"
 	"goim/logic/service"
 	"goim/public/ctx"
+	"goim/public/imerror"
 	"goim/public/lib"
 	"goim/public/logger"
 	"goim/public/transfer"
@@ -111,26 +112,35 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 		logger.Sugaer.Error(err)
 		return err
 	}
+	ack := transfer.MessageSendACK{
+		MessageId:    send.MessageId,
+		DeviceId:     send.SenderDeviceId,
+		SendSequence: send.SendSequence,
+		Code:         imerror.CCodeSuccess,
+	}
 	if send.SendSequence <= sendSequence {
+		// 消息发送回执
+		err = connect_rpc.ConnectRPC.SendMessageSendACK(ack)
+		if err != nil {
+			logger.Sugaer.Error(err)
+		}
 		return nil
 	}
-	err = dao.DeviceSendSequenceDao.UpdateSequence(ctx, send.SenderDeviceId, send.SendSequence)
+	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, send.SenderDeviceId, send.SendSequence)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return err
 	}
 
 	if send.ReceiverType == service.ReceiverUser {
-		service.MessageService.SendToFriend(ctx, send)
+		err = service.MessageService.SendToFriend(ctx, send)
 	}
 	if send.ReceiverType == service.ReceiverGroup {
-		service.MessageService.SendToGroup(ctx, send)
+		err = service.MessageService.SendToGroup(ctx, send)
 	}
 
-	ack := transfer.MessageSendACK{
-		MessageId:    send.MessageId,
-		DeviceId:     send.SenderDeviceId,
-		SendSequence: send.SendSequence,
+	if cerror, ok := err.(*imerror.CError); ok {
+		ack.Code = cerror.Code
 	}
 	// 消息发送回执
 	err = connect_rpc.ConnectRPC.SendMessageSendACK(ack)
@@ -149,7 +159,7 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 
 // MessageACK 处理消息回执
 func (s *logicRPC) MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error {
-	err := dao.DeviceSyncSequenceDao.UpdateSequence(ctx, ack.DeviceId, ack.SyncSequence)
+	err := dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, ack.DeviceId, ack.SyncSequence)
 	if err != nil {
 		logger.Sugaer.Error(err)
 	}

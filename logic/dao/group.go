@@ -22,7 +22,7 @@ func (*groupDao) Get(ctx *ctx.Context, id int) (*model.Group, error) {
 	return group, nil
 }
 
-// Insert 插入一条群组信息
+// Insert 插入一条群组
 func (*groupDao) Add(ctx *ctx.Context, name string) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {

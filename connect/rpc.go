@@ -74,7 +74,7 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 
 // SendMessageSendACK 处理消息发送回执
 func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) error {
-	content, err := proto.Marshal(&pb.MessageSendACK{ack.SendSequence})
+	content, err := proto.Marshal(&pb.MessageSendACK{SendSequence: ack.SendSequence, Code: int32(ack.Code)})
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return err

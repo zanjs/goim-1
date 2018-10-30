@@ -18,4 +18,5 @@ type MessageSendACK struct {
 	MessageId    int64 `json:"message_id"`    // 消息id
 	DeviceId     int64 `json:"device_id"`     // 设备id
 	SendSequence int64 `json:"send_sequence"` // 消息序列号
+	Code         int   `json:"code"`          // 消息发送结果
 }

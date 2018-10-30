@@ -114,3 +114,21 @@ func (*groupUserDao) UpdateLabel(ctx *ctx.Context, groupId int, userId int, labe
 	}
 	return nil
 }
+
+// UserInGroup 用户是否在群组中
+func (*groupUserDao) UserInGroup(ctx *ctx.Context, groupId int64, userId int64) (bool, error) {
+	var count int
+	err := ctx.Session.QueryRow("select count(*) from t_group_user where group_id = ? and user_id = ?",
+		groupId, userId).
+		Scan(&count)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return false, err
+	}
+	if count == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
+
+}

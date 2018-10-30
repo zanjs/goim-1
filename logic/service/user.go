@@ -13,26 +13,14 @@ type userService struct{}
 
 var UserService = new(userService)
 
-func (*userService) Regist(ctx *ctx.Context, regist model.UserRegist) (*model.SignInResp, error) {
+// Regist 注册
+func (*userService) Regist(ctx *ctx.Context, deviceId int64, regist model.UserRegist) (*model.SignInResp, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
 	}
 	defer ctx.Session.Rollback()
-
-	// 设备验证
-	device, err := dao.DeviceDao.Get(ctx, regist.DeviceId)
-	if err == sql.ErrNoRows {
-		return nil, imerror.ErrDeviceIdOrToken
-	}
-	if err != nil {
-		logger.Sugaer.Error(err)
-		return nil, err
-	}
-	if device.Token != regist.Token {
-		return nil, imerror.ErrDeviceIdOrToken
-	}
 
 	// 添加用户
 	user := model.User{
@@ -57,18 +45,18 @@ func (*userService) Regist(ctx *ctx.Context, regist model.UserRegist) (*model.Si
 		return nil, err
 	}
 
-	err = dao.DeviceDao.UpdateUserId(ctx, regist.DeviceId, userId)
+	err = dao.DeviceDao.UpdateUserId(ctx, deviceId, userId)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
 	}
 
-	dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, regist.DeviceId, 0)
+	dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, deviceId, 0)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
 	}
-	dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, regist.DeviceId, 0)
+	dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, deviceId, 0)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
@@ -87,7 +75,7 @@ func (*userService) Regist(ctx *ctx.Context, regist model.UserRegist) (*model.Si
 }
 
 // SignIn 登录
-func (*userService) SignIn(ctx *ctx.Context, signIn model.SignIn) (*model.SignInResp, error) {
+func (*userService) SignIn(ctx *ctx.Context, deviceId int64, number string, password string) (*model.SignInResp, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -95,18 +83,6 @@ func (*userService) SignIn(ctx *ctx.Context, signIn model.SignIn) (*model.SignIn
 	}
 	defer ctx.Session.Rollback()
 	// 设备验证
-	device, err := dao.DeviceDao.Get(ctx, signIn.DeviceId)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, imerror.ErrDeviceIdOrToken
-		}
-		logger.Sugaer.Error(err)
-		return nil, err
-	}
-
-	if signIn.Token != device.Token {
-		return nil, imerror.ErrDeviceIdOrToken
-	}
 
 	// 用户验证
 	user, err := dao.UserDao.GetByNumber(ctx, signIn.Number)
@@ -121,13 +97,13 @@ func (*userService) SignIn(ctx *ctx.Context, signIn model.SignIn) (*model.SignIn
 		return nil, imerror.ErrNameOrPassword
 	}
 
-	err = dao.DeviceDao.UpdateUserId(ctx, signIn.DeviceId, user.Id)
+	err = dao.DeviceDao.UpdateUserId(ctx, deviceId, user.Id)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err
 	}
 
-	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, signIn.DeviceId, 0)
+	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, deviceId, 0)
 	if err != nil {
 		logger.Sugaer.Error(err)
 		return nil, err

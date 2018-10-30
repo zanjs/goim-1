@@ -1,6 +1,6 @@
 package imerror
 
-// BError 业务错误，属于正常预期的错误
+// LError HTTP调用错误
 type LError struct {
 	Code    int
 	Message string
@@ -29,9 +29,10 @@ func WrapLErrorWithData(err *LError, data interface{}) *LError {
 
 // 通用错误
 var (
-	ErrUnauthorized = NewLError(1, "unauthorized") // 需要认证
-	ErrBadRequest   = NewLError(2, "bad request")  // 请求错误
-	ErrUnknow       = NewLError(3, "unkown error") // 未知错误
+	ErrUnauthorized      = NewLError(1, "unauthorized")         // 需要认证
+	ErrBadRequest        = NewLError(2, "bad request")          // 请求错误
+	ErrUnknow            = NewLError(3, "unkown error")         // 未知错误
+	ErrDeviceNotBindUser = NewLError(4, "device not bind user") // 设备没有绑定用户
 )
 
 // 业务错误

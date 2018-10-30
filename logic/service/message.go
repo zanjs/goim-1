@@ -1,10 +1,12 @@
 package service
 
 import (
+	"database/sql"
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/logic/rpc/connect_rpc"
 	"goim/public/ctx"
+	"goim/public/imerror"
 	"goim/public/logger"
 	"goim/public/transfer"
 )
@@ -35,6 +37,12 @@ func (*messageService) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, s
 
 // SendToUser 消息发送至用户
 func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend) error {
+	_, err := dao.FriendDao.Get(ctx, send.SenderUserId, send.ReceiverId)
+	if err == sql.ErrNoRows {
+		logger.Sugaer.Error(ctx, send.SenderUserId, send.ReceiverId, "不是好友关系")
+		return imerror.CErrNotFriend
+	}
+
 	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 	if err != nil {
 		logger.Sugaer.Error(err)
@@ -90,6 +98,15 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 
 // SendToGroup 消息发送至群组
 func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) error {
+	in, err := dao.GroupUserDao.UserInGroup(ctx, send.ReceiverId, send.SenderUserId)
+	if err != nil {
+		logger.Sugaer.Error(err)
+		return err
+	}
+	if !in {
+		return imerror.CErrNotInGroup
+	}
+
 	group, err := GroupService.Get(ctx, send.ReceiverId)
 	if err != nil {
 		logger.Sugaer.Error(err)

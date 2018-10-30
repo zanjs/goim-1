@@ -18,19 +18,15 @@ type User struct {
 
 // UserRegist 用户注册
 type UserRegist struct {
-	DeviceId int64  `json:"device_id"` // 设备id
-	Token    string `json:"token"`     // 设备token
-	Number   string `json:"number"`    // 手机号
-	Nickname string `json:"nickname"`  // 昵称
-	Sex      int    `json:"sex"`       // 性别，1:男；2:女
-	Avatar   string `json:"avatar"`    // 用户头像
-	Password string `json:"password"`  // 密码
+	Number   string `json:"number"`   // 手机号
+	Nickname string `json:"nickname"` // 昵称
+	Sex      int    `json:"sex"`      // 性别，1:男；2:女
+	Avatar   string `json:"avatar"`   // 用户头像
+	Password string `json:"password"` // 密码
 }
 
 // SignIn 登录结构体
 type SignIn struct {
-	DeviceId int64  `json:"device_id"`
-	Token    string `json:"token"`
 	Number   string `json:"number"`
 	Password string `json:"password"`
 }
