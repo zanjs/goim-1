@@ -220,20 +220,19 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
 	logger.Sugar.Infow("连接读取异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
-	delete(c.DeviceId)
-	// 客户端主动关闭连接或者异常程序退出
-	if err == io.EOF {
-		c.Codec.Conn.Close()
-		return
-	}
 	str := err.Error()
-	// SetReadDeadline 之后，超时返回的错误
-	if strings.HasSuffix(str, "i/o timeout") {
-		c.Codec.Conn.Close()
-		return
-	}
 	// 服务器主动关闭连接
 	if strings.HasSuffix(str, "use of closed network connection") {
+		return
+	}
+
+	c.Release()
+	// 客户端主动关闭连接或者异常程序退出
+	if err == io.EOF {
+		return
+	}
+	// SetReadDeadline 之后，超时返回的错误
+	if strings.HasSuffix(str, "i/o timeout") {
 		return
 	}
 	logger.Sugar.Infow("连接读取未知异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
