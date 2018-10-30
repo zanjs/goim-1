@@ -15,12 +15,12 @@ func (*deviceDao) Add(ctx *ctx.Context, device model.Device) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_device(token,type,model,version) values(?,?,?,?)",
 		device.Token, device.Type, device.Model, device.Version)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	return id, nil
@@ -34,7 +34,7 @@ func (*deviceDao) Get(ctx *ctx.Context, id int64) (*model.Device, error) {
 	err := row.Scan(&device.UserId, &device.Token, &device.Type, &device.Model, &device.Version,
 		&device.Status, &device.CreateTime, &device.UpdateTime)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 	return &device, err
 }
@@ -43,7 +43,7 @@ func (*deviceDao) Get(ctx *ctx.Context, id int64) (*model.Device, error) {
 func (*deviceDao) UpdateUserId(ctx *ctx.Context, id, userId int64) error {
 	_, err := ctx.Session.Exec("update t_device set user_id = ? where id = ? ", userId, id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -53,7 +53,7 @@ func (*deviceDao) UpdateUserId(ctx *ctx.Context, id, userId int64) error {
 func (*deviceDao) UpdateStatus(ctx *ctx.Context, id int64, status int) error {
 	_, err := ctx.Session.Exec("update t_device set status = ? where id = ? ", status, id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -64,7 +64,7 @@ func (*deviceDao) ListOnlineByUserId(ctx *ctx.Context, userId int64) ([]*model.D
 	rows, err := ctx.Session.Query("select id,type,model,version from t_device where user_id = ? and status = 1",
 		userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (*deviceDao) ListOnlineByUserId(ctx *ctx.Context, userId int64) ([]*model.D
 		device := new(model.Device)
 		err = rows.Scan(&device.Id, &device.Type, &device.Model, &device.Version)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		devices = append(devices, device)

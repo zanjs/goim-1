@@ -21,13 +21,13 @@ func TestMessageService_Add(t *testing.T) {
 		Sequence:       1,
 	}
 	err := MessageService.Add(ctx, message)
-	logger.Sugaer.Error(err)
+	logger.Sugar.Error(err)
 }
 
 func TestMessageService_ListByUserIdAndSequence(t *testing.T) {
 	messages, err := MessageService.ListByUserIdAndSequence(ctx, 1, 0)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 	for _, message := range messages {

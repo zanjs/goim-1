@@ -14,7 +14,7 @@ func (*deviceSyncSequenceDao) Add(ctx *ctx.Context, deviceId int64, syncSequence
 	_, err := ctx.Session.Exec("insert into t_device_sync_sequence(device_id,sync_sequence) values(?,?)",
 		deviceId, syncSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -26,7 +26,7 @@ func (*deviceSyncSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
 	var syncSequence int64
 	err := row.Scan(&syncSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	return syncSequence, nil
@@ -42,7 +42,7 @@ func (*deviceSyncSequenceDao) GetMaxSyncSequenceByUserId(ctx *ctx.Context, userI
 	var syncSequence int64
 	err := row.Scan(&syncSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	return syncSequence, nil
@@ -53,7 +53,7 @@ func (*deviceSyncSequenceDao) UpdateSyncSequence(ctx *ctx.Context, deviceId int6
 	_, err := ctx.Session.Exec("update t_device_sync_sequence set sync_sequence = ? where device_id = ?",
 		sequence, deviceId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil

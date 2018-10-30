@@ -25,7 +25,7 @@ type TcpClient struct {
 func (c *TcpClient) Start() {
 	conn, err := net.Dial("tcp", "localhost:50002")
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (c *TcpClient) Receive() {
 	for {
 		_, err := c.codec.Read()
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return
 		}
 
@@ -101,30 +101,30 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 		ack := pb.SignInACK{}
 		err := proto.Unmarshal(pack.Content, &ack)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
-		logger.Sugaer.Info("设备登录回执：%#v\n", ack)
+		logger.Sugar.Info("设备登录回执：%#v\n", ack)
 	case connect.CodeHeadbeatACK:
 		//log.Println("心跳回执")
 	case connect.CodeMessageSendACK:
 		ack := pb.MessageSendACK{}
 		err := proto.Unmarshal(pack.Content, &ack)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
-		logger.Sugaer.Info("消息发送回执：%#v\n", ack)
+		logger.Sugar.Info("消息发送回执：%#v\n", ack)
 	case connect.CodeMessage:
 		message := pb.Message{}
 		err := proto.Unmarshal(pack.Content, &message)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 
 		for _, v := range message.Messages {
-			logger.Sugaer.Info(message)
+			logger.Sugar.Info(message)
 		}
 
 		if len(message.Messages) == 0 {
@@ -134,7 +134,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 		ack := pb.MessageACK{SyncSequence: message.Messages[len(message.Messages)-1].Sequence}
 		ackBytes, err := proto.Marshal(&ack)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 
@@ -146,7 +146,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			return err
 		}
 	default:
-		logger.Sugaer.Info("switch other")
+		logger.Sugar.Info("switch other")
 	}
 	return nil
 }

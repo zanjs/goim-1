@@ -20,7 +20,7 @@ func TestStartServer(t *testing.T) {
 func TestClient(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:50002")
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func TestClient(t *testing.T) {
 func TestClientTimeOut(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:50002")
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 
@@ -46,7 +46,7 @@ func TestClientTimeOut(t *testing.T) {
 
 	_, err = codec.Read()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 
 }

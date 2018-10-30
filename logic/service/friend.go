@@ -15,7 +15,7 @@ var FriendService = new(friendService)
 func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	defer ctx.Session.Rollback()
@@ -27,7 +27,7 @@ func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 	}
 	err = dao.FriendDao.Add(ctx, friend1)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -38,7 +38,7 @@ func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 	}
 	err = dao.FriendDao.Add(ctx, friend2)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -50,20 +50,20 @@ func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 func (*friendService) Delete(ctx *ctx.Context, userId, friend int) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	defer ctx.Session.Rollback()
 
 	err = dao.FriendDao.Delete(ctx, userId, friend)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = dao.FriendDao.Delete(ctx, friend, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 

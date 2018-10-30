@@ -39,13 +39,13 @@ func (*messageService) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, s
 func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend) error {
 	_, err := dao.FriendDao.Get(ctx, send.SenderUserId, send.ReceiverId)
 	if err == sql.ErrNoRows {
-		logger.Sugaer.Error(ctx, send.SenderUserId, send.ReceiverId, "不是好友关系")
+		logger.Sugar.Error(ctx, send.SenderUserId, send.ReceiverId, "不是好友关系")
 		return imerror.CErrNotFriend
 	}
 
 	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	selfMessage := model.Message{
@@ -65,13 +65,13 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 	// 发给发送者
 	err = MessageService.SendToUser(ctx, send.SenderUserId, &selfMessage)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
 	friendSequence, err := UserRequenceService.GetNext(ctx, send.ReceiverId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	friendMessage := model.Message{
@@ -90,7 +90,7 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 	// 发给接收者
 	err = MessageService.SendToUser(ctx, send.ReceiverId, &friendMessage)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -100,7 +100,7 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) error {
 	in, err := dao.GroupUserDao.UserInGroup(ctx, send.ReceiverId, send.SenderUserId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	if !in {
@@ -109,7 +109,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 
 	group, err := GroupService.Get(ctx, send.ReceiverId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -117,7 +117,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 	for _, user := range group.GroupUser {
 		sequence, err := UserRequenceService.GetNext(ctx, user.UserId)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 		message := model.Message{
@@ -136,7 +136,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 
 		err = MessageService.SendToUser(ctx, user.UserId, &message)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 
@@ -148,7 +148,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 func (*messageService) SendToUser(ctx *ctx.Context, userId int64, message *model.Message) error {
 	err := MessageService.Add(ctx, *message)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -168,7 +168,7 @@ func (*messageService) SendToUser(ctx *ctx.Context, userId int64, message *model
 	// 查询用户在线设备
 	devices, err := dao.DeviceDao.ListOnlineByUserId(ctx, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (*messageService) SendToUser(ctx *ctx.Context, userId int64, message *model
 		message := transfer.Message{DeviceId: v.Id, Messages: []transfer.MessageItem{messageItem}}
 		connect_rpc.ConnectRPC.SendMessage(message)
 
-		logger.Sugaer.Infow("消息投递",
+		logger.Sugar.Infow("消息投递",
 			"device_id:", message.DeviceId,
 			"user_id", userId,
 			"messages", message.GetLog())

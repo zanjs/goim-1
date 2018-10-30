@@ -13,7 +13,7 @@ var UserSequenceDao = new(userSequenceDao)
 func (*userSequenceDao) Add(ctx *ctx.Context, userId int64, sequence int64) error {
 	_, err := ctx.Session.Exec("insert into t_user_sequence (user_id,sequence) values(?,?)", userId, sequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -23,7 +23,7 @@ func (*userSequenceDao) Add(ctx *ctx.Context, userId int64, sequence int64) erro
 func (*userSequenceDao) Increase(ctx *ctx.Context, userId int64) error {
 	_, err := ctx.Session.Exec("update t_user_sequence set sequence = sequence + 1 where user_id = ?", userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 	return err
 }
@@ -34,7 +34,7 @@ func (*userSequenceDao) GetSequence(ctx *ctx.Context, userId int64) (int64, erro
 	err := ctx.Session.QueryRow("select sequence from t_user_sequence where user_id = ?", userId).
 		Scan(&sequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 
 	}

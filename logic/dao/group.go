@@ -16,7 +16,7 @@ func (*groupDao) Get(ctx *ctx.Context, id int) (*model.Group, error) {
 	group := new(model.Group)
 	err := row.Scan(&group.Name)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return group, nil
@@ -26,12 +26,12 @@ func (*groupDao) Get(ctx *ctx.Context, id int) (*model.Group, error) {
 func (*groupDao) Add(ctx *ctx.Context, name string) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	return id, nil

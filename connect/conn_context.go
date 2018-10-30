@@ -87,7 +87,7 @@ func (c *ConnContext) HandleConnect() {
 func (c *ConnContext) HandlePackage(pack *Package) {
 	// 未登录拦截
 	if pack.Code != CodeSignIn && c.IsSignIn == false {
-		c.Close()
+		c.Release()
 		return
 	}
 
@@ -111,8 +111,8 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	var signIn pb.SignIn
 	err := proto.Unmarshal(pack.Content, &signIn)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.Close()
+		logger.Sugar.Error(err)
+		c.Release()
 		return
 	}
 
@@ -127,17 +127,18 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 
 	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 
 	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, 10*time.Second)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return
 	}
 
 	if ack.Code == 1 {
+		c.IsSignIn = true
 		c.DeviceId = signIn.DeviceId
 		c.UserId = signIn.UserId
 		store(c.DeviceId, c)
@@ -149,8 +150,8 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 	var trigger pb.SyncTrigger
 	err := proto.Unmarshal(pack.Content, &trigger)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.Close()
+		logger.Sugar.Error(err)
+		c.Release()
 		return
 	}
 
@@ -173,8 +174,8 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 	var send pb.MessageSend
 	err := proto.Unmarshal(pack.Content, &send)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.Close()
+		logger.Sugar.Error(err)
+		c.Release()
 		return
 	}
 
@@ -191,7 +192,7 @@ func (c *ConnContext) HandlePackageMessageSend(pack *Package) {
 
 	err = LogicRPC.MessageSend(Context(), transferSend)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 }
 
@@ -200,8 +201,8 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 	var ack pb.MessageACK
 	err := proto.Unmarshal(pack.Content, &ack)
 	if err != nil {
-		logger.Sugaer.Error(err)
-		c.Close()
+		logger.Sugar.Error(err)
+		c.Release()
 		return
 	}
 
@@ -218,7 +219,7 @@ func (c *ConnContext) HandlePackageMessageACK(pack *Package) {
 
 // HandleReadErr 读取conn错误
 func (c *ConnContext) HandleReadErr(err error) {
-	logger.Sugaer.Infow("连接读取异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
+	logger.Sugar.Infow("连接读取异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
 	delete(c.DeviceId)
 	// 客户端主动关闭连接或者异常程序退出
 	if err == io.EOF {
@@ -235,10 +236,14 @@ func (c *ConnContext) HandleReadErr(err error) {
 	if strings.HasSuffix(str, "use of closed network connection") {
 		return
 	}
+	logger.Sugar.Infow("连接读取未知异常：", "device_id", c.DeviceId, "user_id", c.UserId, "err_msg", err)
 }
 
-// Close 关闭TCP连接
-func (c *ConnContext) Close() {
+// Release 释放TCP连接
+func (c *ConnContext) Release() {
 	delete(c.DeviceId)
-	c.Codec.Conn.Close()
+	err := c.Codec.Conn.Close()
+	if err != nil {
+		logger.Sugar.Error(err)
+	}
 }

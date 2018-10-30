@@ -15,13 +15,13 @@ func (*userDao) Add(ctx *ctx.Context, user model.User) (int64, error) {
 	result, err := ctx.Session.Exec("insert ignore into t_user(number,nickname,sex,avatar,password) values(?,?,?,?,?)",
 		user.Number, user.Nickname, user.Sex, user.Avatar, user.Password)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	return id, nil
@@ -33,7 +33,7 @@ func (*userDao) Get(ctx *ctx.Context, id int) (*model.User, error) {
 	user := new(model.User)
 	err := row.Scan(&user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return user, err
@@ -45,7 +45,7 @@ func (*userDao) GetByNumber(ctx *ctx.Context, number string) (*model.User, error
 	user := new(model.User)
 	err := row.Scan(&user.Id, &user.Number, &user.Nickname, &user.Password, &user.Sex, &user.Avatar)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return user, err

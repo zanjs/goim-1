@@ -14,20 +14,20 @@ var UserRequenceService = new(userRequenceService)
 func (*userRequenceService) GetNext(ctx *ctx.Context, userId int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	ctx.Session.Rollback()
 
 	err = dao.UserSequenceDao.Increase(ctx, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 
 	sequence, err := dao.UserSequenceDao.GetSequence(ctx, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 

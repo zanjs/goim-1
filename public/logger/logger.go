@@ -10,7 +10,7 @@ import (
 )
 
 var Logger *zap.Logger
-var Sugaer *zap.SugaredLogger
+var Sugar *zap.SugaredLogger
 
 func NewEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
@@ -47,5 +47,5 @@ func init() {
 		zap.DebugLevel,
 	)
 	Logger = zap.New(core, zap.AddCaller())
-	Sugaer = Logger.Sugar()
+	Sugar = Logger.Sugar()
 }

@@ -36,7 +36,7 @@ var ConnectRPC = new(connectRPC)
 func (*connectRPC) SendMessage(message transfer.Message) error {
 	ctx := load(message.DeviceId)
 	if ctx == nil {
-		logger.Sugaer.Error("ctx id nil")
+		logger.Sugar.Error("ctx id nil")
 		return nil
 	}
 
@@ -60,13 +60,13 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 
 	content, err := proto.Marshal(&pb.Message{Messages: messages})
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessage, Content: content}, 10*time.Second)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -76,18 +76,18 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) error {
 	content, err := proto.Marshal(&pb.MessageSendACK{SendSequence: ack.SendSequence, Code: int32(ack.Code)})
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	ctx := load(ack.DeviceId)
 	if ctx == nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
 	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, 10*time.Second)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil

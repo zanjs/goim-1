@@ -18,7 +18,7 @@ func (*friendDao) Get(ctx *ctx.Context, userId int64, friendId int64) (*model.Fr
 		userId, friendId)
 	err := row.Scan(&friend.Id, &friend.UserId, &friend.Id, &friend.Label, &friend.CreateTime, &friend.UpdateTime)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return &friend, nil
@@ -29,7 +29,7 @@ func (*friendDao) Add(ctx *ctx.Context, friend model.Friend) error {
 	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend_id,label) values(?,?,?)",
 		friend.UserId, friend.FriendId, friend.Label)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 	return err
 }
@@ -39,7 +39,7 @@ func (*friendDao) Delete(ctx *ctx.Context, userId, friend int) error {
 	_, err := ctx.Session.Exec("delete from t_friend where user_id = ? and friend_id = ? ",
 		userId, friend)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 	return err
 }
@@ -49,7 +49,7 @@ func (*friendDao) ListUserFriend(ctx *ctx.Context, id int) ([]model.FriendUser, 
 	rows, err := ctx.Session.Query("select f.label,u.id,u.number,u.name,u.sex,u.img from t_friend f left join "+
 		"t_user u on f.friend = u.id where f.user_id = ?", id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (*friendDao) ListUserFriend(ctx *ctx.Context, id int) ([]model.FriendUser, 
 		var user model.FriendUser
 		err := rows.Scan(&user.Label, &user.UserId, &user.Number, &user.Name, &user.Sex, &user.Img)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		users = append(users, user)

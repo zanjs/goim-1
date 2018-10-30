@@ -27,7 +27,7 @@ func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.Si
 	}
 
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil
 	}
 
@@ -41,7 +41,7 @@ func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.Si
 		message = "fail"
 	}
 
-	logger.Sugaer.Infow("设备登录",
+	logger.Sugar.Infow("设备登录",
 		"device_id:", signIn.DeviceId,
 		"user_id", signIn.UserId,
 		"token", signIn.Token,
@@ -56,14 +56,14 @@ func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.Si
 
 // SyncTrigger 处理消息同步触发
 func (s *logicRPC) SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) error {
-	logger.Sugaer.Infow("同步触发",
+	logger.Sugar.Infow("同步触发",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
 		"sync_sequence", trigger.SyncSequence)
 
 	dbMessages, err := dao.MessageDao.ListByUserIdAndSequence(ctx, trigger.UserId, trigger.SyncSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -88,7 +88,7 @@ func (s *logicRPC) SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) e
 	message := transfer.Message{DeviceId: trigger.DeviceId, Messages: messages}
 	connect_rpc.ConnectRPC.SendMessage(message)
 
-	logger.Sugaer.Infow("消息同步",
+	logger.Sugar.Infow("消息同步",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
 		"messages", message.GetLog())
@@ -100,7 +100,7 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 	var err error
 	send.MessageId = lib.Lid.Get()
 
-	logger.Sugaer.Infow("消息发送",
+	logger.Sugar.Infow("消息发送",
 		"device_id", send.SenderDeviceId,
 		"user_id", send.SenderUserId,
 		"message_id", send.MessageId,
@@ -109,7 +109,7 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 	// 检查消息是否重复发送
 	sendSequence, err := dao.DeviceSendSequenceDao.Get(ctx, send.SenderDeviceId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	ack := transfer.MessageSendACK{
@@ -122,13 +122,13 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 		// 消息发送回执
 		err = connect_rpc.ConnectRPC.SendMessageSendACK(ack)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 		}
 		return nil
 	}
 	err = dao.DeviceSendSequenceDao.UpdateSendSequence(ctx, send.SenderDeviceId, send.SendSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 
@@ -145,10 +145,10 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 	// 消息发送回执
 	err = connect_rpc.ConnectRPC.SendMessageSendACK(ack)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 
-	logger.Sugaer.Infow("消息发送回执",
+	logger.Sugar.Infow("消息发送回执",
 		"device_id", ack.DeviceId,
 		"user_id", send.SenderUserId,
 		"message_id", send.MessageId,
@@ -161,10 +161,10 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 func (s *logicRPC) MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error {
 	err := dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, ack.DeviceId, ack.SyncSequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 
-	logger.Sugaer.Infow("消息投递回执",
+	logger.Sugar.Infow("消息投递回执",
 		"device_id", ack.DeviceId,
 		"user_id", ack.UserId,
 		"message_id", ack.MessageId,
@@ -177,10 +177,10 @@ func (s *logicRPC) MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error {
 func (s *logicRPC) OffLine(ctx *ctx.Context, deviceId int64, userId int64) error {
 	err := dao.DeviceDao.UpdateStatus(ctx, deviceId, service.DeviceOffline)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 
-	logger.Sugaer.Infow("设备离线", "device_id", deviceId, "user_id", userId)
+	logger.Sugar.Infow("设备离线", "device_id", deviceId, "user_id", userId)
 
 	return nil
 }

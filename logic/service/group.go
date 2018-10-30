@@ -15,14 +15,14 @@ var GroupService = new(groupService)
 func (*groupService) ListByUserId(ctx *ctx.Context, userId int) ([]*model.Group, error) {
 	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	groups := make([]*model.Group, 0, 5)
 	for i := range ids {
 		group, err := GroupService.Get(ctx, ids[i])
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		groups = append(groups, group)
@@ -34,13 +34,13 @@ func (*groupService) ListByUserId(ctx *ctx.Context, userId int) ([]*model.Group,
 func (*groupService) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 	group, err := dao.GroupUserDao.Get(ctx, id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 
 	group.GroupUser, err = dao.GroupUserDao.ListGroupUser(ctx, id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 	}
 	return group, err
 }
@@ -49,21 +49,21 @@ func (*groupService) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 func (*groupService) CreateAndAddUser(ctx *ctx.Context, groupName string, userIds []int64) (int64, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 	defer ctx.Session.Rollback()
 
 	id, err := dao.GroupDao.Add(ctx, groupName)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, err
 	}
 
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Add(ctx, id, userId)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return 0, err
 		}
 	}
@@ -75,7 +75,7 @@ func (*groupService) CreateAndAddUser(ctx *ctx.Context, groupName string, userId
 func (*groupService) AddUser(ctx *ctx.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil
 	}
 	defer ctx.Session.Rollback()
@@ -83,7 +83,7 @@ func (*groupService) AddUser(ctx *ctx.Context, groupId int64, userIds []int64) e
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Add(ctx, groupId, userId)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 	}
@@ -95,7 +95,7 @@ func (*groupService) AddUser(ctx *ctx.Context, groupId int64, userIds []int64) e
 func (*groupService) DeleteUser(ctx *ctx.Context, groupId int64, userIds []int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil
 	}
 	defer ctx.Session.Rollback()
@@ -103,7 +103,7 @@ func (*groupService) DeleteUser(ctx *ctx.Context, groupId int64, userIds []int64
 	for _, userId := range userIds {
 		err := dao.GroupUserDao.Delete(ctx, groupId, userId)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return err
 		}
 	}

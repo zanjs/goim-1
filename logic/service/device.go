@@ -23,38 +23,38 @@ var DeviceService = new(deviceService)
 func (*deviceService) Regist(ctx *ctx.Context, device model.Device) (int64, string, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 	defer ctx.Session.Rollback()
 
 	UUID, err := uuid.NewV4()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 	device.Token = UUID.String()
 	id, err := dao.DeviceDao.Add(ctx, device)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 
 	err = dao.DeviceSendSequenceDao.Add(ctx, id, 0)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 
 	err = dao.DeviceSyncSequenceDao.Add(ctx, id, 0)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 
 	err = ctx.Session.Commit()
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return 0, "", err
 	}
 	return id, device.Token, nil

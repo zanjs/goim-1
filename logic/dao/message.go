@@ -16,7 +16,7 @@ func (*messageDao) Add(ctx *ctx.Context, message model.Message) error {
 		message.MessageId, message.UserId, message.SenderType, message.SenderId, message.SenderDeviceId,
 		message.ReceiverType, message.ReceiverId, message.Type, message.Content, message.SendTime, message.Sequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -27,7 +27,7 @@ func (*messageDao) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, seque
 	rows, err := ctx.Session.Query("select id,message_id,user_id,sender_type,sender_id,sender_device_id,receiver_type,receiver_id,type,content,sequence,send_time,create_time from t_message where user_id = ? and sequence >= ?",
 		userId, sequence)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 
@@ -37,7 +37,7 @@ func (*messageDao) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, seque
 		err := rows.Scan(&message.Id, &message.MessageId, &message.UserId, &message.SenderType, &message.SenderId, &message.SenderDeviceId, &message.ReceiverType,
 			&message.ReceiverId, &message.Type, &message.Content, &message.Sequence, &message.SendTime, &message.CreateTime)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		messages = append(messages, message)

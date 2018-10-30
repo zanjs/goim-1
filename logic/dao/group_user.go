@@ -15,7 +15,7 @@ func (*groupUserDao) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 	var group model.Group
 	err := row.Scan(&group.Id, &group.Name)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	return &group, nil
@@ -34,7 +34,7 @@ func (*groupUserDao) ListGroupUser(ctx *ctx.Context, id int64) ([]model.GroupUse
 		err := rows.Scan(&groupUser.Label, &groupUser.UserId, &groupUser.Number, &groupUser.Name,
 			&groupUser.Sex, &groupUser.Img)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		groupUsers = append(groupUsers, groupUser)
@@ -46,7 +46,7 @@ func (*groupUserDao) ListGroupUser(ctx *ctx.Context, id int64) ([]model.GroupUse
 func (*groupUserDao) ListGroupUserId(ctx *ctx.Context, id int) ([]int, error) {
 	rows, err := ctx.Session.Query("select user_id t_group_user where group_id = ?", id)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	userIds := make([]int, 0, 5)
@@ -54,7 +54,7 @@ func (*groupUserDao) ListGroupUserId(ctx *ctx.Context, id int) ([]int, error) {
 		var userId int
 		err := rows.Scan(&userId)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		userIds = append(userIds, userId)
@@ -66,7 +66,7 @@ func (*groupUserDao) ListGroupUserId(ctx *ctx.Context, id int) ([]int, error) {
 func (*groupUserDao) ListbyUserId(ctx *ctx.Context, userId int) ([]int64, error) {
 	rows, err := ctx.Session.Query("select group_id from t_group_user where user_id = ?", userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return nil, err
 	}
 	var ids []int64
@@ -74,7 +74,7 @@ func (*groupUserDao) ListbyUserId(ctx *ctx.Context, userId int) ([]int64, error)
 	for rows.Next() {
 		err := rows.Scan(&id)
 		if err != nil {
-			logger.Sugaer.Error(err)
+			logger.Sugar.Error(err)
 			return nil, err
 		}
 		ids = append(ids, id)
@@ -87,7 +87,7 @@ func (*groupUserDao) Add(ctx *ctx.Context, groupId int64, userId int64) error {
 	_, err := ctx.Session.Exec("insert ignore into t_group_user(group_id,user_id) values(?,?)",
 		groupId, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -98,7 +98,7 @@ func (d *groupUserDao) Delete(ctx *ctx.Context, groupId int64, userId int64) err
 	_, err := ctx.Session.Exec("delete from t_group_user where group_id = ? and user_id = ?",
 		groupId, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -109,7 +109,7 @@ func (*groupUserDao) UpdateLabel(ctx *ctx.Context, groupId int, userId int, labe
 	_, err := ctx.Session.Exec("update t_group_user set label = ? where group_id = ? and user_id = ?",
 		label, groupId, userId)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return err
 	}
 	return nil
@@ -122,7 +122,7 @@ func (*groupUserDao) UserInGroup(ctx *ctx.Context, groupId int64, userId int64) 
 		groupId, userId).
 		Scan(&count)
 	if err != nil {
-		logger.Sugaer.Error(err)
+		logger.Sugar.Error(err)
 		return false, err
 	}
 	if count == 0 {
