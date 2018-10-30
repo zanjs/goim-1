@@ -17,8 +17,8 @@ func handler(handler HandlerFunc) gin.HandlerFunc {
 		if deviceId, ok := c.Keys[keyDeviceId]; ok {
 			context.deviceId = deviceId.(int64)
 		}
-		if deviceId, ok := c.Keys[keyUserId]; ok {
-			context.deviceId = deviceId.(int64)
+		if userId, ok := c.Keys[keyUserId]; ok {
+			context.userId = userId.(int64)
 		}
 		handler(context)
 	}
@@ -26,9 +26,8 @@ func handler(handler HandlerFunc) gin.HandlerFunc {
 
 type context struct {
 	*gin.Context
-	deviceId   int64 // 设备id
-	isBindUser bool  // 是否绑定用户
-	userId     int64 // 用户id
+	deviceId int64 // 设备id
+	userId   int64 // 用户id
 }
 
 // badParam 参数错误

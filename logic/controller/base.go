@@ -27,11 +27,10 @@ const (
 
 // verify 权限校验
 func verify(c *context) {
-	gin.Logger()
 	deviceIdStr := c.GetHeader("device_id")
 	token := c.GetHeader("token")
-
-	if c.HandlerName() == "/device" {
+	path := c.Request.URL.Path
+	if path == "/device" {
 		return
 	}
 
@@ -49,7 +48,7 @@ func verify(c *context) {
 	}
 	c.Keys = make(map[string]interface{}, 2)
 	c.Keys[keyDeviceId] = deviceId
-	if c.HandlerName() != "/user" && c.HandlerName() != "/user/signin" {
+	if path != "/user" && path != "/user/signin" {
 		if userId == 0 {
 			c.JSON(http.StatusOK, NewWithBError(imerror.LErrDeviceNotBindUser))
 			c.Abort()

@@ -12,13 +12,13 @@ type groupService struct{}
 var GroupService = new(groupService)
 
 // ListByUserId 获取用户群组
-func (*groupService) ListByUserId(ctx *ctx.Context, userId int) ([]*model.Group, error) {
+func (*groupService) ListByUserId(ctx *ctx.Context, userId int64) ([]*model.Group, error) {
 	ids, err := dao.GroupUserDao.ListbyUserId(ctx, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
 	}
-	groups := make([]*model.Group, 0, 5)
+	groups := make([]*model.Group, 0, len(ids))
 	for i := range ids {
 		group, err := GroupService.Get(ctx, ids[i])
 		if err != nil {

@@ -8,7 +8,8 @@ import (
 
 func init() {
 	g := Engine.Group("/group")
-	g.GET("/:group_id", handler(GroupController{}.Get))
+	g.GET("/all", handler(GroupController{}.All))
+	g.GET("/one/:group_id", handler(GroupController{}.Get))
 	g.POST("", handler(GroupController{}.CreateAndAddUser))
 	g.POST("/user", handler(GroupController{}.AddUser))
 	g.DELETE("/user", handler(GroupController{}.DeleteUser))
@@ -16,6 +17,11 @@ func init() {
 }
 
 type GroupController struct{}
+
+// Get 获取群组信息
+func (GroupController) All(c *context) {
+	c.response(service.GroupService.ListByUserId(Context(), c.userId))
+}
 
 // Get 获取群组信息
 func (GroupController) Get(c *context) {
@@ -37,7 +43,8 @@ func (GroupController) CreateAndAddUser(c *context) {
 	if c.bindJson(&data) != nil {
 		return
 	}
-	c.response(service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds))
+	groupId, err := service.GroupService.CreateAndAddUser(Context(), data.Name, data.UserIds)
+	c.response(map[string]int64{"id": groupId}, err)
 }
 
 // AddUser 给群组添加用户

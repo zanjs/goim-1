@@ -14,13 +14,6 @@ type Friend struct {
 	UpdateTime time.Time `json:"update_time"` // 更新时间
 }
 
-type FriendAdd struct {
-	UserId      int64  `json:"user_id"`      // 用户id
-	UserLabel   string `json:"user_label"`   // 用户对好友的标签
-	Friend      int64  `json:"friend"`       // 好友id
-	FriendLabel string `json:"friend_label"` // 好友对用户的标签
-}
-
 // UserFriend 用户好友信息
 type UserFriend struct {
 	UserId   int64  `json:"user_id"` // 用户id

@@ -22,7 +22,7 @@ func (*friendService) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.Us
 }
 
 // Add 添加好友关系
-func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
+func (*friendService) Add(ctx *ctx.Context, userId int64, friendId int64, label string) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -30,23 +30,13 @@ func (*friendService) Add(ctx *ctx.Context, add model.FriendAdd) error {
 	}
 	defer ctx.Session.Rollback()
 
-	friend1 := model.Friend{
-		UserId:   add.UserId,
-		FriendId: add.Friend,
-		Label:    add.UserLabel,
-	}
-	err = dao.FriendDao.Add(ctx, friend1)
+	err = dao.FriendDao.Add(ctx, userId, friendId, label)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
 	}
 
-	friend2 := model.Friend{
-		UserId:   add.Friend,
-		FriendId: add.UserId,
-		Label:    add.FriendLabel,
-	}
-	err = dao.FriendDao.Add(ctx, friend2)
+	err = dao.FriendDao.Add(ctx, friendId, userId, "")
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err

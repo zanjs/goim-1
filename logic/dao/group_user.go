@@ -23,7 +23,7 @@ func (*groupUserDao) Get(ctx *ctx.Context, id int64) (*model.Group, error) {
 
 // ListGroupUser 获取群组用户信息
 func (*groupUserDao) ListGroupUser(ctx *ctx.Context, id int64) ([]model.GroupUser, error) {
-	sql := `select g.label,u.id,u.number,u.name,u.sex,u.avatar from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
+	sql := `select g.label,u.id,u.number,u.nickname,u.sex,u.avatar from t_group_user g left join t_user u on g.user_id = u.id where group_id = ?`
 	rows, err := ctx.Session.Query(sql, id)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (*groupUserDao) ListGroupUserId(ctx *ctx.Context, id int) ([]int, error) {
 }
 
 // ListByUser 获取用户群组id列表
-func (*groupUserDao) ListbyUserId(ctx *ctx.Context, userId int) ([]int64, error) {
+func (*groupUserDao) ListbyUserId(ctx *ctx.Context, userId int64) ([]int64, error) {
 	rows, err := ctx.Session.Query("select group_id from t_group_user where user_id = ?", userId)
 	if err != nil {
 		logger.Sugar.Error(err)

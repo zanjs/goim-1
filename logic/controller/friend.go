@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"goim/logic/model"
 	"goim/logic/service"
 	"strconv"
 )
@@ -21,11 +20,14 @@ func (FriendControlelr) All(c *context) {
 }
 
 func (FriendControlelr) Add(c *context) {
-	var friendAdd model.FriendAdd
-	if c.bindJson(&friendAdd) != nil {
+	var data struct {
+		FriendId int64  `json:"friend_id"`
+		Label    string `json:"label"`
+	}
+	if c.bindJson(&data) != nil {
 		return
 	}
-	c.response(nil, service.FriendService.Add(Context(), friendAdd))
+	c.response(nil, service.FriendService.Add(Context(), c.userId, data.FriendId, data.Label))
 }
 
 func (FriendControlelr) Delete(c *context) {

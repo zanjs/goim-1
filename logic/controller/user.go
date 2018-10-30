@@ -9,7 +9,7 @@ func init() {
 	g := Engine.Group("/user")
 	g.POST("", handler(UserController{}.Regist))
 	g.POST("/signin", handler(UserController{}.SignIn))
-	g.POST("/info", handler(UserController{}.SignIn))
+	g.POST("/info", handler(UserController{}.UserInfo))
 }
 
 type UserController struct{}

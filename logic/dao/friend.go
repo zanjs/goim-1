@@ -25,9 +25,9 @@ func (*friendDao) Get(ctx *ctx.Context, userId int64, friendId int64) (*model.Fr
 }
 
 // Add 插入一条朋友关系
-func (*friendDao) Add(ctx *ctx.Context, friend model.Friend) error {
+func (*friendDao) Add(ctx *ctx.Context, userId int64, friendId int64, label string) error {
 	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend_id,label) values(?,?,?)",
-		friend.UserId, friend.FriendId, friend.Label)
+		userId, friendId, label)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
@@ -46,8 +46,8 @@ func (*friendDao) Delete(ctx *ctx.Context, userId, friendId int64) error {
 
 // ListFriends 获取用户的朋友列表
 func (*friendDao) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.UserFriend, error) {
-	rows, err := ctx.Session.Query(`select f.label,u.id,u.number,u.nickname,u.sex,u.img 
-		from t_friend f left join t_user u on f.friend = u.id where f.user_id = ?`, userId)
+	rows, err := ctx.Session.Query(`select f.label,u.id,u.number,u.nickname,u.sex,u.avatar 
+		from t_friend f left join t_user u on f.friend_id = u.id where f.user_id = ?`, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return nil, err
