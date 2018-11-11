@@ -20,7 +20,8 @@ func (DeviceController) Regist(c *context) {
 		return
 	}
 
-	if device.Type == 0 || device.Model == "" || device.Version == "" {
+	if device.Type == 0 || device.Brand == "" || device.Model == "" ||
+		device.SystemVersion == "" || device.APPVersion == "" {
 		c.response(nil, imerror.LErrBadRequest)
 		return
 	}

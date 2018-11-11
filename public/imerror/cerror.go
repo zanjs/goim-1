@@ -22,6 +22,7 @@ func NewCError(code int, message string) *CError {
 }
 
 var (
-	CErrNotFriend  = NewCError(1, "not friend")
-	CErrNotInGroup = NewCError(1, "not in group")
+	CErrUnkonw      = NewCError(1, "unknow error")  // 未知错误
+	CErrNotIsFriend = NewCError(2, "not is friend") // 非好友关系
+	CErrNotInGroup  = NewCError(3, "not in group")  // 没有在群组内
 )

@@ -2,6 +2,7 @@ package lid
 
 import (
 	"database/sql"
+	"goim/public/logger"
 	"time"
 )
 
@@ -49,6 +50,7 @@ func (l *Lid) reset() {
 		if err == nil {
 			return
 		}
+		logger.Sugar.Error(err)
 		time.Sleep(time.Second)
 		continue
 	}
@@ -70,15 +72,18 @@ func (l *Lid) getFromDB() error {
 	row := tx.QueryRow("select max_id,step from t_lid where business_id = ? for update", l.businessId)
 	err = row.Scan(&maxId, &step)
 	if err != nil {
+		logger.Sugar.Error(err)
 		return err
 	}
 
 	_, err = tx.Exec("update t_lid set max_id = ? where business_id = ?", maxId+step, l.businessId)
 	if err != nil {
+		logger.Sugar.Error(err)
 		return err
 	}
 	err = tx.Commit()
 	if err != nil {
+		logger.Sugar.Error(err)
 		return err
 	}
 

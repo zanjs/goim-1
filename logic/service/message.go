@@ -40,7 +40,11 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 	_, err := dao.FriendDao.Get(ctx, send.SenderUserId, send.ReceiverId)
 	if err == sql.ErrNoRows {
 		logger.Sugar.Error(ctx, send.SenderUserId, send.ReceiverId, "不是好友关系")
-		return imerror.CErrNotFriend
+		return imerror.CErrNotIsFriend
+	}
+	if err != nil {
+		logger.Sugar.Error(err)
+		return err
 	}
 
 	selfSequence, err := UserRequenceService.GetNext(ctx, send.SenderUserId)
@@ -104,6 +108,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 		return err
 	}
 	if !in {
+		logger.Sugar.Error(ctx, send.SenderUserId, send.ReceiverId, "不在群组内")
 		return imerror.CErrNotInGroup
 	}
 

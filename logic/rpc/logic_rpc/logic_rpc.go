@@ -141,6 +141,8 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 
 	if cerror, ok := err.(*imerror.CError); ok {
 		ack.Code = cerror.Code
+	} else {
+		ack.Code = imerror.CErrUnkonw.Code
 	}
 	// 消息发送回执
 	err = connect_rpc.ConnectRPC.SendMessageSendACK(ack)
@@ -152,7 +154,9 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 		"device_id", ack.DeviceId,
 		"user_id", send.SenderUserId,
 		"message_id", send.MessageId,
-		"send_sequence", ack.SendSequence)
+		"send_sequence", ack.SendSequence,
+		"code", ack.Code,
+	)
 
 	return nil
 }

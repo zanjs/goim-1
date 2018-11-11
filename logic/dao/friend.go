@@ -13,8 +13,8 @@ var FriendDao = new(friendDao)
 // Get 获取一个朋友关系
 func (*friendDao) Get(ctx *ctx.Context, userId int64, friendId int64) (*model.Friend, error) {
 	var friend model.Friend
-	row := ctx.Session.QueryRow(`select id,user_id,friend_id,lable,create_time,update_time 
-		from t_friend where user_id = ? and friend_id = ?)`,
+	row := ctx.Session.QueryRow(`select id,user_id,friend_id,label,create_time,update_time 
+		from t_friend where user_id = ? and friend_id = ?`,
 		userId, friendId)
 	err := row.Scan(&friend.Id, &friend.UserId, &friend.Id, &friend.Label, &friend.CreateTime, &friend.UpdateTime)
 	if err != nil {

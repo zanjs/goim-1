@@ -118,6 +118,7 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 			fmt.Println(err)
 			return err
 		}
+		fmt.Println(ack.SendSequence, ack.Code)
 	case connect.CodeMessage:
 		message := pb.Message{}
 		err := proto.Unmarshal(pack.Content, &message)
@@ -169,7 +170,6 @@ func (c *TcpClient) HandlePackage(pack connect.Package) error {
 
 func (c *TcpClient) SendMessage() {
 	send := pb.MessageSend{}
-	// fmt.Println("input ReceiverType,ReceiverId,Content")
 	fmt.Scanf("%d %d %s", &send.ReceiverType, &send.ReceiverId, &send.Content)
 	send.Type = 1
 	c.SendSequence++
