@@ -177,6 +177,7 @@ func (c *ConnContext) HandlePackageHeadbeat() {
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
+	logger.Sugar.Infow("心跳：", "device_id", c.DeviceId, "user_id", c.UserId)
 }
 
 // HandlePackageMessageSend 处理消息发送包

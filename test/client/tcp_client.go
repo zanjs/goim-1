@@ -33,7 +33,7 @@ func (c *TcpClient) Start() {
 
 	c.SignIn()
 	c.SyncTrigger()
-	//go c.HeadBeat()
+	go c.HeadBeat()
 	go c.Receive()
 }
 
