@@ -17,23 +17,28 @@ type logicRPC struct{}
 var LogicRPC = new(logicRPC)
 
 // SignIn 处理设备登录
-func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.SignInACK {
+func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error) {
 	device, err := dao.DeviceDao.Get(ctx, signIn.DeviceId)
 	if err == sql.ErrNoRows {
 		return &transfer.SignInACK{
 			Code:    transfer.CodeSignInFail,
 			Message: "fail",
-		}
+		}, nil
 	}
 
 	if err != nil {
 		logger.Sugar.Error(err)
-		return nil
+		return nil, err
 	}
 
 	var code int
 	var message string
 	if device.UserId == signIn.UserId && device.Token == signIn.Token {
+		dao.DeviceDao.UpdateStatus(ctx, signIn.DeviceId, service.DeviceOnline)
+		if err != nil {
+			logger.Sugar.Error(err)
+			return nil, err
+		}
 		code = transfer.CodeSignInSuccess
 		message = "success"
 	} else {
@@ -50,8 +55,7 @@ func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.Si
 	return &transfer.SignInACK{
 		Code:    code,
 		Message: message,
-	}
-	return nil
+	}, err
 }
 
 // SyncTrigger 处理消息同步触发
@@ -185,6 +189,5 @@ func (s *logicRPC) OffLine(ctx *ctx.Context, deviceId int64, userId int64) error
 	}
 
 	logger.Sugar.Infow("设备离线", "device_id", deviceId, "user_id", userId)
-
 	return nil
 }

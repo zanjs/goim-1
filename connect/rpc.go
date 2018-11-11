@@ -2,12 +2,10 @@ package connect
 
 import (
 	"goim/public/ctx"
+	"goim/public/lib"
 	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
-	"time"
-
-	"goim/public/lib"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -15,7 +13,7 @@ import (
 // LogicRPCer 逻辑层接口
 type LogicRPCer interface {
 	// SignIn 设备登录
-	SignIn(ctx *ctx.Context, signIn transfer.SignIn) *transfer.SignInACK
+	SignIn(ctx *ctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error)
 	// SyncTrigger 消息同步触发
 	SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) error
 	// MessageSend 消息发送
@@ -64,7 +62,7 @@ func (*connectRPC) SendMessage(message transfer.Message) error {
 		return err
 	}
 
-	err = ctx.Codec.Eecode(Package{Code: CodeMessage, Content: content}, 10*time.Second)
+	err = ctx.Codec.Eecode(Package{Code: CodeMessage, Content: content}, WriteDeadline)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err
@@ -85,7 +83,7 @@ func (*connectRPC) SendMessageSendACK(ack transfer.MessageSendACK) error {
 		return err
 	}
 
-	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, 10*time.Second)
+	err = ctx.Codec.Eecode(Package{Code: CodeMessageSendACK, Content: content}, WriteDeadline)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return err

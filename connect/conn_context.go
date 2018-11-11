@@ -14,7 +14,10 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-const ReadDeadline = 10 * time.Minute
+const (
+	ReadDeadline  = 10 * time.Minute
+	WriteDeadline = 10 * time.Second
+)
 
 // 消息协议
 const (
@@ -123,7 +126,11 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 	}
 
 	// 处理设备登录逻辑
-	ack := LogicRPC.SignIn(Context(), transferSignIn)
+	ack, err := LogicRPC.SignIn(Context(), transferSignIn)
+	if err != nil {
+		logger.Sugar.Error(err)
+		return
+	}
 
 	content, err := proto.Marshal(&pb.SignInACK{Code: int32(ack.Code), Message: ack.Message})
 	if err != nil {
@@ -131,7 +138,7 @@ func (c *ConnContext) HandlePackageSignIn(pack *Package) {
 		return
 	}
 
-	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, 10*time.Second)
+	err = c.Codec.Eecode(Package{Code: CodeSignInACK, Content: content}, WriteDeadline)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return
@@ -166,7 +173,10 @@ func (c *ConnContext) HandlePackageSyncTrigger(pack *Package) {
 
 // HandlePackageHeadbeat 处理心跳包
 func (c *ConnContext) HandlePackageHeadbeat() {
-
+	err := c.Codec.Eecode(Package{Code: CodeHeadbeatACK, Content: []byte{}}, WriteDeadline)
+	if err != nil {
+		logger.Sugar.Error(err)
+	}
 }
 
 // HandlePackageMessageSend 处理消息发送包
@@ -242,6 +252,10 @@ func (c *ConnContext) HandleReadErr(err error) {
 func (c *ConnContext) Release() {
 	delete(c.DeviceId)
 	err := c.Codec.Conn.Close()
+	if err != nil {
+		logger.Sugar.Error(err)
+	}
+	err = LogicRPC.OffLine(Context(), c.DeviceId, c.UserId)
 	if err != nil {
 		logger.Sugar.Error(err)
 	}
