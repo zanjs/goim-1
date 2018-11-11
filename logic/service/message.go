@@ -5,7 +5,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/model"
 	"goim/logic/rpc/connect_rpc"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/imerror"
 	"goim/public/logger"
 	"goim/public/transfer"
@@ -26,17 +26,17 @@ type messageService struct{}
 var MessageService = new(messageService)
 
 // Add 添加消息
-func (*messageService) Add(ctx *ctx.Context, message model.Message) error {
+func (*messageService) Add(ctx *imctx.Context, message model.Message) error {
 	return dao.MessageDao.Add(ctx, message)
 }
 
 // ListByUserIdAndSequence 查询消息
-func (*messageService) ListByUserIdAndSequence(ctx *ctx.Context, userId int64, sequence int64) ([]*model.Message, error) {
+func (*messageService) ListByUserIdAndSequence(ctx *imctx.Context, userId int64, sequence int64) ([]*model.Message, error) {
 	return dao.MessageDao.ListByUserIdAndSequence(ctx, userId, sequence)
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend) error {
+func (*messageService) SendToFriend(ctx *imctx.Context, send transfer.MessageSend) error {
 	_, err := dao.FriendDao.Get(ctx, send.SenderUserId, send.ReceiverId)
 	if err == sql.ErrNoRows {
 		logger.Sugar.Error(ctx, send.SenderUserId, send.ReceiverId, "不是好友关系")
@@ -101,7 +101,7 @@ func (*messageService) SendToFriend(ctx *ctx.Context, send transfer.MessageSend)
 }
 
 // SendToGroup 消息发送至群组
-func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) error {
+func (*messageService) SendToGroup(ctx *imctx.Context, send transfer.MessageSend) error {
 	in, err := dao.GroupUserDao.UserInGroup(ctx, send.ReceiverId, send.SenderUserId)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -150,7 +150,7 @@ func (*messageService) SendToGroup(ctx *ctx.Context, send transfer.MessageSend) 
 }
 
 // SendToUser 消息发送至用户
-func (*messageService) SendToUser(ctx *ctx.Context, userId int64, message *model.Message) error {
+func (*messageService) SendToUser(ctx *imctx.Context, userId int64, message *model.Message) error {
 	err := MessageService.Add(ctx, *message)
 	if err != nil {
 		logger.Sugar.Error(err)

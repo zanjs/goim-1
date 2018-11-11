@@ -1,11 +1,12 @@
 package connect
 
 import (
-	"goim/public/ctx"
 	"goim/public/lib"
 	"goim/public/logger"
 	"goim/public/pb"
 	"goim/public/transfer"
+
+	"goim/public/imctx"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -13,15 +14,15 @@ import (
 // LogicRPCer 逻辑层接口
 type LogicRPCer interface {
 	// SignIn 设备登录
-	SignIn(ctx *ctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error)
+	SignIn(ctx *imctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error)
 	// SyncTrigger 消息同步触发
-	SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) error
+	SyncTrigger(ctx *imctx.Context, trigger transfer.SyncTrigger) error
 	// MessageSend 消息发送
-	MessageSend(ctx *ctx.Context, send transfer.MessageSend) error
+	MessageSend(ctx *imctx.Context, send transfer.MessageSend) error
 	// MessageACK 消息投递回执
-	MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error
+	MessageACK(ctx *imctx.Context, ack transfer.MessageACK) error
 	// OffLine 下线
-	OffLine(ctx *ctx.Context, deviceId int64, userId int64) error
+	OffLine(ctx *imctx.Context, deviceId int64, userId int64) error
 }
 
 var LogicRPC LogicRPCer

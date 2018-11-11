@@ -2,7 +2,7 @@ package dao
 
 import (
 	"goim/logic/model"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 )
 
@@ -11,7 +11,7 @@ type friendDao struct{}
 var FriendDao = new(friendDao)
 
 // Get 获取一个朋友关系
-func (*friendDao) Get(ctx *ctx.Context, userId int64, friendId int64) (*model.Friend, error) {
+func (*friendDao) Get(ctx *imctx.Context, userId int64, friendId int64) (*model.Friend, error) {
 	var friend model.Friend
 	row := ctx.Session.QueryRow(`select id,user_id,friend_id,label,create_time,update_time 
 		from t_friend where user_id = ? and friend_id = ?`,
@@ -25,7 +25,7 @@ func (*friendDao) Get(ctx *ctx.Context, userId int64, friendId int64) (*model.Fr
 }
 
 // Add 插入一条朋友关系
-func (*friendDao) Add(ctx *ctx.Context, userId int64, friendId int64, label string) error {
+func (*friendDao) Add(ctx *imctx.Context, userId int64, friendId int64, label string) error {
 	_, err := ctx.Session.Exec("insert ignore into t_friend(user_id,friend_id,label) values(?,?,?)",
 		userId, friendId, label)
 	if err != nil {
@@ -35,7 +35,7 @@ func (*friendDao) Add(ctx *ctx.Context, userId int64, friendId int64, label stri
 }
 
 // Delete 删除一条朋友关系
-func (*friendDao) Delete(ctx *ctx.Context, userId, friendId int64) error {
+func (*friendDao) Delete(ctx *imctx.Context, userId, friendId int64) error {
 	_, err := ctx.Session.Exec("delete from t_friend where user_id = ? and friend_id = ? ",
 		userId, friendId)
 	if err != nil {
@@ -45,7 +45,7 @@ func (*friendDao) Delete(ctx *ctx.Context, userId, friendId int64) error {
 }
 
 // ListFriends 获取用户的朋友列表
-func (*friendDao) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.UserFriend, error) {
+func (*friendDao) ListUserFriend(ctx *imctx.Context, userId int64) ([]model.UserFriend, error) {
 	rows, err := ctx.Session.Query(`select f.label,u.id,u.number,u.nickname,u.sex,u.avatar 
 		from t_friend f left join t_user u on f.friend_id = u.id where f.user_id = ?`, userId)
 	if err != nil {

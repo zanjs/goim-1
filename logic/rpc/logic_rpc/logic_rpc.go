@@ -5,7 +5,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/rpc/connect_rpc"
 	"goim/logic/service"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/imerror"
 	"goim/public/lib"
 	"goim/public/logger"
@@ -17,7 +17,7 @@ type logicRPC struct{}
 var LogicRPC = new(logicRPC)
 
 // SignIn 处理设备登录
-func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error) {
+func (s *logicRPC) SignIn(ctx *imctx.Context, signIn transfer.SignIn) (*transfer.SignInACK, error) {
 	device, err := dao.DeviceDao.Get(ctx, signIn.DeviceId)
 	if err == sql.ErrNoRows {
 		return &transfer.SignInACK{
@@ -59,7 +59,7 @@ func (s *logicRPC) SignIn(ctx *ctx.Context, signIn transfer.SignIn) (*transfer.S
 }
 
 // SyncTrigger 处理消息同步触发
-func (s *logicRPC) SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) error {
+func (s *logicRPC) SyncTrigger(ctx *imctx.Context, trigger transfer.SyncTrigger) error {
 	logger.Sugar.Infow("同步触发",
 		"device_id:", trigger.DeviceId,
 		"user_id", trigger.UserId,
@@ -100,7 +100,7 @@ func (s *logicRPC) SyncTrigger(ctx *ctx.Context, trigger transfer.SyncTrigger) e
 }
 
 // MessageSend 处理消息发送
-func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) error {
+func (s *logicRPC) MessageSend(ctx *imctx.Context, send transfer.MessageSend) error {
 	var err error
 	send.MessageId = lib.Lid.Get()
 
@@ -166,7 +166,7 @@ func (s *logicRPC) MessageSend(ctx *ctx.Context, send transfer.MessageSend) erro
 }
 
 // MessageACK 处理消息回执
-func (s *logicRPC) MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error {
+func (s *logicRPC) MessageACK(ctx *imctx.Context, ack transfer.MessageACK) error {
 	err := dao.DeviceSyncSequenceDao.UpdateSyncSequence(ctx, ack.DeviceId, ack.SyncSequence)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -182,7 +182,7 @@ func (s *logicRPC) MessageACK(ctx *ctx.Context, ack transfer.MessageACK) error {
 }
 
 // OffLine 处理设备离线
-func (s *logicRPC) OffLine(ctx *ctx.Context, deviceId int64, userId int64) error {
+func (s *logicRPC) OffLine(ctx *imctx.Context, deviceId int64, userId int64) error {
 	err := dao.DeviceDao.UpdateStatus(ctx, deviceId, service.DeviceOffline)
 	if err != nil {
 		logger.Sugar.Error(err)

@@ -3,7 +3,7 @@ package service
 import (
 	"goim/logic/dao"
 	"goim/logic/model"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 )
 
@@ -12,7 +12,7 @@ type friendService struct{}
 var FriendService = new(friendService)
 
 // List 获取用户好友列表
-func (*friendService) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.UserFriend, error) {
+func (*friendService) ListUserFriend(ctx *imctx.Context, userId int64) ([]model.UserFriend, error) {
 	friends, err := dao.FriendDao.ListUserFriend(ctx, userId)
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -22,7 +22,7 @@ func (*friendService) ListUserFriend(ctx *ctx.Context, userId int64) ([]model.Us
 }
 
 // Add 添加好友关系
-func (*friendService) Add(ctx *ctx.Context, userId int64, friendId int64, label string) error {
+func (*friendService) Add(ctx *imctx.Context, userId int64, friendId int64, label string) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -47,7 +47,7 @@ func (*friendService) Add(ctx *ctx.Context, userId int64, friendId int64, label 
 }
 
 // Delete 删除好友关系
-func (*friendService) Delete(ctx *ctx.Context, userId, friendId int64) error {
+func (*friendService) Delete(ctx *imctx.Context, userId, friendId int64) error {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)

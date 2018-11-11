@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"goim/logic/db"
 	"goim/logic/model"
+	"goim/public/imctx"
 	"testing"
 )
 
-var ctx = ctx.NewContext(db.Factoty.GetSession())
+var ctx = imctx.NewContext(db.Factoty.GetSession())
 
 func TestFriendService_Add(t *testing.T) {
 	add := model.FriendAdd{

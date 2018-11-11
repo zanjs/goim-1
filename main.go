@@ -2,6 +2,7 @@ package main
 
 import (
 	"goim/connect"
+	"goim/logic/controller"
 	"goim/logic/rpc/connect_rpc"
 	"goim/logic/rpc/logic_rpc"
 )
@@ -12,6 +13,8 @@ func init() {
 }
 
 func main() {
+	go controller.Engine.Run(":8080")
+
 	conf := connect.Conf{
 		Address:      "localhost:50002",
 		MaxConnCount: 100,

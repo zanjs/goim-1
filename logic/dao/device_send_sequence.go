@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 )
 
@@ -10,7 +10,7 @@ type deviceSendSequenceDao struct{}
 var DeviceSendSequenceDao = new(deviceSendSequenceDao)
 
 // Add 添加设备发送序列号
-func (*deviceSendSequenceDao) Add(ctx *ctx.Context, deviceId int64, sendSequence int64) error {
+func (*deviceSendSequenceDao) Add(ctx *imctx.Context, deviceId int64, sendSequence int64) error {
 	_, err := ctx.Session.Exec("insert into t_device_send_sequence(device_id,send_sequence) values(?,?)",
 		deviceId, sendSequence)
 	if err != nil {
@@ -21,7 +21,7 @@ func (*deviceSendSequenceDao) Add(ctx *ctx.Context, deviceId int64, sendSequence
 }
 
 // Get 获取设备发送序列号
-func (*deviceSendSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
+func (*deviceSendSequenceDao) Get(ctx *imctx.Context, id int64) (int64, error) {
 	row := ctx.Session.QueryRow("select send_sequence from t_device_send_sequence where device_id = ?", id)
 	var syncSeq int64
 	err := row.Scan(&syncSeq)
@@ -33,7 +33,7 @@ func (*deviceSendSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
 }
 
 // UpdateSendSequence 更新设备发送序列号
-func (*deviceSendSequenceDao) UpdateSendSequence(ctx *ctx.Context, deviceId int64, sequence int64) error {
+func (*deviceSendSequenceDao) UpdateSendSequence(ctx *imctx.Context, deviceId int64, sequence int64) error {
 	_, err := ctx.Session.Exec("update t_device_send_sequence set send_sequence = ? where device_id = ?",
 		sequence, deviceId)
 	if err != nil {

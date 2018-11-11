@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 )
 
@@ -10,7 +10,7 @@ type deviceSyncSequenceDao struct{}
 var DeviceSyncSequenceDao = new(deviceSyncSequenceDao)
 
 // Add 添加设备同步序列号记录
-func (*deviceSyncSequenceDao) Add(ctx *ctx.Context, deviceId int64, syncSequence int64) error {
+func (*deviceSyncSequenceDao) Add(ctx *imctx.Context, deviceId int64, syncSequence int64) error {
 	_, err := ctx.Session.Exec("insert into t_device_sync_sequence(device_id,sync_sequence) values(?,?)",
 		deviceId, syncSequence)
 	if err != nil {
@@ -21,7 +21,7 @@ func (*deviceSyncSequenceDao) Add(ctx *ctx.Context, deviceId int64, syncSequence
 }
 
 // Get 获取设备同步序列号
-func (*deviceSyncSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
+func (*deviceSyncSequenceDao) Get(ctx *imctx.Context, id int64) (int64, error) {
 	row := ctx.Session.QueryRow("select sync_sequence from t_device_sync_sequence where device_id = ?", id)
 	var syncSequence int64
 	err := row.Scan(&syncSequence)
@@ -33,7 +33,7 @@ func (*deviceSyncSequenceDao) Get(ctx *ctx.Context, id int64) (int64, error) {
 }
 
 // GetMaxSyncSequenceByUserId 获取用户最大的同步序列号
-func (*deviceSyncSequenceDao) GetMaxSyncSequenceByUserId(ctx *ctx.Context, userId int64) (int64, error) {
+func (*deviceSyncSequenceDao) GetMaxSyncSequenceByUserId(ctx *imctx.Context, userId int64) (int64, error) {
 	row := ctx.Session.QueryRow(`
 		select max(s.sync_sequence) 
 		from t_device d
@@ -49,7 +49,7 @@ func (*deviceSyncSequenceDao) GetMaxSyncSequenceByUserId(ctx *ctx.Context, userI
 }
 
 // UpdateSyncSequence 更新设备同步序列号
-func (*deviceSyncSequenceDao) UpdateSyncSequence(ctx *ctx.Context, deviceId int64, sequence int64) error {
+func (*deviceSyncSequenceDao) UpdateSyncSequence(ctx *imctx.Context, deviceId int64, sequence int64) error {
 	_, err := ctx.Session.Exec("update t_device_sync_sequence set sync_sequence = ? where device_id = ?",
 		sequence, deviceId)
 	if err != nil {

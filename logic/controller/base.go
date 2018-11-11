@@ -2,13 +2,11 @@ package controller
 
 import (
 	"goim/logic/db"
-	"goim/public/ctx"
-
 	"goim/logic/service"
+	"goim/public/imctx"
 	"goim/public/imerror"
-	"strconv"
-
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,6 +57,6 @@ func verify(c *context) {
 	c.Next()
 }
 
-func Context() *ctx.Context {
-	return ctx.NewContext(db.Factoty.GetSession())
+func Context() *imctx.Context {
+	return imctx.NewContext(db.Factoty.GetSession())
 }

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"goim/logic/dao"
 	"goim/logic/model"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/imerror"
 	"goim/public/logger"
 )
@@ -14,7 +14,7 @@ type userService struct{}
 var UserService = new(userService)
 
 // Regist 注册
-func (*userService) Regist(ctx *ctx.Context, deviceId int64, regist model.UserRegist) (*model.SignInResp, error) {
+func (*userService) Regist(ctx *imctx.Context, deviceId int64, regist model.UserRegist) (*model.SignInResp, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -75,7 +75,7 @@ func (*userService) Regist(ctx *ctx.Context, deviceId int64, regist model.UserRe
 }
 
 // SignIn 登录
-func (*userService) SignIn(ctx *ctx.Context, deviceId int64, number string, password string) (*model.SignInResp, error) {
+func (*userService) SignIn(ctx *imctx.Context, deviceId int64, number string, password string) (*model.SignInResp, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)
@@ -127,7 +127,7 @@ func (*userService) SignIn(ctx *ctx.Context, deviceId int64, number string, pass
 }
 
 // Get 获取用户信息
-func (*userService) Get(ctx *ctx.Context, userId int64) (*model.User, error) {
+func (*userService) Get(ctx *imctx.Context, userId int64) (*model.User, error) {
 	user, err := dao.UserDao.Get(ctx, userId)
 	if err != nil {
 		logger.Sugar.Error(err)

@@ -4,7 +4,7 @@ import (
 	"goim/logic/dao"
 	"goim/logic/model"
 
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 
 	"github.com/satori/go.uuid"
@@ -20,7 +20,7 @@ type deviceService struct{}
 var DeviceService = new(deviceService)
 
 // Regist 注册设备
-func (*deviceService) Regist(ctx *ctx.Context, device model.Device) (int64, string, error) {
+func (*deviceService) Regist(ctx *imctx.Context, device model.Device) (int64, string, error) {
 	err := ctx.Session.Begin()
 	if err != nil {
 		logger.Sugar.Error(err)

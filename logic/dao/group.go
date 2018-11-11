@@ -2,7 +2,7 @@ package dao
 
 import (
 	"goim/logic/model"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/logger"
 )
 
@@ -11,7 +11,7 @@ type groupDao struct{}
 var GroupDao = new(groupDao)
 
 // Get 获取群组信息
-func (*groupDao) Get(ctx *ctx.Context, id int) (*model.Group, error) {
+func (*groupDao) Get(ctx *imctx.Context, id int) (*model.Group, error) {
 	row := ctx.Session.QueryRow("select name from t_group where id = ?", id)
 	group := new(model.Group)
 	err := row.Scan(&group.Name)
@@ -23,7 +23,7 @@ func (*groupDao) Get(ctx *ctx.Context, id int) (*model.Group, error) {
 }
 
 // Insert 插入一条群组
-func (*groupDao) Add(ctx *ctx.Context, name string) (int64, error) {
+func (*groupDao) Add(ctx *imctx.Context, name string) (int64, error) {
 	result, err := ctx.Session.Exec("insert into t_group(name) value(?)", name)
 	if err != nil {
 		logger.Sugar.Error(err)

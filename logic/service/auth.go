@@ -3,7 +3,7 @@ package service
 import (
 	"database/sql"
 	"goim/logic/dao"
-	"goim/public/ctx"
+	"goim/public/imctx"
 	"goim/public/imerror"
 )
 
@@ -11,7 +11,7 @@ type authService struct{}
 
 var AuthService = new(authService)
 
-func (*authService) Auth(ctx *ctx.Context, deviceId int64, token string) (int64, error) {
+func (*authService) Auth(ctx *imctx.Context, deviceId int64, token string) (int64, error) {
 	device, err := dao.DeviceDao.Get(ctx, deviceId)
 	if err == sql.ErrNoRows {
 		return 0, imerror.LErrDeviceIdOrToken
