@@ -67,7 +67,7 @@ func (c *TcpClient) SyncTrigger() {
 }
 
 func (c *TcpClient) HeadBeat() {
-	ticker := time.NewTicker(time.Second * 5)
+	ticker := time.NewTicker(time.Minute * 4)
 	for _ = range ticker.C {
 		err := c.codec.Eecode(connect.Package{Code: connect.CodeHeadbeat, Content: []byte{}}, 10*time.Second)
 		if err != nil {

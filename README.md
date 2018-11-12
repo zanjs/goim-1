@@ -24,3 +24,5 @@ mysql:存储层
 [![00d7e21cccc9050e.jpg](http://www.wailian.work/images/2018/11/12/00d7e21cccc9050e.jpg)](http://www.wailian.work/image/BVGZkp)
 #### 群发
 [![7ee3ada2baf1dec0.jpg](http://www.wailian.work/images/2018/11/12/7ee3ada2baf1dec0.jpg)](http://www.wailian.work/image/BVGtLc)
+### 日志
+![9f644dcd04b20287.jpg](http://www.wailian.work/images/2018/11/12/9f644dcd04b20287.jpg)
