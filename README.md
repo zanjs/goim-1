@@ -5,7 +5,7 @@ golang+mysql,用到的框架有gin(对gin进行了简单的封装)，消息发�
 ### 3 拆包粘包以及通信协议
 拆包粘包使用了自己写的一个拆包粘包算法，主要也是采用了TLV的思想，把一个消息割分成三段，第一段用两个字节表示消息的类型，第二段也是用两个字节来表示消息的长度，第三段则是消息的实际内容。详情可以查看：
 https://www.jianshu.com/p/e7c016efb09d
-通信协议使用Google的Protocol buffers作为通信协议，
+通信协议使用Google的Protocol buffers作为通信协议。
 ### 3 主要逻辑
 client: 客户端
 connect:连接层
