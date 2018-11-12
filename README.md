@@ -25,5 +25,5 @@ mysql:存储层
 #### 群发
 [![7ee3ada2baf1dec0.jpg](http://www.wailian.work/images/2018/11/12/7ee3ada2baf1dec0.jpg)](http://www.wailian.work/image/BVGtLc)
 ### 6 日志
-使用了zap的日志框架，下图展示了一次两个设备从登录，发一条消息，再到下线的一次六层的完整日志
+使用了zap的日志框架，下图展示了一次两个设备从登录，发一条消息，再到下线的一次流程的完整日志
 ![9f644dcd04b20287.jpg](http://www.wailian.work/images/2018/11/12/9f644dcd04b20287.jpg)
