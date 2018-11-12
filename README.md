@@ -13,7 +13,7 @@ https://www.jianshu.com/p/e7c016efb09d
 
 最后想了想，其实没必要这么复杂，用一个channal,一边起一个goroutine，先从数据库拿取一个号段，然后生成id放到channel里面，如果号段用尽，再从数据库里面取，如此往复，当channel里面满时，goroutine会阻塞。一边用的时候从里面拿就行。
 https://www.jianshu.com/p/9295e1babf37
-### 3 主要逻辑
+### 5 主要逻辑
 client: 客户端  
 connect:连接层  
 logic:逻辑层  
@@ -24,5 +24,5 @@ mysql:存储层
 [![00d7e21cccc9050e.jpg](http://www.wailian.work/images/2018/11/12/00d7e21cccc9050e.jpg)](http://www.wailian.work/image/BVGZkp)
 #### 群发
 [![7ee3ada2baf1dec0.jpg](http://www.wailian.work/images/2018/11/12/7ee3ada2baf1dec0.jpg)](http://www.wailian.work/image/BVGtLc)
-### 日志
+### 6 日志
 ![9f644dcd04b20287.jpg](http://www.wailian.work/images/2018/11/12/9f644dcd04b20287.jpg)
