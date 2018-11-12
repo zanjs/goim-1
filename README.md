@@ -29,3 +29,5 @@ mysql:存储层
 ![9f644dcd04b20287.jpg](http://www.wailian.work/images/2018/11/12/9f644dcd04b20287.jpg)
 ### 7 api文档
 https://documenter.getpostman.com/view/4164957/RzZ4q2hJ
+### 8 github
+https://github.com/alberliu/goim
